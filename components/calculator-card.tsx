@@ -41,9 +41,14 @@ export function CalculatorCard({ calculator }: { calculator: CalculatorListItem 
             {calculator.questionCount} questions
           </span>
         </div>
-        <ButtonLink href={`/quote/${calculator.slug}`} variant="outline" size="sm">
-          View quote <ArrowUpRight className="h-4 w-4" />
-        </ButtonLink>
+        <div className="flex flex-wrap gap-2">
+          <ButtonLink href={`/dashboard/calculators/${calculator.id}`} variant="ghost" size="sm">
+            Manage
+          </ButtonLink>
+          <ButtonLink href={`/quote/${calculator.slug}`} variant="outline" size="sm">
+            View quote <ArrowUpRight className="h-4 w-4" />
+          </ButtonLink>
+        </div>
       </div>
     </article>
   );

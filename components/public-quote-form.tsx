@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/button";
+import { SubmitButton } from "@/components/submit-button";
 import { createQuoteSubmissionAction } from "@/lib/actions";
 import type { QuoteCalculator } from "@/lib/calculator-data";
+import { calculateQuote } from "@/lib/quote-engine";
 import { formatDollars } from "@/lib/utils";
 
 type Answers = Record<string, number | string | boolean>;
@@ -28,25 +29,7 @@ export function PublicQuoteForm({
   );
   const [mockSubmitted, setMockSubmitted] = useState(false);
 
-  const total = useMemo(() => {
-    return calculator.questions.reduce((sum, question) => {
-      const answer = answers[question.id];
-
-      if (question.questionType === "NUMBER") {
-        return sum + Number(answer || 0) * question.pricingAmount;
-      }
-
-      if (question.questionType === "BOOLEAN") {
-        return answer === true ? sum + question.pricingAmount : sum;
-      }
-
-      if (question.questionType === "SELECT") {
-        return answer ? sum + question.pricingAmount : sum;
-      }
-
-      return sum;
-    }, calculator.basePrice);
-  }, [answers, calculator]);
+  const total = useMemo(() => calculateQuote(calculator.questions, calculator.rules, answers), [answers, calculator]);
 
   if (submitted || mockSubmitted) {
     return (
@@ -56,7 +39,7 @@ export function PublicQuoteForm({
         <p className="mt-2 text-sm leading-6 text-coal/70">
           Your estimate was submitted. The lead is now available in the dashboard leads view.
         </p>
-        <p className="mt-4 text-sm font-semibold text-teal-700">Estimated quote: {formatDollars(total)}</p>
+        <p className="mt-4 text-sm font-semibold text-teal-700">Estimated Price: {formatDollars(total)}</p>
       </div>
     );
   }
@@ -139,6 +122,7 @@ export function PublicQuoteForm({
         ))}
         <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
           <h2 className="font-display text-xl font-bold text-ink">Your contact details</h2>
+          <p className="mt-1 text-sm text-coal/70">Required fields are validated before the quote request is saved.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <input
               required
@@ -169,14 +153,14 @@ export function PublicQuoteForm({
       </section>
       <aside>
         <div className="sticky top-6 rounded-lg border border-line bg-ink p-5 text-white shadow-soft">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Estimated total</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Estimated Price</p>
           <p className="mt-3 font-display text-4xl font-bold">{formatDollars(total)}</p>
           <p className="mt-3 text-sm leading-6 text-white/70">
-            Final pricing can change after discovery, but this gives your team a fast qualification signal.
+            This updates in real time as customers answer the quote questions.
           </p>
-          <Button type="submit" variant="secondary" size="lg" className="mt-5 w-full">
+          <SubmitButton variant="secondary" className="mt-5 w-full" pendingLabel="Submitting quote...">
             Submit quote request <ArrowRight className="h-4 w-4" />
-          </Button>
+          </SubmitButton>
         </div>
       </aside>
     </form>

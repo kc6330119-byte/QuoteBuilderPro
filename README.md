@@ -19,6 +19,7 @@ QuoteBuilder Pro is a SaaS MVP foundation for creating pricing and quote calcula
 - `/dashboard` - SaaS dashboard overview
 - `/dashboard/calculators` - calculator list
 - `/dashboard/calculators/new` - calculator builder
+- `/dashboard/calculators/[id]` - calculator questions and pricing rules editor
 - `/dashboard/leads` - quote submission leads
 - `/quote/[slug]` - public quote page
 
@@ -72,7 +73,9 @@ The Prisma schema is in `prisma/schema.prisma` and includes:
 - `Plan`
 - `UserPlan`
 
-The app currently reads from mock data in `lib/mock-data.ts` so the UI works before a database exists. When you are ready to persist data, replace mock reads with Prisma queries from `lib/prisma.ts`.
+The main calculator and lead workflow now reads and writes through Prisma using `lib/calculator-data.ts` and `lib/actions.ts`. `lib/mock-data.ts` remains only as a lightweight demo fallback for the original sample quote page.
+
+Quote pricing is handled by `lib/quote-engine.ts`. It supports `base_price`, `quantity_multiplier`, `option_price`, and `checkbox_addon` rules stored in the `PricingRule` table.
 
 ## Mock authentication
 

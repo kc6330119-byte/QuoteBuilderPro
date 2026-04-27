@@ -17,17 +17,17 @@ export default async function LeadsPage() {
         description="Review incoming quote requests, estimated value, customer contact details, and follow-up status."
       />
       <section className="overflow-hidden rounded-lg border border-line bg-white shadow-crisp">
-        <div className="hidden grid-cols-[1.15fr_1fr_130px_120px_120px] border-b border-line bg-paper px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-coal/60 lg:grid">
+        <div className="hidden grid-cols-[1.15fr_0.9fr_130px_120px_1.1fr] border-b border-line bg-paper px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-coal/60 lg:grid">
           <span>Lead</span>
           <span>Calculator</span>
           <span>Quote</span>
           <span>Status</span>
-          <span>Received</span>
+          <span>Answers</span>
         </div>
         <div className="divide-y divide-line">
           {leads.length > 0 ? (
             leads.map((lead) => (
-              <article key={lead.id} className="grid gap-4 px-5 py-5 lg:grid-cols-[1.15fr_1fr_130px_120px_120px] lg:items-center">
+              <article key={lead.id} className="grid gap-4 px-5 py-5 lg:grid-cols-[1.15fr_0.9fr_130px_120px_1.1fr] lg:items-center">
                 <div>
                   <p className="font-semibold text-ink">{lead.customerName}</p>
                   <p className="mt-1 text-sm text-coal/60">{lead.customerNotes ?? "No notes yet."}</p>
@@ -47,7 +47,10 @@ export default async function LeadsPage() {
                 <p className="text-sm font-medium text-coal/75">{lead.calculatorName}</p>
                 <p className="font-display text-lg font-bold text-ink">{formatDollars(lead.estimatedPrice)}</p>
                 <Badge tone="warning">NEW</Badge>
-                <p className="text-sm text-coal/60">{formatDate(lead.createdAt)}</p>
+                <div>
+                  <p className="text-sm text-coal/60">{formatDate(lead.createdAt)}</p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-coal/70">{lead.answersSummary}</p>
+                </div>
               </article>
             ))
           ) : (

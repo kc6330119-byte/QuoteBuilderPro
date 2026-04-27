@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getMockUser } from "@/lib/auth";
 import { calculators as mockCalculators, leads as mockLeads } from "@/lib/mock-data";
+import { getConfigString, normalizeRuleType, type EnginePricingRule, type EngineQuestionType } from "@/lib/quote-engine";
 
 export type CalculatorListItem = {
   id: string;
@@ -23,18 +24,20 @@ export type LeadListItem = {
   customerPhone: string | null;
   customerNotes: string | null;
   estimatedPrice: number;
+  answersSummary: string;
   createdAt: Date | string;
 };
 
 export type QuoteQuestion = {
   id: string;
   label: string;
-  questionType: "NUMBER" | "SELECT" | "BOOLEAN" | "TEXT";
+  questionType: EngineQuestionType;
   options: string[];
   isRequired: boolean;
   sortOrder: number;
-  pricingAmount: number;
 };
+
+export type QuotePricingRule = EnginePricingRule;
 
 export type QuoteCalculator = {
   id: string;
@@ -43,8 +46,18 @@ export type QuoteCalculator = {
   description: string;
   isPublished: boolean;
   source: "database" | "mock";
-  basePrice: number;
   questions: QuoteQuestion[];
+  rules: QuotePricingRule[];
+};
+
+export type CalculatorEditor = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  isPublished: boolean;
+  questions: QuoteQuestion[];
+  rules: Array<QuotePricingRule & { label: string; configLabel: string }>;
 };
 
 export async function getOrCreateMockUser() {
@@ -128,8 +141,60 @@ export async function getLeadListItems(limit?: number): Promise<LeadListItem[]> 
     customerPhone: submission.customerPhone,
     customerNotes: submission.customerNotes,
     estimatedPrice: Number(submission.estimatedPrice),
+    answersSummary: summarizeAnswers(submission.answers),
     createdAt: submission.createdAt
   }));
+}
+
+export async function getCalculatorEditorById(id: string): Promise<CalculatorEditor | null> {
+  const calculator = await prisma.calculator.findUnique({
+    where: { id },
+    include: {
+      questions: {
+        orderBy: { sortOrder: "asc" }
+      },
+      pricingRules: {
+        orderBy: { sortOrder: "asc" }
+      }
+    }
+  });
+
+  if (!calculator) {
+    return null;
+  }
+
+  const questions = calculator.questions.map((question) => ({
+    id: question.id,
+    label: question.label,
+    questionType: normalizeQuestionType(question.questionType),
+    options: normalizeOptions(question.options),
+    isRequired: question.isRequired,
+    sortOrder: question.sortOrder
+  }));
+  const questionMap = new Map(questions.map((question) => [question.id, question]));
+
+  return {
+    id: calculator.id,
+    name: calculator.name,
+    slug: calculator.slug,
+    description: calculator.description ?? "",
+    isPublished: calculator.isPublished,
+    questions,
+    rules: calculator.pricingRules.map((rule) => {
+      const ruleType = getDisplayRuleType(rule.ruleType, questionMap.get(rule.questionId ?? "")?.questionType);
+      const option = getConfigString(rule.ruleConfig, "option");
+
+      return {
+        id: rule.id,
+        questionId: rule.questionId,
+        ruleType,
+        ruleConfig: rule.ruleConfig,
+        amount: Number(rule.amount),
+        label: getRuleLabel(ruleType),
+        configLabel: option ? `Option: ${option}` : questionMap.get(rule.questionId ?? "")?.label ?? "No question"
+      };
+    })
+  };
 }
 
 export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalculator | null> {
@@ -147,7 +212,15 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
   });
 
   if (calculator) {
-    const baseRule = calculator.pricingRules.find((rule) => rule.ruleType === "BASE_PRICE");
+    const questions = calculator.questions.map((question) => ({
+      id: question.id,
+      label: question.label,
+      questionType: normalizeQuestionType(question.questionType),
+      options: normalizeOptions(question.options),
+      isRequired: question.isRequired,
+      sortOrder: question.sortOrder
+    }));
+    const questionMap = new Map(questions.map((question) => [question.id, question]));
 
     return {
       id: calculator.id,
@@ -156,20 +229,14 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
       description: calculator.description ?? "Answer a few questions and receive a working estimate.",
       isPublished: calculator.isPublished,
       source: "database",
-      basePrice: Number(baseRule?.amount ?? 0),
-      questions: calculator.questions.map((question) => {
-        const pricingRule = question.pricingRules.find((rule) => rule.ruleType === "QUESTION_AMOUNT");
-
-        return {
-          id: question.id,
-          label: question.label,
-          questionType: normalizeQuestionType(question.questionType),
-          options: normalizeOptions(question.options),
-          isRequired: question.isRequired,
-          sortOrder: question.sortOrder,
-          pricingAmount: Number(pricingRule?.amount ?? 0)
-        };
-      })
+      questions,
+      rules: calculator.pricingRules.map((rule) => ({
+        id: rule.id,
+        questionId: rule.questionId,
+        ruleType: getDisplayRuleType(rule.ruleType, questionMap.get(rule.questionId ?? "")?.questionType),
+        ruleConfig: rule.ruleConfig,
+        amount: Number(rule.amount)
+      }))
     };
   }
 
@@ -185,7 +252,6 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
     description: mock.description,
     isPublished: true,
     source: "mock",
-    basePrice: mock.basePrice / 100,
     questions: mock.fields.map((field, index) => ({
       id: field.id,
       label: field.label,
@@ -193,14 +259,33 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
         field.type === "NUMBER" ? "NUMBER" : field.type === "BOOLEAN" ? "BOOLEAN" : field.type === "SELECT" ? "SELECT" : "TEXT",
       options: field.options?.map((option) => option.label) ?? [],
       isRequired: field.required ?? true,
-      sortOrder: index,
-      pricingAmount:
-        field.type === "NUMBER"
-          ? (field.pricePerUnit ?? 0) / 100
-          : field.type === "BOOLEAN"
-            ? (field.priceDelta ?? 0) / 100
-            : 0
-    }))
+      sortOrder: index
+    })),
+    rules: [
+      { ruleType: "base_price", amount: mock.basePrice / 100 },
+      ...mock.fields.flatMap((field) => {
+        if (field.type === "NUMBER") {
+          return [{ questionId: field.id, ruleType: "quantity_multiplier", amount: (field.pricePerUnit ?? 0) / 100 }];
+        }
+
+        if (field.type === "BOOLEAN") {
+          return [{ questionId: field.id, ruleType: "checkbox_addon", amount: (field.priceDelta ?? 0) / 100 }];
+        }
+
+        if (field.type === "SELECT") {
+          return (
+            field.options?.map((option) => ({
+              questionId: field.id,
+              ruleType: "option_price",
+              ruleConfig: { option: option.label },
+              amount: option.priceDelta / 100
+            })) ?? []
+          );
+        }
+
+        return [];
+      })
+    ]
   };
 }
 
@@ -215,7 +300,7 @@ export function getMockDashboardFallback() {
   };
 }
 
-function normalizeQuestionType(questionType: string): QuoteQuestion["questionType"] {
+function normalizeQuestionType(questionType: string): EngineQuestionType {
   if (questionType === "NUMBER" || questionType === "SELECT" || questionType === "BOOLEAN" || questionType === "TEXT") {
     return questionType;
   }
@@ -229,4 +314,45 @@ function normalizeOptions(options: unknown): string[] {
   }
 
   return [];
+}
+
+function getDisplayRuleType(ruleType: string, questionType?: EngineQuestionType) {
+  if (ruleType === "QUESTION_AMOUNT") {
+    if (questionType === "BOOLEAN") return "checkbox_addon";
+    if (questionType === "SELECT") return "option_price";
+    return "quantity_multiplier";
+  }
+
+  return normalizeRuleType(ruleType);
+}
+
+function getRuleLabel(ruleType: string) {
+  if (ruleType === "base_price") return "Base price";
+  if (ruleType === "quantity_multiplier") return "Quantity multiplier";
+  if (ruleType === "option_price") return "Option price";
+  if (ruleType === "checkbox_addon") return "Checkbox add-on";
+
+  return ruleType;
+}
+
+function summarizeAnswers(answers: unknown) {
+  if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
+    return "No answers captured.";
+  }
+
+  const values = Object.values(answers as Record<string, unknown>)
+    .map((entry) => {
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+        return null;
+      }
+
+      const label = (entry as Record<string, unknown>).label;
+      const value = (entry as Record<string, unknown>).value;
+      if (typeof label !== "string") return null;
+
+      return `${label}: ${String(value)}`;
+    })
+    .filter((value): value is string => Boolean(value));
+
+  return values.length > 0 ? values.join(" | ") : "No answers captured.";
 }

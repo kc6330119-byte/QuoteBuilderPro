@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateMockUser, getQuoteCalculatorBySlug, type QuoteQuestion } from "@/lib/calculator-data";
+import { calculateQuote, type QuoteAnswers } from "@/lib/quote-engine";
 
 type ParsedQuestion = {
   label: string;
@@ -39,7 +40,7 @@ export async function createCalculatorAction(formData: FormData) {
     await tx.pricingRule.create({
       data: {
         calculatorId: createdCalculator.id,
-        ruleType: "BASE_PRICE",
+        ruleType: "base_price",
         amount: basePrice,
         sortOrder: 0
       }
@@ -61,7 +62,11 @@ export async function createCalculatorAction(formData: FormData) {
         data: {
           calculatorId: createdCalculator.id,
           questionId: createdQuestion.id,
-          ruleType: "QUESTION_AMOUNT",
+          ruleType: getDefaultRuleType(question.questionType),
+          ruleConfig:
+            question.questionType === "SELECT" && question.options[0]
+              ? { questionId: createdQuestion.id, option: question.options[0] }
+              : { questionId: createdQuestion.id },
           amount: question.pricingAmount,
           sortOrder: question.sortOrder
         }
@@ -73,7 +78,64 @@ export async function createCalculatorAction(formData: FormData) {
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/calculators");
-  redirect(`/quote/${calculator.slug}`);
+  redirect(`/dashboard/calculators/${calculator.id}`);
+}
+
+export async function addQuestionAction(formData: FormData) {
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const label = requiredString(formData, "label", "");
+  const questionType = normalizeQuestionType(requiredString(formData, "questionType", "TEXT"));
+  const options = String(formData.get("options") ?? "")
+    .split(",")
+    .map((option) => option.trim())
+    .filter(Boolean);
+  const isRequired = formData.get("isRequired") === "on";
+
+  if (!calculatorId || !label) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  const sortOrder = await prisma.question.count({ where: { calculatorId } });
+
+  await prisma.question.create({
+    data: {
+      calculatorId,
+      label,
+      questionType,
+      options: questionType === "SELECT" ? options : undefined,
+      isRequired,
+      sortOrder
+    }
+  });
+
+  revalidateCalculator(calculatorId);
+  redirect(`/dashboard/calculators/${calculatorId}`);
+}
+
+export async function addPricingRuleAction(formData: FormData) {
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const ruleType = requiredString(formData, "ruleType", "base_price");
+  const questionId = optionalString(formData, "questionId");
+  const option = optionalString(formData, "option");
+  const amount = currencyString(formData.get("amount"));
+
+  if (!calculatorId) {
+    redirect("/dashboard/calculators");
+  }
+
+  await prisma.pricingRule.create({
+    data: {
+      calculatorId,
+      questionId: ruleType === "base_price" ? null : questionId,
+      ruleType,
+      ruleConfig: buildRuleConfig(questionId, option),
+      amount,
+      sortOrder: await prisma.pricingRule.count({ where: { calculatorId } })
+    }
+  });
+
+  revalidateCalculator(calculatorId);
+  redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
 export async function createQuoteSubmissionAction(formData: FormData) {
@@ -85,19 +147,24 @@ export async function createQuoteSubmissionAction(formData: FormData) {
     redirect(`/quote/${calculatorSlug}`);
   }
 
-  const answers = Object.fromEntries(
+  const rawAnswers: QuoteAnswers = Object.fromEntries(
     calculator.questions.map((question) => {
       const rawValue = formData.get(`answer_${question.id}`);
+      return [question.id, question.questionType === "BOOLEAN" ? rawValue === "true" : String(rawValue ?? "")];
+    })
+  );
+  const answers = Object.fromEntries(
+    calculator.questions.map((question) => {
       return [
         question.id,
         {
           label: question.label,
-          value: question.questionType === "BOOLEAN" ? rawValue === "true" : String(rawValue ?? "")
+          value: rawAnswers[question.id]
         }
       ];
     })
   );
-  const estimatedPrice = calculateEstimatedPrice(calculator.questions, answers, calculator.basePrice);
+  const estimatedPrice = calculateQuote(calculator.questions, calculator.rules, rawAnswers);
 
   await prisma.quoteSubmission.create({
     data: {
@@ -137,30 +204,6 @@ function parseQuestions(formData: FormData): ParsedQuestion[] {
       };
     })
     .filter((question) => question.label.length > 0);
-}
-
-function calculateEstimatedPrice(
-  questions: QuoteQuestion[],
-  answers: Record<string, { label: string; value: string | boolean }>,
-  basePrice: number
-) {
-  return questions.reduce((sum, question) => {
-    const value = answers[question.id]?.value;
-
-    if (question.questionType === "NUMBER") {
-      return sum + Number(value || 0) * question.pricingAmount;
-    }
-
-    if (question.questionType === "BOOLEAN") {
-      return value === true ? sum + question.pricingAmount : sum;
-    }
-
-    if (question.questionType === "SELECT") {
-      return value ? sum + question.pricingAmount : sum;
-    }
-
-    return sum;
-  }, basePrice);
 }
 
 async function createUniqueSlug(value: string) {
@@ -207,4 +250,28 @@ function normalizeQuestionType(questionType: string): QuoteQuestion["questionTyp
   }
 
   return "TEXT";
+}
+
+function getDefaultRuleType(questionType: QuoteQuestion["questionType"]) {
+  if (questionType === "NUMBER") return "quantity_multiplier";
+  if (questionType === "BOOLEAN") return "checkbox_addon";
+  if (questionType === "SELECT") return "option_price";
+
+  return "quantity_multiplier";
+}
+
+function buildRuleConfig(questionId: string | null, option: string | null) {
+  const config: Record<string, string> = {};
+
+  if (questionId) config.questionId = questionId;
+  if (option) config.option = option;
+
+  return Object.keys(config).length > 0 ? config : undefined;
+}
+
+function revalidateCalculator(calculatorId: string) {
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/calculators");
+  revalidatePath(`/dashboard/calculators/${calculatorId}`);
+  revalidatePath("/quote/[slug]", "page");
 }
