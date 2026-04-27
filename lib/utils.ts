@@ -10,7 +10,15 @@ export function formatCurrency(cents: number, currency = "USD") {
   }).format(cents / 100);
 }
 
-export function formatDate(date: string) {
+export function formatDollars(amount: number, currency = "USD") {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0
+  }).format(amount);
+}
+
+export function formatDate(date: string | Date) {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",

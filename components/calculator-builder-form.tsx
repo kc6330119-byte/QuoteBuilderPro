@@ -3,29 +3,37 @@
 import { useMemo, useState } from "react";
 import { CheckCircle2, Copy, GripVertical, Plus, Save } from "lucide-react";
 import { Button } from "@/components/button";
-import { formatCurrency } from "@/lib/utils";
+import { createCalculatorAction } from "@/lib/actions";
+import { formatDollars } from "@/lib/utils";
 
 type BuilderField = {
   id: number;
   label: string;
-  type: "Number" | "Select" | "Toggle";
+  type: "NUMBER" | "SELECT" | "BOOLEAN" | "TEXT";
+  options: string;
   pricing: string;
+  required: boolean;
 };
 
 const initialFields: BuilderField[] = [
-  { id: 1, label: "Quantity or team size", type: "Number", pricing: "$125 per unit" },
-  { id: 2, label: "Package tier", type: "Select", pricing: "Adds $0 to $2,750" },
-  { id: 3, label: "Rush delivery", type: "Toggle", pricing: "Adds $500" }
+  { id: 1, label: "Quantity or team size", type: "NUMBER", options: "", pricing: "125", required: true },
+  { id: 2, label: "Package tier", type: "SELECT", options: "Starter, Growth, Premium", pricing: "750", required: true },
+  { id: 3, label: "Rush delivery", type: "BOOLEAN", options: "", pricing: "500", required: false }
 ];
 
 export function CalculatorBuilderForm() {
   const [name, setName] = useState("Implementation Services Quote");
   const [slug, setSlug] = useState("implementation-services");
   const [basePrice, setBasePrice] = useState(2500);
+  const [description, setDescription] = useState("Answer a few questions and receive a working estimate for your project.");
+  const [businessType, setBusinessType] = useState("Professional services");
   const [fields, setFields] = useState(initialFields);
-  const [published, setPublished] = useState(false);
+  const [published, setPublished] = useState(true);
 
-  const previewTotal = useMemo(() => basePrice * 100 + fields.length * 42500, [basePrice, fields.length]);
+  const previewTotal = useMemo(
+    () => basePrice + fields.reduce((sum, field) => sum + Number(field.pricing || 0), 0),
+    [basePrice, fields]
+  );
 
   function addField() {
     setFields((current) => [
@@ -33,14 +41,16 @@ export function CalculatorBuilderForm() {
       {
         id: Date.now(),
         label: "New pricing input",
-        type: "Number",
-        pricing: "$75 per unit"
+        type: "NUMBER",
+        options: "",
+        pricing: "75",
+        required: false
       }
     ]);
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+    <form action={createCalculatorAction} className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <section className="space-y-6">
         <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
           <h2 className="font-display text-xl font-bold text-ink">Calculator details</h2>
@@ -48,6 +58,8 @@ export function CalculatorBuilderForm() {
             <label className="space-y-2">
               <span className="text-sm font-semibold text-coal">Name</span>
               <input
+                name="name"
+                required
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
@@ -56,23 +68,39 @@ export function CalculatorBuilderForm() {
             <label className="space-y-2">
               <span className="text-sm font-semibold text-coal">Public slug</span>
               <input
+                name="slug"
+                required
                 value={slug}
                 onChange={(event) => setSlug(event.target.value)}
+                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+              />
+            </label>
+            <label className="space-y-2">
+              <span className="text-sm font-semibold text-coal">Business type</span>
+              <input
+                name="businessType"
+                value={businessType}
+                onChange={(event) => setBusinessType(event.target.value)}
                 className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
               />
             </label>
             <label className="space-y-2 md:col-span-2">
               <span className="text-sm font-semibold text-coal">Customer-facing description</span>
               <textarea
+                name="description"
                 rows={4}
-                defaultValue="Answer a few questions and receive a working estimate for your project."
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
                 className="w-full rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
               />
             </label>
             <label className="space-y-2">
               <span className="text-sm font-semibold text-coal">Base price</span>
               <input
+                name="basePrice"
                 type="number"
+                min={0}
+                step="0.01"
                 value={basePrice}
                 onChange={(event) => setBasePrice(Number(event.target.value))}
                 className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
@@ -81,9 +109,10 @@ export function CalculatorBuilderForm() {
             <label className="flex items-center justify-between gap-3 rounded-md border border-line bg-paper px-3 py-3">
               <span>
                 <span className="block text-sm font-semibold text-coal">Publish after save</span>
-                <span className="text-xs text-coal/60">Mock setting for the MVP flow</span>
+                <span className="text-xs text-coal/60">Published calculators get a public quote page.</span>
               </span>
               <input
+                name="isPublished"
                 type="checkbox"
                 checked={published}
                 onChange={(event) => setPublished(event.target.checked)}
@@ -109,12 +138,15 @@ export function CalculatorBuilderForm() {
                 key={field.id}
                 className="grid gap-3 rounded-lg border border-line bg-paper p-3 md:grid-cols-[32px_1fr_150px_160px]"
               >
+                <input type="hidden" name="questionIds" value={field.id} />
                 <div className="flex items-center text-coal/40">
                   <GripVertical className="h-5 w-5" />
                 </div>
                 <label className="space-y-1">
                   <span className="text-xs font-semibold uppercase text-coal/60">Label</span>
                   <input
+                    name={`questionLabel_${field.id}`}
+                    required
                     value={field.label}
                     onChange={(event) => {
                       const value = event.target.value;
@@ -128,6 +160,7 @@ export function CalculatorBuilderForm() {
                 <label className="space-y-1">
                   <span className="text-xs font-semibold uppercase text-coal/60">Type</span>
                   <select
+                    name={`questionType_${field.id}`}
                     value={field.type}
                     onChange={(event) => {
                       const value = event.target.value as BuilderField["type"];
@@ -137,14 +170,19 @@ export function CalculatorBuilderForm() {
                     }}
                     className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none focus:border-teal-600"
                   >
-                    <option>Number</option>
-                    <option>Select</option>
-                    <option>Toggle</option>
+                    <option value="NUMBER">Number</option>
+                    <option value="SELECT">Select</option>
+                    <option value="BOOLEAN">Toggle</option>
+                    <option value="TEXT">Text</option>
                   </select>
                 </label>
                 <label className="space-y-1">
-                  <span className="text-xs font-semibold uppercase text-coal/60">Pricing</span>
+                  <span className="text-xs font-semibold uppercase text-coal/60">Amount</span>
                   <input
+                    name={`questionPrice_${field.id}`}
+                    type="number"
+                    min={0}
+                    step="0.01"
                     value={field.pricing}
                     onChange={(event) => {
                       const value = event.target.value;
@@ -155,7 +193,39 @@ export function CalculatorBuilderForm() {
                     className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none focus:border-teal-600"
                   />
                 </label>
-                <span className="hidden text-xs text-coal/50 md:col-start-2">Field {index + 1}</span>
+                <label className="flex items-center gap-2 text-xs font-semibold text-coal/65 md:col-start-2">
+                  <input
+                    name={`questionRequired_${field.id}`}
+                    type="checkbox"
+                    checked={field.required}
+                    onChange={(event) => {
+                      const value = event.target.checked;
+                      setFields((current) =>
+                        current.map((item) => (item.id === field.id ? { ...item, required: value } : item))
+                      );
+                    }}
+                    className="h-4 w-4 accent-teal-700"
+                  />
+                  Required question {index + 1}
+                </label>
+                {field.type === "SELECT" ? (
+                  <label className="space-y-1 md:col-span-2">
+                    <span className="text-xs font-semibold uppercase text-coal/60">Options, comma separated</span>
+                    <input
+                      name={`questionOptions_${field.id}`}
+                      value={field.options}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setFields((current) =>
+                          current.map((item) => (item.id === field.id ? { ...item, options: value } : item))
+                        );
+                      }}
+                      className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none focus:border-teal-600"
+                    />
+                  </label>
+                ) : (
+                  <input type="hidden" name={`questionOptions_${field.id}`} value="" />
+                )}
               </div>
             ))}
           </div>
@@ -174,16 +244,16 @@ export function CalculatorBuilderForm() {
                   <span className="text-sm font-semibold">{field.label}</span>
                   <span className="text-xs text-white/60">{field.type}</span>
                 </div>
-                <p className="mt-1 text-xs text-white/60">{field.pricing}</p>
+                <p className="mt-1 text-xs text-white/60">${field.pricing || 0}</p>
               </div>
             ))}
           </div>
           <div className="mt-5 rounded-md bg-white p-4 text-ink">
             <p className="text-xs font-bold uppercase text-coal/50">Estimated quote</p>
-            <p className="mt-1 font-display text-3xl font-bold">{formatCurrency(previewTotal)}</p>
+            <p className="mt-1 font-display text-3xl font-bold">{formatDollars(previewTotal)}</p>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-2">
-            <Button type="button" variant="secondary">
+            <Button type="submit" variant="secondary">
               <Save className="h-4 w-4" /> Save
             </Button>
             <Button type="button" variant="outline" className="border-white/20 bg-white/10 text-white hover:bg-white hover:text-ink">
@@ -197,6 +267,6 @@ export function CalculatorBuilderForm() {
           ) : null}
         </div>
       </aside>
-    </div>
+    </form>
   );
 }

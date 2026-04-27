@@ -2,13 +2,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { PublicQuoteForm } from "@/components/public-quote-form";
-import { getCalculatorBySlug } from "@/lib/mock-data";
+import { getQuoteCalculatorBySlug } from "@/lib/calculator-data";
 
-export default async function QuotePage({ params }: { params: Promise<{ slug: string }> }) {
+export const dynamic = "force-dynamic";
+
+export default async function QuotePage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ submitted?: string }>;
+}) {
   const { slug } = await params;
-  const calculator = getCalculatorBySlug(slug);
+  const { submitted } = await searchParams;
+  const calculator = await getQuoteCalculatorBySlug(slug);
 
-  if (!calculator || calculator.status !== "PUBLISHED") {
+  if (!calculator || !calculator.isPublished) {
     notFound();
   }
 
@@ -30,7 +39,7 @@ export default async function QuotePage({ params }: { params: Promise<{ slug: st
           <h1 className="mt-3 font-display text-4xl font-black leading-tight text-ink md:text-5xl">{calculator.name}</h1>
           <p className="mt-4 text-lg leading-8 text-coal/70">{calculator.description}</p>
         </div>
-        <PublicQuoteForm calculator={calculator} />
+        <PublicQuoteForm calculator={calculator} submitted={submitted === "1"} />
       </section>
     </main>
   );

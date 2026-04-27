@@ -2,19 +2,19 @@ import { ArrowUpRight, ClipboardList, DollarSign, FilePlus2, TrendingUp, Users }
 import { ButtonLink } from "@/components/button";
 import { PageHeader } from "@/components/page-header";
 import { StatCard } from "@/components/stat-card";
-import { calculators, leads } from "@/lib/mock-data";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { getDashboardStats, getLeadListItems } from "@/lib/calculator-data";
+import { formatDate, formatDollars } from "@/lib/utils";
 
-export default function DashboardPage() {
-  const published = calculators.filter((calculator) => calculator.status === "PUBLISHED").length;
-  const leadTotal = leads.length;
-  const pipeline = leads.reduce((sum, lead) => sum + lead.totalCents, 0);
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  const [stats, leads] = await Promise.all([getDashboardStats(), getLeadListItems(4)]);
 
   return (
     <div className="space-y-8">
       <PageHeader
         title="Dashboard"
-        description="A mock-auth workspace for creating quote calculators, publishing them, and tracking incoming leads."
+        description="Create quote calculators, publish them, and track customer submissions from your Neon-backed workspace."
         actions={
           <>
             <ButtonLink href="/dashboard/calculators/new">
@@ -28,10 +28,10 @@ export default function DashboardPage() {
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Published calculators" value={String(published)} detail="One draft is waiting for review." icon={<ClipboardList className="h-5 w-5" />} />
-        <StatCard label="Lead submissions" value={String(leadTotal)} detail="Mock records for the MVP dashboard." icon={<Users className="h-5 w-5" />} />
-        <StatCard label="Pipeline quoted" value={formatCurrency(pipeline)} detail="Total value from visible submissions." icon={<DollarSign className="h-5 w-5" />} />
-        <StatCard label="Avg conversion" value="18%" detail="Based on sample calculator performance." icon={<TrendingUp className="h-5 w-5" />} />
+        <StatCard label="Published calculators" value={String(stats.publishedCount)} detail={`${stats.calculatorCount} total calculators saved.`} icon={<ClipboardList className="h-5 w-5" />} />
+        <StatCard label="Lead submissions" value={String(stats.leadCount)} detail="Persisted quote requests from public pages." icon={<Users className="h-5 w-5" />} />
+        <StatCard label="Pipeline quoted" value={formatDollars(stats.pipeline)} detail="Total estimated value from submissions." icon={<DollarSign className="h-5 w-5" />} />
+        <StatCard label="Avg conversion" value="Soon" detail="Conversion tracking comes after real traffic." icon={<TrendingUp className="h-5 w-5" />} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
@@ -43,25 +43,31 @@ export default function DashboardPage() {
             </ButtonLink>
           </div>
           <div className="divide-y divide-line">
-            {leads.slice(0, 4).map((lead) => (
-              <div key={lead.id} className="grid gap-3 px-5 py-4 md:grid-cols-[1fr_180px_140px] md:items-center">
-                <div>
-                  <p className="font-semibold text-ink">{lead.customerName}</p>
-                  <p className="mt-1 text-sm text-coal/60">{lead.company} via {lead.calculatorName}</p>
+            {leads.length > 0 ? (
+              leads.map((lead) => (
+                <div key={lead.id} className="grid gap-3 px-5 py-4 md:grid-cols-[1fr_180px_140px] md:items-center">
+                  <div>
+                    <p className="font-semibold text-ink">{lead.customerName}</p>
+                    <p className="mt-1 text-sm text-coal/60">via {lead.calculatorName}</p>
+                  </div>
+                  <p className="font-semibold text-ink">{formatDollars(lead.estimatedPrice)}</p>
+                  <p className="text-sm text-coal/60">{formatDate(lead.createdAt)}</p>
                 </div>
-                <p className="font-semibold text-ink">{formatCurrency(lead.totalCents)}</p>
-                <p className="text-sm text-coal/60">{formatDate(lead.createdAt)}</p>
+              ))
+            ) : (
+              <div className="px-5 py-8 text-sm text-coal/70">
+                No leads yet. Create a calculator, open its public quote page, and submit a test quote request.
               </div>
-            ))}
+            )}
           </div>
         </div>
 
         <div className="rounded-lg border border-line bg-ink p-5 text-white shadow-soft">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Next step</p>
-          <h2 className="mt-3 font-display text-2xl font-bold">Connect Neon when you are ready.</h2>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Live workflow</p>
+          <h2 className="mt-3 font-display text-2xl font-bold">Calculators now write to Neon.</h2>
           <p className="mt-3 text-sm leading-6 text-white/70">
-            Prisma is already modeled for users, calculators, fields, and quote submissions. Add your Neon URLs, run
-            the migration, then replace mock data with Prisma reads.
+            The create form saves calculators and questions, public quote pages save submissions, and the leads table
+            reads from the database.
           </p>
           <ButtonLink href="/dashboard/calculators" variant="secondary" className="mt-5">
             Manage calculators <ArrowUpRight className="h-4 w-4" />
