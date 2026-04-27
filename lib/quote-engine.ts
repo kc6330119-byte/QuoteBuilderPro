@@ -1,11 +1,18 @@
 export type EngineQuestionType = "NUMBER" | "SELECT" | "BOOLEAN" | "TEXT";
 
+export type VisibilityCondition = {
+  questionId: string;
+  operator: "equals" | "checked";
+  value: string | number | boolean | null;
+};
+
 export type EngineQuestion = {
   id: string;
   label: string;
   questionType: EngineQuestionType;
   options?: string[];
   isRequired?: boolean;
+  visibilityCondition?: VisibilityCondition | null;
 };
 
 export type EnginePricingRule = {
@@ -19,7 +26,8 @@ export type EnginePricingRule = {
 export type QuoteAnswers = Record<string, string | number | boolean | null | undefined>;
 
 export function calculateQuote(questions: EngineQuestion[], rules: EnginePricingRule[], answers: QuoteAnswers) {
-  const questionIds = new Set(questions.map((question) => question.id));
+  const visibleQuestions = getVisibleQuestions(questions, answers);
+  const questionIds = new Set(visibleQuestions.map((question) => question.id));
 
   return rules.reduce((total, rule) => {
     const ruleType = normalizeRuleType(rule.ruleType);
@@ -51,6 +59,30 @@ export function calculateQuote(questions: EngineQuestion[], rules: EnginePricing
   }, 0);
 }
 
+export function getVisibleQuestions<T extends EngineQuestion>(questions: T[], answers: QuoteAnswers) {
+  const visibleQuestionIds = new Set<string>();
+
+  return questions.filter((question) => {
+    const condition = normalizeVisibilityCondition(question.visibilityCondition);
+
+    if (!condition) {
+      visibleQuestionIds.add(question.id);
+      return true;
+    }
+
+    if (!visibleQuestionIds.has(condition.questionId)) {
+      return false;
+    }
+
+    const visible = matchesVisibilityCondition(condition, answers[condition.questionId]);
+    if (visible) {
+      visibleQuestionIds.add(question.id);
+    }
+
+    return visible;
+  });
+}
+
 export function normalizeRuleType(ruleType: string) {
   if (ruleType === "BASE_PRICE") return "base_price";
   if (ruleType === "QUESTION_AMOUNT") return "quantity_multiplier";
@@ -65,4 +97,47 @@ export function getConfigString(config: unknown, key: string) {
 
   const value = (config as Record<string, unknown>)[key];
   return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+export function normalizeVisibilityCondition(config: unknown): VisibilityCondition | null {
+  if (!config || typeof config !== "object" || Array.isArray(config)) {
+    return null;
+  }
+
+  const value = config as Record<string, unknown>;
+  const questionId = value.questionId;
+  const operator = value.operator;
+
+  if (typeof questionId !== "string" || questionId.trim().length === 0) {
+    return null;
+  }
+
+  if (operator === "checked") {
+    return {
+      questionId,
+      operator: "checked",
+      value: true
+    };
+  }
+
+  if (operator === "equals") {
+    return {
+      questionId,
+      operator: "equals",
+      value:
+        typeof value.value === "string" || typeof value.value === "number" || typeof value.value === "boolean"
+          ? value.value
+          : null
+    };
+  }
+
+  return null;
+}
+
+function matchesVisibilityCondition(condition: VisibilityCondition, answer: QuoteAnswers[string]) {
+  if (condition.operator === "checked") {
+    return answer === true || answer === "true" || answer === "on";
+  }
+
+  return String(answer ?? "") === String(condition.value ?? "");
 }

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateMockUser, getQuoteCalculatorBySlug, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
-import { calculateQuote, type QuoteAnswers } from "@/lib/quote-engine";
+import { calculateQuote, getVisibleQuestions, type QuoteAnswers } from "@/lib/quote-engine";
 
 const leadStatuses: LeadStatus[] = ["NEW", "CONTACTED", "WON", "LOST"];
 
@@ -93,6 +93,10 @@ export async function addQuestionAction(formData: FormData) {
     .map((option) => option.trim())
     .filter(Boolean);
   const isRequired = formData.get("isRequired") === "on";
+  const visibilityCondition = buildVisibilityCondition(
+    optionalString(formData, "visibilityQuestionId"),
+    optionalString(formData, "visibilityValue")
+  );
 
   if (!calculatorId || !label) {
     redirect(`/dashboard/calculators/${calculatorId}`);
@@ -106,6 +110,7 @@ export async function addQuestionAction(formData: FormData) {
       label,
       questionType,
       options: questionType === "SELECT" ? options : Prisma.DbNull,
+      visibilityCondition: visibilityCondition ?? Prisma.DbNull,
       isRequired,
       sortOrder
     }
@@ -124,6 +129,11 @@ export async function updateQuestionAction(formData: FormData) {
   const options = parseOptionList(formData.get("options"));
   const isRequired = formData.get("isRequired") === "on";
   const sortOrder = Math.max(0, integerValue(formData.get("sortOrder")) - 1);
+  const visibilityCondition = buildVisibilityCondition(
+    optionalString(formData, "visibilityQuestionId"),
+    optionalString(formData, "visibilityValue"),
+    questionId
+  );
 
   if (!calculatorId || !questionId || !label) {
     redirect(`/dashboard/calculators/${calculatorId}`);
@@ -151,6 +161,7 @@ export async function updateQuestionAction(formData: FormData) {
       label,
       questionType,
       options: questionType === "SELECT" ? options : Prisma.DbNull,
+      visibilityCondition: visibilityCondition ?? Prisma.DbNull,
       isRequired,
       sortOrder
     }
@@ -186,6 +197,18 @@ export async function deleteQuestionAction(formData: FormData) {
   }
 
   await prisma.$transaction([
+    prisma.question.updateMany({
+      where: {
+        calculatorId,
+        visibilityCondition: {
+          path: ["questionId"],
+          equals: question.id
+        }
+      },
+      data: {
+        visibilityCondition: Prisma.DbNull
+      }
+    }),
     prisma.pricingRule.deleteMany({ where: { calculatorId, questionId: question.id } }),
     prisma.question.delete({ where: { id: question.id } })
   ]);
@@ -312,7 +335,7 @@ export async function createQuoteSubmissionAction(formData: FormData) {
     })
   );
   const answers = Object.fromEntries(
-    calculator.questions.map((question) => {
+    getVisibleQuestions(calculator.questions, rawAnswers).map((question) => {
       return [
         question.id,
         {
@@ -569,6 +592,29 @@ function normalizePricingRuleType(ruleType: string) {
   }
 
   return "base_price";
+}
+
+function buildVisibilityCondition(questionId: string | null, rawValue: string | null, currentQuestionId?: string) {
+  if (!questionId || questionId === currentQuestionId) {
+    return null;
+  }
+
+  const value = rawValue?.trim() ?? "";
+  const normalizedValue = value.toLowerCase();
+
+  if (normalizedValue === "true" || normalizedValue === "checked" || normalizedValue === "yes" || normalizedValue === "on") {
+    return {
+      questionId,
+      operator: "checked",
+      value: true
+    };
+  }
+
+  return {
+    questionId,
+    operator: "equals",
+    value
+  };
 }
 
 function getDefaultRuleType(questionType: QuoteQuestion["questionType"]) {

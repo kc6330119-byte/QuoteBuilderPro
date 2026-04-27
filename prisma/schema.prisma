@@ -37,14 +37,15 @@ model Calculator {
 }
 
 model Question {
-  id           String     @id @default(uuid())
-  calculatorId String
-  calculator   Calculator @relation(fields: [calculatorId], references: [id])
-  label        String
-  questionType String
-  options      Json?
-  sortOrder    Int        @default(0)
-  isRequired   Boolean    @default(false)
+  id                  String     @id @default(uuid())
+  calculatorId        String
+  calculator          Calculator @relation(fields: [calculatorId], references: [id])
+  label               String
+  questionType        String
+  options             Json?
+  visibilityCondition Json?
+  sortOrder           Int        @default(0)
+  isRequired          Boolean    @default(false)
 
   pricingRules PricingRule[]
 }

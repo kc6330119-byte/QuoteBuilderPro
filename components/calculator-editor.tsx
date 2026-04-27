@@ -9,6 +9,8 @@ import type { CalculatorEditor as CalculatorEditorData } from "@/lib/calculator-
 import { formatDollars } from "@/lib/utils";
 
 export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorData }) {
+  const questionLabels = new Map(calculator.questions.map((question) => [question.id, question.label]));
+
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
       <section className="space-y-6">
@@ -95,6 +97,38 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                         <span className="text-sm font-semibold text-coal">Required</span>
                       </label>
                     </div>
+                    <div className="mt-4 rounded-md border border-dashed border-line bg-white p-3">
+                      <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">Branching</p>
+                      <p className="mt-1 text-xs leading-5 text-coal/60">{getBranchSummary(question, questionLabels)}</p>
+                      <div className="mt-3 grid gap-3 md:grid-cols-2">
+                        <label className="space-y-1">
+                          <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Show when</span>
+                          <select
+                            name="visibilityQuestionId"
+                            defaultValue={question.visibilityCondition?.questionId ?? ""}
+                            className="h-10 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                          >
+                            <option value="">Always show</option>
+                            {calculator.questions
+                              .filter((candidate) => candidate.id !== question.id)
+                              .map((candidate) => (
+                                <option key={candidate.id} value={candidate.id}>
+                                  {candidate.label}
+                                </option>
+                              ))}
+                          </select>
+                        </label>
+                        <label className="space-y-1">
+                          <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Answer value</span>
+                          <input
+                            name="visibilityValue"
+                            defaultValue={getBranchValue(question)}
+                            placeholder="Kitchen, Bathroom, or true"
+                            className="h-10 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                          />
+                        </label>
+                      </div>
+                    </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <SubmitButton variant="outline" size="sm" pendingLabel="Saving...">
                         <Save className="h-4 w-4" /> Save question
@@ -156,6 +190,37 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               <input name="isRequired" type="checkbox" className="h-4 w-4 accent-teal-700" />
               <span className="text-sm font-semibold text-coal">Required</span>
             </label>
+            <div className="rounded-md border border-dashed border-line bg-paper p-3 md:col-span-2">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">Branching</p>
+              <p className="mt-1 text-xs leading-5 text-coal/60">
+                Optional. Select a parent question and enter the answer that should reveal this question. Use true for
+                checkbox parents.
+              </p>
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                <label className="space-y-1">
+                  <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Show when</span>
+                  <select
+                    name="visibilityQuestionId"
+                    className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none transition focus:border-teal-600"
+                  >
+                    <option value="">Always show</option>
+                    {calculator.questions.map((question) => (
+                      <option key={question.id} value={question.id}>
+                        {question.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="space-y-1">
+                  <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Answer value</span>
+                  <input
+                    name="visibilityValue"
+                    placeholder="Kitchen, Bathroom, or true"
+                    className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none transition focus:border-teal-600"
+                  />
+                </label>
+              </div>
+            </div>
           </div>
           <SubmitButton className="mt-5" variant="secondary" pendingLabel="Adding question...">
             <Plus className="h-4 w-4" /> Add question
@@ -343,4 +408,30 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
       </aside>
     </div>
   );
+}
+
+function getBranchSummary(
+  question: CalculatorEditorData["questions"][number],
+  questionLabels: Map<string, string>
+) {
+  const condition = question.visibilityCondition;
+  if (!condition) {
+    return "Always shown on the public quote page.";
+  }
+
+  const parentLabel = questionLabels.get(condition.questionId) ?? "another question";
+  if (condition.operator === "checked") {
+    return `Shows when ${parentLabel} is checked.`;
+  }
+
+  return `Shows when ${parentLabel} equals "${String(condition.value ?? "")}".`;
+}
+
+function getBranchValue(question: CalculatorEditorData["questions"][number]) {
+  const condition = question.visibilityCondition;
+  if (!condition) {
+    return "";
+  }
+
+  return condition.operator === "checked" ? "true" : String(condition.value ?? "");
 }

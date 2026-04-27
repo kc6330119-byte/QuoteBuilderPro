@@ -5,7 +5,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SubmitButton } from "@/components/submit-button";
 import { createQuoteSubmissionAction } from "@/lib/actions";
 import type { QuoteCalculator } from "@/lib/calculator-data";
-import { calculateQuote } from "@/lib/quote-engine";
+import { calculateQuote, getVisibleQuestions } from "@/lib/quote-engine";
 import { formatDollars } from "@/lib/utils";
 
 type Answers = Record<string, number | string | boolean>;
@@ -29,6 +29,7 @@ export function PublicQuoteForm({
   );
   const [mockSubmitted, setMockSubmitted] = useState(false);
 
+  const visibleQuestions = useMemo(() => getVisibleQuestions(calculator.questions, answers), [answers, calculator.questions]);
   const total = useMemo(() => calculateQuote(calculator.questions, calculator.rules, answers), [answers, calculator]);
 
   if (submitted || mockSubmitted) {
@@ -58,7 +59,12 @@ export function PublicQuoteForm({
       <input type="hidden" name="calculatorId" value={calculator.id} />
       <input type="hidden" name="calculatorSlug" value={calculator.slug} />
       <section className="space-y-5">
-        {calculator.questions.map((question) => (
+        {visibleQuestions.length < calculator.questions.length ? (
+          <div className="rounded-lg border border-teal-100 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800">
+            Showing {visibleQuestions.length} of {calculator.questions.length} questions based on your selections.
+          </div>
+        ) : null}
+        {visibleQuestions.map((question) => (
           <div key={question.id} className="rounded-lg border border-line bg-white p-5 shadow-crisp">
             <label className="block text-sm font-bold text-ink" htmlFor={question.id}>
               {question.label}

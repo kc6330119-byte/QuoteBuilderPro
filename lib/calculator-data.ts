@@ -1,7 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { getMockUser } from "@/lib/auth";
 import { calculators as mockCalculators, leads as mockLeads } from "@/lib/mock-data";
-import { getConfigString, normalizeRuleType, type EnginePricingRule, type EngineQuestionType } from "@/lib/quote-engine";
+import {
+  getConfigString,
+  normalizeRuleType,
+  normalizeVisibilityCondition,
+  type EnginePricingRule,
+  type EngineQuestionType,
+  type VisibilityCondition
+} from "@/lib/quote-engine";
 
 export type CalculatorListItem = {
   id: string;
@@ -37,6 +44,7 @@ export type QuoteQuestion = {
   questionType: EngineQuestionType;
   options: string[];
   isRequired: boolean;
+  visibilityCondition: VisibilityCondition | null;
   sortOrder: number;
 };
 
@@ -174,6 +182,7 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
     questionType: normalizeQuestionType(question.questionType),
     options: normalizeOptions(question.options),
     isRequired: question.isRequired,
+    visibilityCondition: normalizeVisibilityCondition(question.visibilityCondition),
     sortOrder: question.sortOrder
   }));
   const questionMap = new Map(questions.map((question) => [question.id, question]));
@@ -228,6 +237,7 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
       questionType: normalizeQuestionType(question.questionType),
       options: normalizeOptions(question.options),
       isRequired: question.isRequired,
+      visibilityCondition: normalizeVisibilityCondition(question.visibilityCondition),
       sortOrder: question.sortOrder
     }));
     const questionMap = new Map(questions.map((question) => [question.id, question]));
@@ -269,6 +279,7 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
         field.type === "NUMBER" ? "NUMBER" : field.type === "BOOLEAN" ? "BOOLEAN" : field.type === "SELECT" ? "SELECT" : "TEXT",
       options: field.options?.map((option) => option.label) ?? [],
       isRequired: field.required ?? true,
+      visibilityCondition: null,
       sortOrder: index
     })),
     rules: [
