@@ -3,100 +3,93 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id          String       @id @default(cuid())
+  id          String       @id @default(uuid())
   email       String       @unique
   name        String?
-  avatarUrl   String?
   calculators Calculator[]
+  userPlans   UserPlan[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
 model Calculator {
-  id          String            @id @default(cuid())
-  userId      String
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  slug        String            @unique
-  description String?
-  status      CalculatorStatus  @default(DRAFT)
-  currency    String            @default("USD")
-  basePrice   Int               @default(0)
-  fields      CalculatorField[]
-  submissions QuoteSubmission[]
-  publishedAt DateTime?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id           String  @id @default(uuid())
+  userId       String
+  user         User    @relation(fields: [userId], references: [id])
+  name         String
+  slug         String  @unique
+  businessType String?
+  description  String?
+  isPublished  Boolean @default(false)
 
-  @@index([userId])
-  @@index([status])
+  questions    Question[]
+  pricingRules PricingRule[]
+  submissions  QuoteSubmission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model CalculatorField {
-  id           String        @id @default(cuid())
+model Question {
+  id           String     @id @default(uuid())
   calculatorId String
-  calculator   Calculator    @relation(fields: [calculatorId], references: [id], onDelete: Cascade)
+  calculator   Calculator @relation(fields: [calculatorId], references: [id])
   label        String
-  key          String
-  type         FieldType
-  unit         String?
-  required     Boolean       @default(true)
-  min          Int?
-  max          Int?
-  pricePerUnit Int?
-  priceDelta   Int?
+  questionType String
   options      Json?
-  sortOrder    Int           @default(0)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  sortOrder    Int        @default(0)
+  isRequired   Boolean    @default(false)
 
-  @@index([calculatorId])
+  pricingRules PricingRule[]
+}
+
+model PricingRule {
+  id           String     @id @default(uuid())
+  calculatorId String
+  calculator   Calculator @relation(fields: [calculatorId], references: [id])
+  questionId   String?
+  question     Question?  @relation(fields: [questionId], references: [id])
+  ruleType     String
+  ruleConfig   Json?
+  amount       Decimal    @db.Decimal(18, 2)
+  sortOrder    Int        @default(0)
 }
 
 model QuoteSubmission {
-  id           String     @id @default(cuid())
-  calculatorId String
-  calculator   Calculator @relation(fields: [calculatorId], references: [id], onDelete: Cascade)
-  name         String
-  email        String
-  company      String?
-  phone        String?
-  message      String?
-  answers      Json
-  totalCents   Int
-  status       LeadStatus @default(NEW)
-  metadata     Json?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  @@index([calculatorId])
-  @@index([email])
-  @@index([status])
-  @@index([createdAt])
+  id             String     @id @default(uuid())
+  calculatorId   String
+  calculator     Calculator @relation(fields: [calculatorId], references: [id])
+  customerName   String
+  customerEmail  String
+  customerPhone  String?
+  customerNotes  String?
+  answers        Json
+  estimatedPrice Decimal    @db.Decimal(18, 2)
+  createdAt      DateTime   @default(now())
 }
 
-enum CalculatorStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
+model Plan {
+  id              String     @id @default(uuid())
+  name            String
+  monthlyPrice    Decimal    @db.Decimal(18, 2)
+  calculatorLimit Int
+  leadLimit       Int
+  aiMonthlyLimit  Int?
+  userPlans       UserPlan[]
 }
 
-enum FieldType {
-  NUMBER
-  SELECT
-  BOOLEAN
-  TEXT
-}
-
-enum LeadStatus {
-  NEW
-  CONTACTED
-  WON
-  LOST
+model UserPlan {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  planId    String
+  plan      Plan      @relation(fields: [planId], references: [id])
+  status    String
+  startedAt DateTime  @default(now())
+  endsAt    DateTime?
 }

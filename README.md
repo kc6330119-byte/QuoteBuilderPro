@@ -36,9 +36,9 @@ npm install
 cp .env.example .env
 ```
 
-3. Add your Neon connection strings to `.env`.
+3. Add your Neon connection string to `.env`.
 
-Use the pooled Neon connection string for `DATABASE_URL` and the direct Neon connection string for `DIRECT_URL`.
+Use the direct Neon connection string for local Prisma migration commands. If you later add pooled runtime connections, update `prisma/schema.prisma` with a `directUrl` setting before splitting pooled and direct URLs.
 
 4. Generate Prisma Client:
 
@@ -66,11 +66,11 @@ The Prisma schema is in `prisma/schema.prisma` and includes:
 
 - `User`
 - `Calculator`
-- `CalculatorField`
+- `Question`
+- `PricingRule`
 - `QuoteSubmission`
-- `CalculatorStatus`
-- `FieldType`
-- `LeadStatus`
+- `Plan`
+- `UserPlan`
 
 The app currently reads from mock data in `lib/mock-data.ts` so the UI works before a database exists. When you are ready to persist data, replace mock reads with Prisma queries from `lib/prisma.ts`.
 
@@ -90,7 +90,6 @@ This project includes `netlify.toml` with the Next.js plugin enabled.
 Set these environment variables in Netlify:
 
 - `DATABASE_URL`
-- `DIRECT_URL`
 - `NEXT_PUBLIC_APP_URL`
 - `MOCK_AUTH_EMAIL`
 - `MOCK_AUTH_NAME`
