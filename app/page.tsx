@@ -1,5 +1,20 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, CheckCircle2, ClipboardList, FileText, LockKeyhole, Users } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  CircleDollarSign,
+  ClipboardList,
+  Clock3,
+  FileText,
+  LockKeyhole,
+  PlayCircle,
+  ShieldCheck,
+  Sparkles,
+  TimerReset,
+  Users,
+  Workflow
+} from "lucide-react";
 import { ButtonLink } from "@/components/button";
 import { calculators } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
@@ -8,82 +23,186 @@ export default function LandingPage() {
   const totalLeads = calculators.reduce((sum, calculator) => sum + calculator.leads, 0);
 
   return (
-    <main className="min-h-screen bg-paper text-ink">
-      <section className="relative overflow-hidden border-b border-line">
-        <div className="surface-grid absolute inset-0 opacity-70" />
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/70 to-transparent" />
-        <div className="absolute right-[-8rem] top-16 hidden w-[46rem] rotate-[-4deg] rounded-lg border border-line bg-white/80 p-4 shadow-soft backdrop-blur md:block animate-shimmer">
-          <div className="grid grid-cols-[1.1fr_0.9fr] gap-4">
-            <div className="rounded-md border border-line bg-paper p-4">
-              <div className="flex items-center justify-between border-b border-line pb-3">
-                <span className="font-display text-lg font-bold">Managed IT Services Quote</span>
-                <span className="rounded-full bg-teal-50 px-2 py-1 text-xs font-bold text-teal-700">Published</span>
-              </div>
-              <div className="mt-4 space-y-3">
-                <div className="h-12 rounded-md border border-line bg-white" />
-                <div className="h-12 rounded-md border border-line bg-white" />
-                <div className="h-12 rounded-md border border-line bg-white" />
-              </div>
-            </div>
-            <div className="rounded-md bg-ink p-4 text-white">
-              <p className="text-xs uppercase tracking-[0.18em] text-teal-100">Estimated total</p>
-              <p className="mt-4 font-display text-4xl font-bold">$8,350</p>
-              <div className="mt-5 h-10 rounded-md bg-teal-600" />
-            </div>
-          </div>
-        </div>
-        <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-10">
+    <main className="min-h-screen bg-[#f7faff] text-ink">
+      <section className="relative overflow-hidden border-b border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#f3f8ff_100%)]">
+        <div className="surface-grid absolute inset-0 opacity-45" />
+        <div className="absolute right-0 top-28 hidden h-[30rem] w-[34rem] rounded-l-full bg-[#dbeafe] opacity-70 blur-3xl lg:block" />
+        <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3 font-display text-lg font-bold">
-            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-ink text-sm text-white">QB</span>
-            QuoteBuilder Pro
+            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#1d4ed8] text-sm text-white shadow-crisp">
+              QB
+            </span>
+            <span>QuoteBuilder Pro</span>
           </Link>
+          <div className="hidden items-center gap-8 text-sm font-semibold text-coal/70 lg:flex">
+            <a href="#features" className="transition hover:text-[#1d4ed8]">
+              Features
+            </a>
+            <a href="#how-it-works" className="transition hover:text-[#1d4ed8]">
+              How it works
+            </a>
+            <a href="#templates" className="transition hover:text-[#1d4ed8]">
+              Templates
+            </a>
+            <a href="#pricing" className="transition hover:text-[#1d4ed8]">
+              Pricing
+            </a>
+          </div>
           <div className="flex items-center gap-2">
             <ButtonLink href="/dashboard" variant="ghost" size="sm">
               Dashboard
             </ButtonLink>
-            <ButtonLink href="/dashboard/calculators/new" size="sm">
-              Create calculator
-            </ButtonLink>
+            <Link
+              href="/dashboard/calculators/new"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-bold text-white shadow-crisp transition hover:bg-[#1d4ed8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
+            >
+              Get started free
+            </Link>
           </div>
         </nav>
-        <div className="relative z-10 mx-auto grid min-h-[78vh] max-w-7xl content-center px-4 pb-14 pt-12 sm:px-6 lg:px-10">
-          <div className="max-w-3xl animate-rise">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-teal-700">No-code quote calculators</p>
-            <h1 className="mt-5 font-display text-5xl font-black leading-[1.02] text-ink md:text-7xl">
-              QuoteBuilder Pro
+
+        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-14 sm:px-6 lg:px-8 xl:grid-cols-[0.88fr_1.12fr] xl:pb-20 xl:pt-20">
+          <div className="animate-rise">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#bfdbfe] bg-white px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#1d4ed8] shadow-crisp">
+              <Sparkles className="h-3.5 w-3.5" />
+              Smarter quotes, more jobs
+            </div>
+            <h1 className="mt-6 max-w-3xl font-display text-5xl font-black leading-[1.02] text-[#111827] sm:text-6xl lg:text-7xl">
+              Create. Embed. Get more jobs.
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-coal/75">
-              Build polished pricing calculators, publish customer quote pages, and capture high-intent leads without
-              bolting together forms, spreadsheets, and inbox triage.
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-[#475569]">
+              Build interactive quote calculators for service businesses, publish polished customer estimate pages, and
+              turn high-intent visitors into qualified leads.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <ButtonLink href="/dashboard" size="lg">
-                Open dashboard <ArrowRight className="h-4 w-4" />
-              </ButtonLink>
+              <Link
+                href="/dashboard/calculators/new"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-5 text-base font-bold text-white shadow-crisp transition hover:-translate-y-0.5 hover:bg-[#1d4ed8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
+              >
+                Start your free trial <ArrowRight className="h-4 w-4" />
+              </Link>
               <ButtonLink href="/quote/managed-it-services" variant="outline" size="lg">
-                View public quote
+                <PlayCircle className="h-4 w-4" /> View demo
               </ButtonLink>
+            </div>
+            <div className="mt-8 grid gap-4 text-sm text-[#475569] sm:grid-cols-3">
+              {[
+                { label: "No credit card", detail: "required", icon: ShieldCheck },
+                { label: "Setup in", detail: "minutes", icon: TimerReset },
+                { label: "Cancel", detail: "anytime", icon: CheckCircle2 }
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[#bfdbfe] bg-white text-[#2563eb]">
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span>
+                      <span className="block font-bold text-[#1f2937]">{item.label}</span>
+                      <span className="text-xs">{item.detail}</span>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="relative mx-auto w-full max-w-2xl xl:max-w-none">
+            <div className="absolute -bottom-7 left-8 right-8 h-28 rounded-[2rem] bg-[#60a5fa] opacity-45 blur-2xl" />
+            <div className="relative rounded-xl border border-[#dbe5f4] bg-white/90 p-4 shadow-soft backdrop-blur">
+              <div className="grid gap-4 lg:grid-cols-[1fr_0.72fr]">
+                <div className="rounded-lg border border-[#dbe5f4] bg-white p-5">
+                  <div className="flex items-start justify-between gap-4 border-b border-[#e5edf8] pb-4">
+                    <div>
+                      <p className="font-display text-xl font-black text-[#111827]">Kitchen Remodel Calculator</p>
+                      <p className="mt-1 text-xs font-semibold text-[#64748b]">Step 2 of 4</p>
+                    </div>
+                    <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#15803d]">
+                      Published
+                    </span>
+                  </div>
+                  <div className="mt-5 space-y-3">
+                    {[
+                      { label: "Small kitchen", price: "$2,500", active: false },
+                      { label: "Medium kitchen", price: "$4,500", active: true },
+                      { label: "Large kitchen", price: "$6,500", active: false }
+                    ].map((option) => (
+                      <div
+                        key={option.label}
+                        className={`flex items-center justify-between rounded-md border px-4 py-3 text-sm transition ${
+                          option.active
+                            ? "border-[#2563eb] bg-[#eff6ff] text-[#1d4ed8]"
+                            : "border-[#dbe5f4] bg-[#fbfdff] text-[#334155]"
+                        }`}
+                      >
+                        <span className="font-semibold">{option.label}</span>
+                        <span className="font-bold">{option.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 rounded-md border border-[#dbe5f4] bg-[#f8fbff] p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-[#334155]">Premium cabinets</span>
+                      <span className="text-sm font-bold text-[#2563eb]">+$1,800</span>
+                    </div>
+                    <div className="mt-3 h-2 rounded-full bg-[#dbeafe]">
+                      <div className="h-2 w-3/5 rounded-full bg-[#2563eb]" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-[#111827] p-5 text-white">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#bfdbfe]">Estimated total</p>
+                  <p className="mt-4 font-display text-4xl font-black">$8,300</p>
+                  <div className="mt-5 rounded-md bg-white p-4 text-[#111827]">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#dbeafe] text-[#2563eb]">
+                        <CircleDollarSign className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="text-xs font-bold uppercase text-[#64748b]">Lead quality</p>
+                        <p className="font-display text-xl font-black">High intent</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="rounded-md border border-white/10 bg-white/10 p-3">
+                      <p className="text-xs text-white/60">Quotes</p>
+                      <p className="mt-1 font-display text-xl font-bold">342</p>
+                    </div>
+                    <div className="rounded-md border border-white/10 bg-white/10 p-3">
+                      <p className="text-xs text-white/60">Close rate</p>
+                      <p className="mt-1 font-display text-xl font-bold">24%</p>
+                    </div>
+                  </div>
+                  <div className="mt-5 h-11 rounded-md bg-[#2563eb]" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="border-b border-line bg-white">
-        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-3 lg:px-10">
+      <section className="border-b border-[#dbe5f4] bg-white">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-3 lg:px-8">
           {[
             { label: "Mock leads captured", value: totalLeads, icon: Users },
-            { label: "Published calculators", value: calculators.filter((item) => item.status === "PUBLISHED").length, icon: ClipboardList },
+            {
+              label: "Published calculators",
+              value: calculators.filter((item) => item.status === "PUBLISHED").length,
+              icon: ClipboardList
+            },
             { label: "Average quote value", value: formatCurrency(581500), icon: BarChart3 }
           ].map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.label} className="flex items-center gap-4 rounded-lg border border-line bg-paper p-4">
-                <span className="rounded-md bg-white p-2 text-teal-700">
+              <div key={item.label} className="flex items-center gap-4 rounded-lg border border-[#dbe5f4] bg-[#f8fbff] p-4">
+                <span className="rounded-md bg-white p-2 text-[#2563eb]">
                   <Icon className="h-5 w-5" />
                 </span>
                 <div>
-                  <p className="text-sm text-coal/60">{item.label}</p>
-                  <p className="font-display text-2xl font-bold text-ink">{item.value}</p>
+                  <p className="text-sm text-[#64748b]">{item.label}</p>
+                  <p className="font-display text-2xl font-black text-[#111827]">{item.value}</p>
                 </div>
               </div>
             );
@@ -91,10 +210,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-10">
+      <section id="features" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">MVP foundation</p>
-          <h2 className="mt-3 font-display text-3xl font-bold text-ink">Built for the first paid workflow</h2>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#2563eb]">MVP foundation</p>
+          <h2 className="mt-3 font-display text-3xl font-black text-[#111827]">
+            Built for the first paid workflow
+          </h2>
         </div>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {[
@@ -106,7 +227,7 @@ export default function LandingPage() {
             {
               title: "Published quote pages",
               body: "Share a customer-facing quote form that estimates totals and collects contact details.",
-              icon: CheckCircle2
+              icon: Workflow
             },
             {
               title: "Lead workspace",
@@ -116,23 +237,63 @@ export default function LandingPage() {
           ].map((feature) => {
             const Icon = feature.icon;
             return (
-              <div key={feature.title} className="rounded-lg border border-line bg-white p-5 shadow-crisp">
-                <Icon className="h-5 w-5 text-teal-700" />
-                <h3 className="mt-4 font-display text-xl font-bold text-ink">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-coal/70">{feature.body}</p>
+              <div key={feature.title} className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp">
+                <Icon className="h-5 w-5 text-[#2563eb]" />
+                <h3 className="mt-4 font-display text-xl font-black text-[#111827]">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#475569]">{feature.body}</p>
               </div>
             );
           })}
         </div>
-        <div className="mt-8 rounded-lg border border-line bg-ink p-6 text-white">
+        <div id="how-it-works" className="mt-8 grid gap-4 rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp lg:grid-cols-3">
+          {[
+            {
+              title: "Create in minutes",
+              body: "Start from a service template, tune questions, and set pricing rules.",
+              icon: Clock3
+            },
+            {
+              title: "Embed anywhere",
+              body: "Share a public quote page now, then embed calculators when the product is ready.",
+              icon: Workflow
+            },
+            {
+              title: "Capture and close",
+              body: "Route every estimate into a lead workspace with the quote value attached.",
+              icon: CircleDollarSign
+            }
+          ].map((step) => {
+            const Icon = step.icon;
+            return (
+              <div key={step.title} className="flex gap-4 border-[#dbe5f4] py-3 lg:border-r lg:pr-5 last:lg:border-r-0">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#eff6ff] text-[#2563eb]">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="font-display text-lg font-black text-[#111827]">{step.title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-[#475569]">{step.body}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div id="templates" className="mt-8 rounded-lg border border-[#dbe5f4] bg-[#111827] p-6 text-white">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="font-display text-2xl font-bold">Ready for Neon, Prisma, and Netlify.</h2>
-              <p className="mt-2 text-sm text-white/70">The current app uses mock auth and mock records while the database schema is ready to migrate.</p>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#bfdbfe]">Production foundation</p>
+              <h2 className="mt-2 font-display text-2xl font-black">Ready for Neon, Prisma, and Netlify.</h2>
+              <p className="mt-2 text-sm text-white/70">
+                The app is deployed, the database is migrated, and the next product step is replacing mock records with
+                persisted calculators and submissions.
+              </p>
             </div>
-            <ButtonLink href="/dashboard/calculators/new" variant="secondary">
+            <Link
+              id="pricing"
+              href="/dashboard/calculators/new"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-bold text-white transition hover:bg-[#1d4ed8]"
+            >
               Start building <ArrowRight className="h-4 w-4" />
-            </ButtonLink>
+            </Link>
           </div>
         </div>
       </section>
