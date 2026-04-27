@@ -4,7 +4,14 @@ import { PageHeader } from "@/components/page-header";
 import { TemplateCard } from "@/components/template-card";
 import { calculatorTemplates } from "@/lib/templates";
 
-export default function TemplatesPage() {
+export default async function TemplatesPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ error?: string }>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const creationFailed = params.error === "template-create-failed";
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -16,6 +23,12 @@ export default function TemplatesPage() {
           </ButtonLink>
         }
       />
+
+      {creationFailed ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+          We could not create that template calculator. Please try again or choose another template.
+        </div>
+      ) : null}
 
       <section className="rounded-xl border border-line bg-[radial-gradient(circle_at_top_left,rgba(13,148,136,0.14),transparent_34%),linear-gradient(135deg,#ffffff,#f5f4ef)] p-5 shadow-crisp">
         <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
