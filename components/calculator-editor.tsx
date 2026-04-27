@@ -1,6 +1,6 @@
 import { ArrowUpRight, EyeOff, Plus, Rocket, Save, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/badge";
-import { ButtonLink } from "@/components/button";
+import { Button, ButtonLink } from "@/components/button";
 import { CalculatorDangerActions } from "@/components/calculator-danger-actions";
 import { CalculatorEmbedPanel } from "@/components/calculator-embed-panel";
 import { EditorDeleteForm } from "@/components/editor-delete-form";
@@ -33,9 +33,15 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               </div>
               <p className="mt-2 text-sm leading-6 text-coal/70">{calculator.description || "No description yet."}</p>
             </div>
-            <ButtonLink href={`/quote/${calculator.slug}`} variant="outline">
-              Public quote <ArrowUpRight className="h-4 w-4" />
-            </ButtonLink>
+            {calculator.isPublished ? (
+              <ButtonLink href={`/quote/${calculator.slug}`} variant="outline">
+                Public quote <ArrowUpRight className="h-4 w-4" />
+              </ButtonLink>
+            ) : (
+              <Button type="button" variant="outline" disabled title="Publish this calculator before viewing it">
+                Publish to view quote
+              </Button>
+            )}
           </div>
           <form
             action={updateCalculatorPublishStatusAction}
