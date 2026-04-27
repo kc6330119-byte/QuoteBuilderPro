@@ -319,6 +319,42 @@ export async function deletePricingRuleAction(formData: FormData) {
   redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
+export async function updateCalculatorPublishStatusAction(formData: FormData) {
+  const user = await getOrCreateMockUser();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const isPublished = formData.get("isPublished") === "true";
+
+  if (!calculatorId) {
+    redirect("/dashboard/calculators");
+  }
+
+  const calculator = await prisma.calculator.findFirst({
+    where: {
+      id: calculatorId,
+      userId: user.id,
+      isArchived: false
+    },
+    select: {
+      id: true,
+      slug: true
+    }
+  });
+
+  if (!calculator) {
+    redirect("/dashboard/calculators");
+  }
+
+  await prisma.calculator.update({
+    where: { id: calculator.id },
+    data: { isPublished }
+  });
+
+  revalidateCalculator(calculator.id);
+  revalidatePath(`/quote/${calculator.slug}`);
+  revalidatePath(`/embed/${calculator.slug}`);
+  redirect(`/dashboard/calculators/${calculator.id}`);
+}
+
 export async function createQuoteSubmissionAction(formData: FormData) {
   const calculatorId = requiredString(formData, "calculatorId", "");
   const calculatorSlug = requiredString(formData, "calculatorSlug", "");
@@ -463,6 +499,7 @@ export async function archiveCalculatorAction(formData: FormData) {
 
   revalidateCalculator(calculator.id);
   revalidatePath(`/quote/${calculator.slug}`);
+  revalidatePath(`/embed/${calculator.slug}`);
   redirect("/dashboard/calculators");
 }
 
@@ -499,6 +536,7 @@ export async function deleteCalculatorAction(formData: FormData) {
   revalidateCalculator(calculator.id);
   revalidatePath("/dashboard/leads");
   revalidatePath(`/quote/${calculator.slug}`);
+  revalidatePath(`/embed/${calculator.slug}`);
   redirect("/dashboard/calculators");
 }
 

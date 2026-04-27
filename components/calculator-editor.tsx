@@ -1,11 +1,17 @@
-import { ArrowUpRight, Plus, Save, SlidersHorizontal } from "lucide-react";
+import { ArrowUpRight, EyeOff, Plus, Rocket, Save, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/badge";
 import { ButtonLink } from "@/components/button";
 import { CalculatorDangerActions } from "@/components/calculator-danger-actions";
 import { CalculatorEmbedPanel } from "@/components/calculator-embed-panel";
 import { EditorDeleteForm } from "@/components/editor-delete-form";
 import { SubmitButton } from "@/components/submit-button";
-import { addPricingRuleAction, addQuestionAction, updatePricingRuleAction, updateQuestionAction } from "@/lib/actions";
+import {
+  addPricingRuleAction,
+  addQuestionAction,
+  updateCalculatorPublishStatusAction,
+  updatePricingRuleAction,
+  updateQuestionAction
+} from "@/lib/actions";
 import type { CalculatorEditor as CalculatorEditorData } from "@/lib/calculator-data";
 import { formatDollars } from "@/lib/utils";
 
@@ -31,6 +37,30 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               Public quote <ArrowUpRight className="h-4 w-4" />
             </ButtonLink>
           </div>
+          <form
+            action={updateCalculatorPublishStatusAction}
+            className="mt-5 flex flex-col gap-4 rounded-md border border-line bg-paper p-4 md:flex-row md:items-center md:justify-between"
+          >
+            <input type="hidden" name="calculatorId" value={calculator.id} />
+            <input type="hidden" name="isPublished" value={calculator.isPublished ? "false" : "true"} />
+            <div>
+              <p className="text-sm font-bold text-ink">
+                {calculator.isPublished ? "This calculator is live." : "This calculator is still a draft."}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-coal/65">
+                {calculator.isPublished
+                  ? "Customers can use the public quote page and embedded widget."
+                  : "Publish it when the questions and pricing rules are ready for customers."}
+              </p>
+            </div>
+            <SubmitButton
+              variant={calculator.isPublished ? "outline" : "secondary"}
+              pendingLabel={calculator.isPublished ? "Unpublishing..." : "Publishing..."}
+            >
+              {calculator.isPublished ? <EyeOff className="h-4 w-4" /> : <Rocket className="h-4 w-4" />}
+              {calculator.isPublished ? "Unpublish" : "Publish calculator"}
+            </SubmitButton>
+          </form>
         </div>
 
         <CalculatorEmbedPanel slug={calculator.slug} isPublished={calculator.isPublished} appUrl={appUrl} />
