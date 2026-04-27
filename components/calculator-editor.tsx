@@ -1,9 +1,10 @@
-import { ArrowUpRight, Plus, SlidersHorizontal } from "lucide-react";
+import { ArrowUpRight, Plus, Save, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/badge";
 import { ButtonLink } from "@/components/button";
 import { CalculatorDangerActions } from "@/components/calculator-danger-actions";
+import { EditorDeleteForm } from "@/components/editor-delete-form";
 import { SubmitButton } from "@/components/submit-button";
-import { addPricingRuleAction, addQuestionAction } from "@/lib/actions";
+import { addPricingRuleAction, addQuestionAction, updatePricingRuleAction, updateQuestionAction } from "@/lib/actions";
 import type { CalculatorEditor as CalculatorEditorData } from "@/lib/calculator-data";
 import { formatDollars } from "@/lib/utils";
 
@@ -35,23 +36,86 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               <p className="mt-1 text-sm text-coal/70">Questions render on the public quote page in this order.</p>
             </div>
           </div>
-          <div className="mt-5 divide-y divide-line overflow-hidden rounded-lg border border-line">
+          <div className="mt-5 space-y-3">
             {calculator.questions.length > 0 ? (
               calculator.questions.map((question) => (
-                <div key={question.id} className="grid gap-3 bg-paper px-4 py-4 md:grid-cols-[1fr_120px_1fr_90px] md:items-center">
-                  <div>
-                    <p className="font-semibold text-ink">{question.label}</p>
-                    {question.options.length > 0 ? (
-                      <p className="mt-1 text-xs text-coal/60">Options: {question.options.join(", ")}</p>
-                    ) : null}
+                <div key={question.id} className="rounded-lg border border-line bg-paper p-4">
+                  <form action={updateQuestionAction}>
+                    <input type="hidden" name="calculatorId" value={calculator.id} />
+                    <input type="hidden" name="questionId" value={question.id} />
+                    <div className="grid gap-3 md:grid-cols-[1fr_140px_110px]">
+                      <label className="space-y-1">
+                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Label</span>
+                        <input
+                          required
+                          name="label"
+                          defaultValue={question.label}
+                          className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink outline-none transition focus:border-teal-600"
+                        />
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Type</span>
+                        <select
+                          name="questionType"
+                          defaultValue={question.questionType}
+                          className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none transition focus:border-teal-600"
+                        >
+                          <option value="NUMBER">Number</option>
+                          <option value="SELECT">Select</option>
+                          <option value="BOOLEAN">Checkbox</option>
+                          <option value="TEXT">Text</option>
+                        </select>
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Order</span>
+                        <input
+                          name="sortOrder"
+                          type="number"
+                          min={1}
+                          defaultValue={question.sortOrder + 1}
+                          className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none transition focus:border-teal-600"
+                        />
+                      </label>
+                      <label className="space-y-1 md:col-span-2">
+                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Options</span>
+                        <input
+                          name="options"
+                          defaultValue={question.options.join(", ")}
+                          placeholder="Only used for select questions"
+                          className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none transition focus:border-teal-600"
+                        />
+                      </label>
+                      <label className="flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2">
+                        <input
+                          name="isRequired"
+                          type="checkbox"
+                          defaultChecked={question.isRequired}
+                          className="h-4 w-4 accent-teal-700"
+                        />
+                        <span className="text-sm font-semibold text-coal">Required</span>
+                      </label>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <SubmitButton variant="outline" size="sm" pendingLabel="Saving...">
+                        <Save className="h-4 w-4" /> Save question
+                      </SubmitButton>
+                      <span className="text-xs text-coal/55">Changes update the public quote form after save.</span>
+                    </div>
+                  </form>
+                  <div className="mt-3 border-t border-line pt-3">
+                    <EditorDeleteForm
+                      kind="question"
+                      calculatorId={calculator.id}
+                      itemId={question.id}
+                      label={question.label}
+                    />
                   </div>
-                  <Badge>{question.questionType}</Badge>
-                  <p className="text-sm text-coal/70">Sort order {question.sortOrder + 1}</p>
-                  <p className="text-sm font-semibold text-coal/70">{question.isRequired ? "Required" : "Optional"}</p>
                 </div>
               ))
             ) : (
-              <div className="bg-paper px-4 py-8 text-center text-sm text-coal/70">No questions yet.</div>
+              <div className="rounded-lg border border-line bg-paper px-4 py-8 text-center text-sm text-coal/70">
+                No questions yet.
+              </div>
             )}
           </div>
         </div>
@@ -109,17 +173,113 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
             </div>
           </div>
           <div className="mt-5 space-y-3">
-            {calculator.rules.map((rule) => (
-              <div key={rule.id ?? `${rule.ruleType}-${rule.amount}`} className="rounded-md border border-white/[0.12] bg-white/[0.08] p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{rule.label}</p>
-                    <p className="mt-1 text-xs text-white/60">{rule.configLabel}</p>
-                  </div>
-                  <span className="text-sm font-bold">{formatDollars(rule.amount)}</span>
+            {calculator.rules.length > 0 ? (
+              calculator.rules.map((rule, index) => (
+                <div
+                  key={rule.id ?? `${rule.ruleType}-${rule.amount}`}
+                  className="rounded-md border border-white/[0.12] bg-white/[0.08] p-3"
+                >
+                  <form action={updatePricingRuleAction}>
+                    <input type="hidden" name="calculatorId" value={calculator.id} />
+                    <input type="hidden" name="ruleId" value={rule.id} />
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold">{rule.label}</p>
+                        <p className="mt-1 text-xs text-white/60">{rule.configLabel}</p>
+                      </div>
+                      <span className="text-sm font-bold">{formatDollars(rule.amount)}</span>
+                    </div>
+                    <div className="mt-4 grid gap-3">
+                      <label className="space-y-1">
+                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Rule type</span>
+                        <select
+                          name="ruleType"
+                          defaultValue={rule.ruleType}
+                          className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition focus:border-teal-300"
+                        >
+                          <option value="base_price">Base price</option>
+                          <option value="quantity_multiplier">Quantity multiplier</option>
+                          <option value="option_price">Option price</option>
+                          <option value="checkbox_addon">Checkbox add-on</option>
+                        </select>
+                      </label>
+                      <label className="space-y-1">
+                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Question</span>
+                        <select
+                          name="questionId"
+                          defaultValue={rule.questionId ?? ""}
+                          className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition focus:border-teal-300"
+                        >
+                          <option value="">No question</option>
+                          {calculator.questions.map((question) => (
+                            <option key={question.id} value={question.id}>
+                              {question.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <div className="grid gap-3 sm:grid-cols-[1fr_120px_86px]">
+                        <label className="space-y-1">
+                          <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Option</span>
+                          <input
+                            name="option"
+                            defaultValue={rule.option}
+                            placeholder="For option_price"
+                            className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-teal-300"
+                          />
+                        </label>
+                        <label className="space-y-1">
+                          <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Amount</span>
+                          <input
+                            required
+                            name="amount"
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            defaultValue={rule.amount}
+                            className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition focus:border-teal-300"
+                          />
+                        </label>
+                        <label className="space-y-1">
+                          <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Order</span>
+                          <input
+                            name="sortOrder"
+                            type="number"
+                            min={1}
+                            defaultValue={index + 1}
+                            className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition focus:border-teal-300"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <SubmitButton
+                        variant="outline"
+                        size="sm"
+                        className="border-white/15 bg-white/10 text-white hover:bg-white hover:text-ink"
+                        pendingLabel="Saving..."
+                      >
+                        <Save className="h-4 w-4" /> Save rule
+                      </SubmitButton>
+                    </div>
+                  </form>
+                  {rule.id ? (
+                    <div className="mt-3 border-t border-white/10 pt-3">
+                      <EditorDeleteForm
+                        kind="pricingRule"
+                        calculatorId={calculator.id}
+                        itemId={rule.id}
+                        label={`${rule.label} ${formatDollars(rule.amount)}`}
+                      />
+                    </div>
+                  ) : null}
                 </div>
+              ))
+            ) : (
+              <div className="rounded-md border border-white/[0.12] bg-white/[0.08] p-4 text-sm text-white/60">
+                No pricing rules yet.
               </div>
-            ))}
+            )}
           </div>
         </div>
 

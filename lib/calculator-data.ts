@@ -60,7 +60,7 @@ export type CalculatorEditor = {
   description: string;
   isPublished: boolean;
   questions: QuoteQuestion[];
-  rules: Array<QuotePricingRule & { label: string; configLabel: string }>;
+  rules: Array<QuotePricingRule & { label: string; configLabel: string; option: string }>;
 };
 
 export async function getOrCreateMockUser() {
@@ -196,6 +196,7 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
         ruleConfig: rule.ruleConfig,
         amount: Number(rule.amount),
         label: getRuleLabel(ruleType),
+        option: option ?? "",
         configLabel: option ? `Option: ${option}` : questionMap.get(rule.questionId ?? "")?.label ?? "No question"
       };
     })

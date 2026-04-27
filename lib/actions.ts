@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getOrCreateMockUser, getQuoteCalculatorBySlug, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
 import { calculateQuote, type QuoteAnswers } from "@/lib/quote-engine";
@@ -104,7 +105,7 @@ export async function addQuestionAction(formData: FormData) {
       calculatorId,
       label,
       questionType,
-      options: questionType === "SELECT" ? options : undefined,
+      options: questionType === "SELECT" ? options : Prisma.DbNull,
       isRequired,
       sortOrder
     }
@@ -114,9 +115,88 @@ export async function addQuestionAction(formData: FormData) {
   redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
+export async function updateQuestionAction(formData: FormData) {
+  const user = await getOrCreateMockUser();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const questionId = requiredString(formData, "questionId", "");
+  const label = requiredString(formData, "label", "");
+  const questionType = normalizeQuestionType(requiredString(formData, "questionType", "TEXT"));
+  const options = parseOptionList(formData.get("options"));
+  const isRequired = formData.get("isRequired") === "on";
+  const sortOrder = Math.max(0, integerValue(formData.get("sortOrder")) - 1);
+
+  if (!calculatorId || !questionId || !label) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  const question = await prisma.question.findFirst({
+    where: {
+      id: questionId,
+      calculatorId,
+      calculator: {
+        userId: user.id,
+        isArchived: false
+      }
+    },
+    select: { id: true }
+  });
+
+  if (!question) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  await prisma.question.update({
+    where: { id: question.id },
+    data: {
+      label,
+      questionType,
+      options: questionType === "SELECT" ? options : Prisma.DbNull,
+      isRequired,
+      sortOrder
+    }
+  });
+
+  revalidateCalculator(calculatorId);
+  redirect(`/dashboard/calculators/${calculatorId}`);
+}
+
+export async function deleteQuestionAction(formData: FormData) {
+  const user = await getOrCreateMockUser();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const questionId = requiredString(formData, "questionId", "");
+
+  if (!calculatorId || !questionId) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  const question = await prisma.question.findFirst({
+    where: {
+      id: questionId,
+      calculatorId,
+      calculator: {
+        userId: user.id,
+        isArchived: false
+      }
+    },
+    select: { id: true }
+  });
+
+  if (!question) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  await prisma.$transaction([
+    prisma.pricingRule.deleteMany({ where: { calculatorId, questionId: question.id } }),
+    prisma.question.delete({ where: { id: question.id } })
+  ]);
+
+  revalidateCalculator(calculatorId);
+  redirect(`/dashboard/calculators/${calculatorId}`);
+}
+
 export async function addPricingRuleAction(formData: FormData) {
   const calculatorId = requiredString(formData, "calculatorId", "");
-  const ruleType = requiredString(formData, "ruleType", "base_price");
+  const ruleType = normalizePricingRuleType(requiredString(formData, "ruleType", "base_price"));
   const questionId = optionalString(formData, "questionId");
   const option = optionalString(formData, "option");
   const amount = currencyString(formData.get("amount"));
@@ -130,11 +210,87 @@ export async function addPricingRuleAction(formData: FormData) {
       calculatorId,
       questionId: ruleType === "base_price" ? null : questionId,
       ruleType,
-      ruleConfig: buildRuleConfig(questionId, option),
+      ruleConfig: ruleType === "base_price" ? Prisma.DbNull : buildRuleConfig(questionId, option) ?? Prisma.DbNull,
       amount,
       sortOrder: await prisma.pricingRule.count({ where: { calculatorId } })
     }
   });
+
+  revalidateCalculator(calculatorId);
+  redirect(`/dashboard/calculators/${calculatorId}`);
+}
+
+export async function updatePricingRuleAction(formData: FormData) {
+  const user = await getOrCreateMockUser();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const ruleId = requiredString(formData, "ruleId", "");
+  const ruleType = normalizePricingRuleType(requiredString(formData, "ruleType", "base_price"));
+  const questionId = optionalString(formData, "questionId");
+  const option = optionalString(formData, "option");
+  const amount = currencyString(formData.get("amount"));
+  const sortOrder = Math.max(0, integerValue(formData.get("sortOrder")) - 1);
+
+  if (!calculatorId || !ruleId) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  const rule = await prisma.pricingRule.findFirst({
+    where: {
+      id: ruleId,
+      calculatorId,
+      calculator: {
+        userId: user.id,
+        isArchived: false
+      }
+    },
+    select: { id: true }
+  });
+
+  if (!rule) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  await prisma.pricingRule.update({
+    where: { id: rule.id },
+    data: {
+      ruleType,
+      questionId: ruleType === "base_price" ? null : questionId,
+      ruleConfig: ruleType === "base_price" ? Prisma.DbNull : buildRuleConfig(questionId, option) ?? Prisma.DbNull,
+      amount,
+      sortOrder
+    }
+  });
+
+  revalidateCalculator(calculatorId);
+  redirect(`/dashboard/calculators/${calculatorId}`);
+}
+
+export async function deletePricingRuleAction(formData: FormData) {
+  const user = await getOrCreateMockUser();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const ruleId = requiredString(formData, "ruleId", "");
+
+  if (!calculatorId || !ruleId) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  const rule = await prisma.pricingRule.findFirst({
+    where: {
+      id: ruleId,
+      calculatorId,
+      calculator: {
+        userId: user.id,
+        isArchived: false
+      }
+    },
+    select: { id: true }
+  });
+
+  if (!rule) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  await prisma.pricingRule.delete({ where: { id: rule.id } });
 
   revalidateCalculator(calculatorId);
   redirect(`/dashboard/calculators/${calculatorId}`);
@@ -377,9 +533,21 @@ function optionalString(formData: FormData, key: string) {
   return value || null;
 }
 
+function parseOptionList(value: FormDataEntryValue | null) {
+  return String(value ?? "")
+    .split(",")
+    .map((option) => option.trim())
+    .filter(Boolean);
+}
+
 function currencyString(value: FormDataEntryValue | null) {
   const numberValue = Number(String(value ?? "0").replace(/[^0-9.-]/g, ""));
   return Number.isFinite(numberValue) ? numberValue.toFixed(2) : "0.00";
+}
+
+function integerValue(value: FormDataEntryValue | null) {
+  const numberValue = Number(String(value ?? "0").replace(/[^0-9-]/g, ""));
+  return Number.isFinite(numberValue) ? Math.max(0, Math.round(numberValue)) : 0;
 }
 
 function normalizeQuestionType(questionType: string): QuoteQuestion["questionType"] {
@@ -388,6 +556,19 @@ function normalizeQuestionType(questionType: string): QuoteQuestion["questionTyp
   }
 
   return "TEXT";
+}
+
+function normalizePricingRuleType(ruleType: string) {
+  if (
+    ruleType === "base_price" ||
+    ruleType === "quantity_multiplier" ||
+    ruleType === "option_price" ||
+    ruleType === "checkbox_addon"
+  ) {
+    return ruleType;
+  }
+
+  return "base_price";
 }
 
 function getDefaultRuleType(questionType: QuoteQuestion["questionType"]) {
