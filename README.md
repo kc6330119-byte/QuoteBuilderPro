@@ -1,0 +1,110 @@
+# QuoteBuilder Pro
+
+QuoteBuilder Pro is a SaaS MVP foundation for creating pricing and quote calculators, publishing public quote pages, collecting customer submissions, and reviewing leads.
+
+## Stack
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- Prisma ORM
+- Neon Postgres
+- Netlify-ready deployment
+- Mock authentication
+- No Stripe and no AI in this MVP
+
+## Routes
+
+- `/` - landing page
+- `/dashboard` - SaaS dashboard overview
+- `/dashboard/calculators` - calculator list
+- `/dashboard/calculators/new` - calculator builder
+- `/dashboard/leads` - quote submission leads
+- `/quote/[slug]` - public quote page
+
+## Local setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create your environment file:
+
+```bash
+cp .env.example .env
+```
+
+3. Add your Neon connection strings to `.env`.
+
+Use the pooled Neon connection string for `DATABASE_URL` and the direct Neon connection string for `DIRECT_URL`.
+
+4. Generate Prisma Client:
+
+```bash
+npm run prisma:generate
+```
+
+5. Create database tables:
+
+```bash
+npm run prisma:migrate
+```
+
+6. Run the app:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Neon and Prisma
+
+The Prisma schema is in `prisma/schema.prisma` and includes:
+
+- `User`
+- `Calculator`
+- `CalculatorField`
+- `QuoteSubmission`
+- `CalculatorStatus`
+- `FieldType`
+- `LeadStatus`
+
+The app currently reads from mock data in `lib/mock-data.ts` so the UI works before a database exists. When you are ready to persist data, replace mock reads with Prisma queries from `lib/prisma.ts`.
+
+## Mock authentication
+
+Authentication is intentionally mocked for now in `lib/auth.ts`. You can change the displayed user by setting:
+
+```bash
+MOCK_AUTH_EMAIL="owner@quotebuilder.pro"
+MOCK_AUTH_NAME="Demo Owner"
+```
+
+## Netlify deployment
+
+This project includes `netlify.toml` with the Next.js plugin enabled.
+
+Set these environment variables in Netlify:
+
+- `DATABASE_URL`
+- `DIRECT_URL`
+- `NEXT_PUBLIC_APP_URL`
+- `MOCK_AUTH_EMAIL`
+- `MOCK_AUTH_NAME`
+
+Then deploy with the default build command:
+
+```bash
+npm run build
+```
+
+## Next implementation steps
+
+- Replace mock calculator and lead data with Prisma reads and writes.
+- Add real authentication.
+- Add create/update/delete workflows for calculators.
+- Persist public quote submissions to `QuoteSubmission`.
+- Add teams, billing, and analytics after the core workflow is validated.

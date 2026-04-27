@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String?
+  avatarUrl   String?
+  calculators Calculator[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Calculator {
+  id          String            @id @default(cuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String            @unique
+  description String?
+  status      CalculatorStatus  @default(DRAFT)
+  currency    String            @default("USD")
+  basePrice   Int               @default(0)
+  fields      CalculatorField[]
+  submissions QuoteSubmission[]
+  publishedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model CalculatorField {
+  id           String        @id @default(cuid())
+  calculatorId String
+  calculator   Calculator    @relation(fields: [calculatorId], references: [id], onDelete: Cascade)
+  label        String
+  key          String
+  type         FieldType
+  unit         String?
+  required     Boolean       @default(true)
+  min          Int?
+  max          Int?
+  pricePerUnit Int?
+  priceDelta   Int?
+  options      Json?
+  sortOrder    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([calculatorId])
+}
+
+model QuoteSubmission {
+  id           String     @id @default(cuid())
+  calculatorId String
+  calculator   Calculator @relation(fields: [calculatorId], references: [id], onDelete: Cascade)
+  name         String
+  email        String
+  company      String?
+  phone        String?
+  message      String?
+  answers      Json
+  totalCents   Int
+  status       LeadStatus @default(NEW)
+  metadata     Json?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([calculatorId])
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum CalculatorStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum FieldType {
+  NUMBER
+  SELECT
+  BOOLEAN
+  TEXT
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  WON
+  LOST
+}
