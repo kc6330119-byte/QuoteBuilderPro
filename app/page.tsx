@@ -2,13 +2,16 @@ import Link from "next/link";
 import {
   ArrowRight,
   BarChart3,
+  BookOpenCheck,
   CheckCircle2,
   CircleDollarSign,
   ClipboardList,
   Clock3,
   FileText,
+  Lightbulb,
   LockKeyhole,
   PlayCircle,
+  Route,
   ShieldCheck,
   Sparkles,
   TimerReset,
@@ -16,11 +19,13 @@ import {
   Workflow
 } from "lucide-react";
 import { ButtonLink } from "@/components/button";
+import { howToUseSteps, howToUseTips } from "@/lib/how-to-use";
 import { calculators } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
 
 export default function LandingPage() {
   const totalLeads = calculators.reduce((sum, calculator) => sum + calculator.leads, 0);
+  const guideIcons = [BookOpenCheck, Route, CircleDollarSign, CheckCircle2, Workflow, Users];
 
   return (
     <main className="min-h-screen bg-[#f7faff] text-ink">
@@ -38,8 +43,8 @@ export default function LandingPage() {
             <a href="#features" className="transition hover:text-[#1d4ed8]">
               Features
             </a>
-            <a href="#how-it-works" className="transition hover:text-[#1d4ed8]">
-              How it works
+            <a href="#how-to-use" className="transition hover:text-[#1d4ed8]">
+              How to use
             </a>
             <a href="#templates" className="transition hover:text-[#1d4ed8]">
               Templates
@@ -207,6 +212,83 @@ export default function LandingPage() {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      <section id="how-to-use" className="relative overflow-hidden border-b border-[#dbe5f4] bg-[#0f172a] text-white">
+        <div className="surface-grid absolute inset-0 opacity-10" />
+        <div className="absolute -left-28 top-10 h-72 w-72 rounded-full bg-[#2563eb] opacity-20 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-[#14b8a6] opacity-15 blur-3xl" />
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+            <div className="lg:sticky lg:top-8">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#bfdbfe]">
+                <BookOpenCheck className="h-3.5 w-3.5" />
+                How to use QuoteBuilder Pro
+              </div>
+              <h2 className="mt-5 font-display text-4xl font-black leading-tight md:text-5xl">
+                Turn a service workflow into a quote engine.
+              </h2>
+              <p className="mt-5 text-base leading-8 text-white/70">
+                The best calculators feel simple to customers because the business logic is organized behind the
+                scenes. Start narrow, branch only when needed, and publish once the quote paths feel trustworthy.
+              </p>
+              <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.07] p-5">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#dbeafe] text-[#1d4ed8]">
+                    <Lightbulb className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#bfdbfe]">Best first build</p>
+                    <p className="font-display text-lg font-black">One service, one calculator, one clean quote path.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {howToUseSteps.map((step, index) => {
+                const Icon = guideIcons[index] ?? ClipboardList;
+                return (
+                  <article
+                    key={step.step}
+                    className="group rounded-xl border border-white/10 bg-white/[0.06] p-5 shadow-soft backdrop-blur transition duration-200 hover:-translate-y-1 hover:bg-white/[0.09]"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <span className="font-display text-sm font-black text-[#93c5fd]">{step.step}</span>
+                      <span className="flex h-10 w-10 items-center justify-center rounded-md bg-white text-[#1d4ed8] transition group-hover:rotate-3">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                    </div>
+                    <h3 className="mt-4 font-display text-xl font-black">{step.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-white/70">{step.body}</p>
+                    <p className="mt-4 rounded-md border border-[#93c5fd]/20 bg-[#1d4ed8]/15 px-3 py-2 text-xs font-semibold leading-5 text-[#dbeafe]">
+                      Tip: {step.tip}
+                    </p>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-8 rounded-xl border border-white/10 bg-white p-5 text-[#111827] shadow-soft">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#2563eb]">Practical tips</p>
+                <h3 className="mt-2 font-display text-2xl font-black">Small choices that make calculators convert better</h3>
+              </div>
+              <ButtonLink href="/dashboard/templates" variant="secondary">
+                Start from a template <ArrowRight className="h-4 w-4" />
+              </ButtonLink>
+            </div>
+            <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {howToUseTips.map((tip) => (
+                <div key={tip} className="rounded-lg border border-[#dbe5f4] bg-[#f8fbff] px-4 py-3 text-sm font-semibold leading-6 text-[#334155]">
+                  {tip}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
