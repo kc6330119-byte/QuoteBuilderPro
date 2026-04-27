@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, FilePlus2, LayoutDashboard, Users } from "lucide-react";
+import { ClipboardList, FilePlus2, LayoutDashboard, Layers3, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Calculators", href: "/dashboard/calculators", icon: ClipboardList },
   { name: "Create", href: "/dashboard/calculators/new", icon: FilePlus2 },
+  { name: "Templates", href: "/dashboard/templates", icon: Layers3 },
   { name: "Leads", href: "/dashboard/leads", icon: Users }
 ];
 
