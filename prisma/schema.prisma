@@ -26,6 +26,7 @@ model Calculator {
   businessType String?
   description  String?
   isPublished  Boolean @default(false)
+  isArchived   Boolean @default(false)
 
   questions    Question[]
   pricingRules PricingRule[]
@@ -70,6 +71,7 @@ model QuoteSubmission {
   customerNotes  String?
   answers        Json
   estimatedPrice Decimal    @db.Decimal(18, 2)
+  status         String     @default("NEW")
   createdAt      DateTime   @default(now())
 }
 

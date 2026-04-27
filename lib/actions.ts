@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateMockUser, getQuoteCalculatorBySlug, type QuoteQuestion } from "@/lib/calculator-data";
+import { getOrCreateMockUser, getQuoteCalculatorBySlug, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
 import { calculateQuote, type QuoteAnswers } from "@/lib/quote-engine";
+
+const leadStatuses: LeadStatus[] = ["NEW", "CONTACTED", "WON", "LOST"];
 
 type ParsedQuestion = {
   label: string;
@@ -184,6 +186,142 @@ export async function createQuoteSubmissionAction(formData: FormData) {
   redirect(`/quote/${calculatorSlug}?submitted=1`);
 }
 
+export async function updateLeadStatusAction(formData: FormData) {
+  const user = await getOrCreateMockUser();
+  const leadId = requiredString(formData, "leadId", "");
+  const status = normalizeLeadStatusInput(formData.get("status"));
+
+  if (!leadId) {
+    redirect("/dashboard/leads");
+  }
+
+  const lead = await prisma.quoteSubmission.findFirst({
+    where: {
+      id: leadId,
+      calculator: {
+        userId: user.id
+      }
+    },
+    select: { id: true }
+  });
+
+  if (!lead) {
+    redirect("/dashboard/leads");
+  }
+
+  await prisma.quoteSubmission.update({
+    where: { id: lead.id },
+    data: { status }
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/leads");
+  redirect("/dashboard/leads");
+}
+
+export async function deleteLeadAction(formData: FormData) {
+  const user = await getOrCreateMockUser();
+  const leadId = requiredString(formData, "leadId", "");
+
+  if (!leadId) {
+    redirect("/dashboard/leads");
+  }
+
+  const lead = await prisma.quoteSubmission.findFirst({
+    where: {
+      id: leadId,
+      calculator: {
+        userId: user.id
+      }
+    },
+    select: { id: true }
+  });
+
+  if (!lead) {
+    redirect("/dashboard/leads");
+  }
+
+  await prisma.quoteSubmission.delete({
+    where: { id: lead.id }
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/leads");
+  redirect("/dashboard/leads");
+}
+
+export async function archiveCalculatorAction(formData: FormData) {
+  const user = await getOrCreateMockUser();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+
+  if (!calculatorId) {
+    redirect("/dashboard/calculators");
+  }
+
+  const calculator = await prisma.calculator.findFirst({
+    where: {
+      id: calculatorId,
+      userId: user.id
+    },
+    select: {
+      id: true,
+      slug: true
+    }
+  });
+
+  if (!calculator) {
+    redirect("/dashboard/calculators");
+  }
+
+  await prisma.calculator.update({
+    where: { id: calculator.id },
+    data: {
+      isArchived: true,
+      isPublished: false
+    }
+  });
+
+  revalidateCalculator(calculator.id);
+  revalidatePath(`/quote/${calculator.slug}`);
+  redirect("/dashboard/calculators");
+}
+
+export async function deleteCalculatorAction(formData: FormData) {
+  const user = await getOrCreateMockUser();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+
+  if (!calculatorId) {
+    redirect("/dashboard/calculators");
+  }
+
+  const calculator = await prisma.calculator.findFirst({
+    where: {
+      id: calculatorId,
+      userId: user.id
+    },
+    select: {
+      id: true,
+      slug: true
+    }
+  });
+
+  if (!calculator) {
+    redirect("/dashboard/calculators");
+  }
+
+  await prisma.$transaction([
+    prisma.quoteSubmission.deleteMany({ where: { calculatorId: calculator.id } }),
+    prisma.pricingRule.deleteMany({ where: { calculatorId: calculator.id } }),
+    prisma.question.deleteMany({ where: { calculatorId: calculator.id } }),
+    prisma.calculator.delete({ where: { id: calculator.id } })
+  ]);
+
+  revalidateCalculator(calculator.id);
+  revalidatePath("/dashboard/leads");
+  revalidatePath(`/quote/${calculator.slug}`);
+  redirect("/dashboard/calculators");
+}
+
 function parseQuestions(formData: FormData): ParsedQuestion[] {
   const ids = formData.getAll("questionIds").map(String);
 
@@ -267,6 +405,12 @@ function buildRuleConfig(questionId: string | null, option: string | null) {
   if (option) config.option = option;
 
   return Object.keys(config).length > 0 ? config : undefined;
+}
+
+function normalizeLeadStatusInput(value: FormDataEntryValue | null): LeadStatus {
+  const status = String(value ?? "");
+
+  return leadStatuses.includes(status as LeadStatus) ? (status as LeadStatus) : "NEW";
 }
 
 function revalidateCalculator(calculatorId: string) {

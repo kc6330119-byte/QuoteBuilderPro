@@ -24,9 +24,12 @@ export type LeadListItem = {
   customerPhone: string | null;
   customerNotes: string | null;
   estimatedPrice: number;
+  status: LeadStatus;
   answersSummary: string;
   createdAt: Date | string;
 };
+
+export type LeadStatus = "NEW" | "CONTACTED" | "WON" | "LOST";
 
 export type QuoteQuestion = {
   id: string;
@@ -75,6 +78,7 @@ export async function getOrCreateMockUser() {
 
 export async function getCalculatorListItems(): Promise<CalculatorListItem[]> {
   const calculators = await prisma.calculator.findMany({
+    where: { isArchived: false },
     include: {
       questions: true,
       submissions: true
@@ -104,8 +108,8 @@ export async function getCalculatorListItems(): Promise<CalculatorListItem[]> {
 
 export async function getDashboardStats() {
   const [calculatorCount, publishedCount, leadCount, leadTotals] = await Promise.all([
-    prisma.calculator.count(),
-    prisma.calculator.count({ where: { isPublished: true } }),
+    prisma.calculator.count({ where: { isArchived: false } }),
+    prisma.calculator.count({ where: { isPublished: true, isArchived: false } }),
     prisma.quoteSubmission.count(),
     prisma.quoteSubmission.findMany({ select: { estimatedPrice: true } })
   ]);
@@ -141,6 +145,7 @@ export async function getLeadListItems(limit?: number): Promise<LeadListItem[]> 
     customerPhone: submission.customerPhone,
     customerNotes: submission.customerNotes,
     estimatedPrice: Number(submission.estimatedPrice),
+    status: normalizeLeadStatus(submission.status),
     answersSummary: summarizeAnswers(submission.answers),
     createdAt: submission.createdAt
   }));
@@ -159,7 +164,7 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
     }
   });
 
-  if (!calculator) {
+  if (!calculator || calculator.isArchived) {
     return null;
   }
 
@@ -212,6 +217,10 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
   });
 
   if (calculator) {
+    if (calculator.isArchived || !calculator.isPublished) {
+      return null;
+    }
+
     const questions = calculator.questions.map((question) => ({
       id: question.id,
       label: question.label,
@@ -355,4 +364,12 @@ function summarizeAnswers(answers: unknown) {
     .filter((value): value is string => Boolean(value));
 
   return values.length > 0 ? values.join(" | ") : "No answers captured.";
+}
+
+function normalizeLeadStatus(status: string): LeadStatus {
+  if (status === "CONTACTED" || status === "WON" || status === "LOST") {
+    return status;
+  }
+
+  return "NEW";
 }

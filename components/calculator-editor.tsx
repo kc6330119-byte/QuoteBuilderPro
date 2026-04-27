@@ -1,6 +1,7 @@
 import { ArrowUpRight, Plus, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/badge";
 import { ButtonLink } from "@/components/button";
+import { CalculatorDangerActions } from "@/components/calculator-danger-actions";
 import { SubmitButton } from "@/components/submit-button";
 import { addPricingRuleAction, addQuestionAction } from "@/lib/actions";
 import type { CalculatorEditor as CalculatorEditorData } from "@/lib/calculator-data";
@@ -177,6 +178,8 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
             <Plus className="h-4 w-4" /> Add pricing rule
           </SubmitButton>
         </form>
+
+        <CalculatorDangerActions calculatorId={calculator.id} calculatorName={calculator.name} />
       </aside>
     </div>
   );
