@@ -639,6 +639,10 @@ function buildVisibilityCondition(questionId: string | null, rawValue: string | 
   }
 
   const value = rawValue?.trim() ?? "";
+  if (!value) {
+    return null;
+  }
+
   const normalizedValue = value.toLowerCase();
 
   if (normalizedValue === "true" || normalizedValue === "checked" || normalizedValue === "yes" || normalizedValue === "on") {
