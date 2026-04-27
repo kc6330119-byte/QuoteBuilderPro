@@ -12,10 +12,12 @@ type Answers = Record<string, number | string | boolean>;
 
 export function PublicQuoteForm({
   calculator,
-  submitted = false
+  submitted = false,
+  variant = "page"
 }: {
   calculator: QuoteCalculator;
   submitted?: boolean;
+  variant?: "page" | "embed";
 }) {
   const [answers, setAnswers] = useState<Answers>(() =>
     Object.fromEntries(
@@ -38,7 +40,9 @@ export function PublicQuoteForm({
         <CheckCircle2 className="h-10 w-10 text-teal-700" />
         <h2 className="mt-4 font-display text-2xl font-bold text-ink">Quote request received</h2>
         <p className="mt-2 text-sm leading-6 text-coal/70">
-          Your estimate was submitted. The lead is now available in the dashboard leads view.
+          {variant === "embed"
+            ? "Your estimate was submitted. The business will follow up with you soon."
+            : "Your estimate was submitted. The lead is now available in the dashboard leads view."}
         </p>
         <p className="mt-4 text-sm font-semibold text-teal-700">Estimated Price: {formatDollars(total)}</p>
       </div>
@@ -48,7 +52,7 @@ export function PublicQuoteForm({
   return (
     <form
       action={calculator.source === "database" ? createQuoteSubmissionAction : undefined}
-      className="grid gap-6 lg:grid-cols-[1fr_340px]"
+      className={variant === "embed" ? "grid gap-5 lg:grid-cols-[1fr_300px]" : "grid gap-6 lg:grid-cols-[1fr_340px]"}
       onSubmit={(event) => {
         if (calculator.source === "mock") {
           event.preventDefault();
@@ -58,14 +62,15 @@ export function PublicQuoteForm({
     >
       <input type="hidden" name="calculatorId" value={calculator.id} />
       <input type="hidden" name="calculatorSlug" value={calculator.slug} />
+      <input type="hidden" name="returnTo" value={variant === "embed" ? `/embed/${calculator.slug}` : `/quote/${calculator.slug}`} />
       <section className="space-y-5">
         {visibleQuestions.length < calculator.questions.length ? (
           <div className="rounded-lg border border-teal-100 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800">
-            Showing {visibleQuestions.length} of {calculator.questions.length} questions based on your selections.
+            Showing the next questions based on your selections.
           </div>
         ) : null}
         {visibleQuestions.map((question) => (
-          <div key={question.id} className="rounded-lg border border-line bg-white p-5 shadow-crisp">
+          <div key={question.id} className={variant === "embed" ? "rounded-lg border border-line bg-white p-4" : "rounded-lg border border-line bg-white p-5 shadow-crisp"}>
             <label className="block text-sm font-bold text-ink" htmlFor={question.id}>
               {question.label}
               {question.isRequired ? <span className="ml-1 text-coral">*</span> : null}
@@ -126,7 +131,7 @@ export function PublicQuoteForm({
             ) : null}
           </div>
         ))}
-        <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
+        <div className={variant === "embed" ? "rounded-lg border border-line bg-white p-4" : "rounded-lg border border-line bg-white p-5 shadow-crisp"}>
           <h2 className="font-display text-xl font-bold text-ink">Your contact details</h2>
           <p className="mt-1 text-sm text-coal/70">Required fields are validated before the quote request is saved.</p>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -158,9 +163,9 @@ export function PublicQuoteForm({
         </div>
       </section>
       <aside>
-        <div className="sticky top-6 rounded-lg border border-line bg-ink p-5 text-white shadow-soft">
+        <div className={variant === "embed" ? "rounded-lg border border-line bg-ink p-4 text-white" : "sticky top-6 rounded-lg border border-line bg-ink p-5 text-white shadow-soft"}>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Estimated Price</p>
-          <p className="mt-3 font-display text-4xl font-bold">{formatDollars(total)}</p>
+          <p className={variant === "embed" ? "mt-3 font-display text-3xl font-bold" : "mt-3 font-display text-4xl font-bold"}>{formatDollars(total)}</p>
           <p className="mt-3 text-sm leading-6 text-white/70">
             This updates in real time as customers answer the quote questions.
           </p>

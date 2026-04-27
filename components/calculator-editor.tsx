@@ -2,6 +2,7 @@ import { ArrowUpRight, Plus, Save, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/badge";
 import { ButtonLink } from "@/components/button";
 import { CalculatorDangerActions } from "@/components/calculator-danger-actions";
+import { CalculatorEmbedPanel } from "@/components/calculator-embed-panel";
 import { EditorDeleteForm } from "@/components/editor-delete-form";
 import { SubmitButton } from "@/components/submit-button";
 import { addPricingRuleAction, addQuestionAction, updatePricingRuleAction, updateQuestionAction } from "@/lib/actions";
@@ -10,6 +11,7 @@ import { formatDollars } from "@/lib/utils";
 
 export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorData }) {
   const questionLabels = new Map(calculator.questions.map((question) => [question.id, question.label]));
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
@@ -30,6 +32,8 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
             </ButtonLink>
           </div>
         </div>
+
+        <CalculatorEmbedPanel slug={calculator.slug} isPublished={calculator.isPublished} appUrl={appUrl} />
 
         <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
           <div className="flex items-center justify-between gap-4">

@@ -322,10 +322,11 @@ export async function deletePricingRuleAction(formData: FormData) {
 export async function createQuoteSubmissionAction(formData: FormData) {
   const calculatorId = requiredString(formData, "calculatorId", "");
   const calculatorSlug = requiredString(formData, "calculatorSlug", "");
+  const returnTo = normalizeQuoteReturnPath(optionalString(formData, "returnTo"), calculatorSlug);
   const calculator = await getQuoteCalculatorBySlug(calculatorSlug);
 
   if (!calculator || calculator.source !== "database" || calculator.id !== calculatorId) {
-    redirect(`/quote/${calculatorSlug}`);
+    redirect(returnTo);
   }
 
   const rawAnswers: QuoteAnswers = Object.fromEntries(
@@ -362,7 +363,7 @@ export async function createQuoteSubmissionAction(formData: FormData) {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/leads");
   revalidatePath("/dashboard/calculators");
-  redirect(`/quote/${calculatorSlug}?submitted=1`);
+  redirect(`${returnTo}?submitted=1`);
 }
 
 export async function updateLeadStatusAction(formData: FormData) {
@@ -638,6 +639,14 @@ function normalizeLeadStatusInput(value: FormDataEntryValue | null): LeadStatus 
   const status = String(value ?? "");
 
   return leadStatuses.includes(status as LeadStatus) ? (status as LeadStatus) : "NEW";
+}
+
+function normalizeQuoteReturnPath(value: string | null, slug: string) {
+  if (value === `/embed/${slug}` || value === `/quote/${slug}`) {
+    return value;
+  }
+
+  return `/quote/${slug}`;
 }
 
 function revalidateCalculator(calculatorId: string) {
