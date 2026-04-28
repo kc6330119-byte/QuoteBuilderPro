@@ -211,6 +211,31 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
   };
 }
 
+export async function getQuoteCalculatorPreviewById(id: string): Promise<QuoteCalculator | null> {
+  const calculator = await getCalculatorEditorById(id);
+
+  if (!calculator) {
+    return null;
+  }
+
+  return {
+    id: calculator.id,
+    name: calculator.name,
+    slug: calculator.slug,
+    description: calculator.description || "Answer a few questions and receive a working estimate.",
+    isPublished: calculator.isPublished,
+    source: "database",
+    questions: calculator.questions,
+    rules: calculator.rules.map(({ id: ruleId, questionId, ruleType, ruleConfig, amount }) => ({
+      id: ruleId,
+      questionId,
+      ruleType,
+      ruleConfig,
+      amount
+    }))
+  };
+}
+
 export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalculator | null> {
   const calculator = await prisma.calculator.findUnique({
     where: { slug },

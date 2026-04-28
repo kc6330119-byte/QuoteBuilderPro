@@ -69,7 +69,12 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
           </form>
         </div>
 
-        <CalculatorEmbedPanel slug={calculator.slug} isPublished={calculator.isPublished} appUrl={appUrl} />
+        <CalculatorEmbedPanel
+          id={calculator.id}
+          slug={calculator.slug}
+          isPublished={calculator.isPublished}
+          appUrl={appUrl}
+        />
 
         <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
           <div className="flex items-center justify-between gap-4">

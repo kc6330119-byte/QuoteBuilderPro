@@ -5,18 +5,20 @@ import { Check, Code2, Copy, ExternalLink } from "lucide-react";
 import { Button, ButtonLink } from "@/components/button";
 
 export function CalculatorEmbedPanel({
+  id,
   slug,
   isPublished,
   appUrl
 }: {
+  id: string;
   slug: string;
   isPublished: boolean;
   appUrl: string;
 }) {
   const [copied, setCopied] = useState(false);
   const baseUrl = appUrl.replace(/\/$/, "");
-  const embedUrl = `${baseUrl}/embed/${slug}`;
   const publicUrl = `${baseUrl}/quote/${slug}`;
+  const previewUrl = `/preview/${id}`;
   const snippet = useMemo(() => `<script src="${baseUrl}/embed.js" data-slug="${slug}"></script>`, [baseUrl, slug]);
 
   async function copySnippet() {
@@ -36,8 +38,8 @@ export function CalculatorEmbedPanel({
             resizes itself as customers answer questions.
           </p>
         </div>
-        <ButtonLink href={embedUrl} target="_blank" rel="noreferrer" variant="outline">
-          Preview <ExternalLink className="h-4 w-4" />
+        <ButtonLink href={previewUrl} target="_blank" rel="noreferrer" variant="outline">
+          {isPublished ? "Preview" : "Preview draft"} <ExternalLink className="h-4 w-4" />
         </ButtonLink>
       </div>
 
@@ -75,7 +77,7 @@ export function CalculatorEmbedPanel({
           Iframe preview
         </div>
         <iframe
-          src={embedUrl}
+          src={previewUrl}
           title="Embedded quote calculator preview"
           className="block h-[720px] w-full border-0 bg-white"
         />

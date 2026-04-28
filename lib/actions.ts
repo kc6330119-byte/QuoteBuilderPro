@@ -731,5 +731,6 @@ function revalidateCalculator(calculatorId: string) {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/calculators");
   revalidatePath(`/dashboard/calculators/${calculatorId}`);
+  revalidatePath(`/preview/${calculatorId}`);
   revalidatePath("/quote/[slug]", "page");
 }

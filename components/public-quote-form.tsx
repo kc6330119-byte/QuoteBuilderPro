@@ -15,12 +15,16 @@ export function PublicQuoteForm({
   calculator,
   submitted = false,
   variant = "page",
-  legalRequired = false
+  legalRequired = false,
+  allowSubmission = true,
+  returnTo
 }: {
   calculator: QuoteCalculator;
   submitted?: boolean;
   variant?: "page" | "embed";
   legalRequired?: boolean;
+  allowSubmission?: boolean;
+  returnTo?: string;
 }) {
   const [answers, setAnswers] = useState<Answers>(() =>
     Object.fromEntries(
@@ -36,6 +40,7 @@ export function PublicQuoteForm({
 
   const visibleQuestions = useMemo(() => getVisibleQuestions(calculator.questions, answers), [answers, calculator.questions]);
   const total = useMemo(() => calculateQuote(calculator.questions, calculator.rules, answers), [answers, calculator]);
+  const submitReturnPath = returnTo ?? (variant === "embed" ? `/embed/${calculator.slug}` : `/quote/${calculator.slug}`);
 
   if (submitted || mockSubmitted) {
     return (
@@ -55,9 +60,14 @@ export function PublicQuoteForm({
 
   return (
     <form
-      action={calculator.source === "database" ? createQuoteSubmissionAction : undefined}
+      action={calculator.source === "database" && allowSubmission ? createQuoteSubmissionAction : undefined}
       className={variant === "embed" ? "grid gap-5 lg:grid-cols-[1fr_300px]" : "grid gap-6 lg:grid-cols-[1fr_340px]"}
       onSubmit={(event) => {
+        if (!allowSubmission) {
+          event.preventDefault();
+          return;
+        }
+
         if (calculator.source === "mock") {
           event.preventDefault();
           setMockSubmitted(true);
@@ -66,8 +76,14 @@ export function PublicQuoteForm({
     >
       <input type="hidden" name="calculatorId" value={calculator.id} />
       <input type="hidden" name="calculatorSlug" value={calculator.slug} />
-      <input type="hidden" name="returnTo" value={variant === "embed" ? `/embed/${calculator.slug}` : `/quote/${calculator.slug}`} />
+      <input type="hidden" name="returnTo" value={submitReturnPath} />
       <section className="space-y-5">
+        {!allowSubmission ? (
+          <div className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold leading-6 text-sky-900">
+            Preview mode is only visible to signed-in workspace members. Publish this calculator before sharing the public
+            quote page or embed code with customers.
+          </div>
+        ) : null}
         {legalRequired ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-6 text-amber-900">
             Please acknowledge the non-binding estimate disclaimer and legal terms before submitting your quote request.
@@ -201,8 +217,19 @@ export function PublicQuoteForm({
           <p className="mt-3 text-sm leading-6 text-white/70">
             This updates in real time as customers answer the quote questions.
           </p>
-          <SubmitButton variant="secondary" className="mt-5 w-full" pendingLabel="Submitting quote...">
-            Submit quote request <ArrowRight className="h-4 w-4" />
+          <SubmitButton
+            variant="secondary"
+            className="mt-5 w-full"
+            pendingLabel="Submitting quote..."
+            disabled={!allowSubmission}
+          >
+            {allowSubmission ? (
+              <>
+                Submit quote request <ArrowRight className="h-4 w-4" />
+              </>
+            ) : (
+              "Preview only"
+            )}
           </SubmitButton>
         </div>
       </aside>
