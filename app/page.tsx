@@ -24,6 +24,9 @@ import { howToUseSteps, howToUseTips } from "@/lib/how-to-use";
 import { calculators } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
 
+const demoVideoUrl =
+  "https://res.cloudinary.com/dnmrgvjdm/video/upload/v1777354631/QuoteBuiderPro_gnktap.mp4";
+
 export default function LandingPage() {
   const totalLeads = calculators.reduce((sum, calculator) => sum + calculator.leads, 0);
   const guideIcons = [BookOpenCheck, Route, CircleDollarSign, CheckCircle2, Workflow, Users];
@@ -43,6 +46,9 @@ export default function LandingPage() {
           <div className="hidden items-center gap-8 text-sm font-semibold text-coal/70 lg:flex">
             <a href="#features" className="transition hover:text-[#1d4ed8]">
               Features
+            </a>
+            <a href="#demo-video" className="transition hover:text-[#1d4ed8]">
+              Demo
             </a>
             <a href="#how-to-use" className="transition hover:text-[#1d4ed8]">
               How to use
@@ -96,7 +102,7 @@ export default function LandingPage() {
               >
                 Start your free trial <ArrowRight className="h-4 w-4" />
               </Link>
-              <ButtonLink href="/quote/managed-it-services" variant="outline" size="lg">
+              <ButtonLink href="#demo-video" variant="outline" size="lg">
                 <PlayCircle className="h-4 w-4" /> View demo
               </ButtonLink>
             </div>
@@ -222,6 +228,62 @@ export default function LandingPage() {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      <section id="demo-video" className="border-b border-[#dbe5f4] bg-[#f8fbff] px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#bfdbfe] bg-white px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#2563eb] shadow-crisp">
+                <PlayCircle className="h-3.5 w-3.5" />
+                Product demo
+              </div>
+              <h2 className="mt-5 font-display text-4xl font-black leading-tight text-[#111827] md:text-5xl">
+                See the quote workflow in action.
+              </h2>
+              <p className="mt-5 text-base leading-8 text-[#475569]">
+                Watch how a business owner can move from template to guided calculator setup, preview the customer quote
+                flow, publish the calculator, and capture a lead.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <ButtonLink href="/dashboard/templates" variant="secondary">
+                  Try templates <ArrowRight className="h-4 w-4" />
+                </ButtonLink>
+                <a
+                  href={demoVideoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#dbe5f4] bg-white px-4 text-sm font-semibold text-coal shadow-crisp transition hover:border-[#2563eb] hover:text-[#1d4ed8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
+                >
+                  Open video <ArrowRight className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute -bottom-6 left-8 right-8 h-24 rounded-[2rem] bg-[#60a5fa] opacity-35 blur-2xl" />
+              <div className="relative overflow-hidden rounded-2xl border border-[#dbe5f4] bg-white p-3 shadow-soft">
+                <div className="flex items-center gap-2 border-b border-[#dbe5f4] px-3 py-3">
+                  <span className="h-3 w-3 rounded-full bg-[#ef4444]" />
+                  <span className="h-3 w-3 rounded-full bg-[#f59e0b]" />
+                  <span className="h-3 w-3 rounded-full bg-[#22c55e]" />
+                  <span className="ml-3 text-xs font-bold uppercase tracking-[0.14em] text-[#64748b]">
+                    QuoteBuilder Pro walkthrough
+                  </span>
+                </div>
+                <video
+                  controls
+                  preload="metadata"
+                  playsInline
+                  className="aspect-video w-full rounded-xl bg-[#0f172a]"
+                >
+                  <source src={demoVideoUrl} type="video/mp4" />
+                  Your browser does not support the video tag. Open the demo video link instead.
+                </video>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
