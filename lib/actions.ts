@@ -369,6 +369,47 @@ export async function updateCalculatorPublishStatusAction(formData: FormData) {
   redirect(`/dashboard/calculators/${calculator.id}`);
 }
 
+export async function updateCalculatorBrandingAction(formData: FormData) {
+  const workspace = await getCurrentWorkspace();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+
+  if (!calculatorId) {
+    redirect("/dashboard/calculators");
+  }
+
+  const calculator = await prisma.calculator.findFirst({
+    where: {
+      id: calculatorId,
+      companyId: workspace.companyId,
+      isArchived: false
+    },
+    select: {
+      id: true,
+      slug: true
+    }
+  });
+
+  if (!calculator) {
+    redirect("/dashboard/calculators");
+  }
+
+  await prisma.calculator.update({
+    where: { id: calculator.id },
+    data: {
+      brandName: optionalString(formData, "brandName"),
+      brandLogoUrl: optionalUrl(formData, "brandLogoUrl"),
+      brandColor: optionalHexColor(formData, "brandColor"),
+      brandIntro: optionalString(formData, "brandIntro"),
+      brandFooter: optionalString(formData, "brandFooter")
+    }
+  });
+
+  revalidateCalculator(calculator.id);
+  revalidatePath(`/quote/${calculator.slug}`);
+  revalidatePath(`/embed/${calculator.slug}`);
+  redirect(`/dashboard/calculators/${calculator.id}`);
+}
+
 export async function createQuoteSubmissionAction(formData: FormData) {
   const calculatorId = requiredString(formData, "calculatorId", "");
   const calculatorSlug = requiredString(formData, "calculatorSlug", "");
@@ -629,6 +670,23 @@ function requiredString(formData: FormData, key: string, fallback: string) {
 function optionalString(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
   return value || null;
+}
+
+function optionalUrl(formData: FormData, key: string) {
+  const value = optionalString(formData, key);
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function optionalHexColor(formData: FormData, key: string) {
+  const value = optionalString(formData, key);
+  return value && /^#[0-9a-f]{6}$/i.test(value) ? value : null;
 }
 
 function parseOptionList(value: FormDataEntryValue | null) {

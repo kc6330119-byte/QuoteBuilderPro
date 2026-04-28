@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type CSSProperties, useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SubmitButton } from "@/components/submit-button";
 import { createQuoteSubmissionAction } from "@/lib/actions";
@@ -41,11 +41,12 @@ export function PublicQuoteForm({
   const visibleQuestions = useMemo(() => getVisibleQuestions(calculator.questions, answers), [answers, calculator.questions]);
   const total = useMemo(() => calculateQuote(calculator.questions, calculator.rules, answers), [answers, calculator]);
   const submitReturnPath = returnTo ?? (variant === "embed" ? `/embed/${calculator.slug}` : `/quote/${calculator.slug}`);
+  const quoteTheme = { "--quote-brand": calculator.branding.primaryColor } as CSSProperties;
 
   if (submitted || mockSubmitted) {
     return (
-      <div className="rounded-lg border border-teal-100 bg-teal-50 p-6">
-        <CheckCircle2 className="h-10 w-10 text-teal-700" />
+      <div className="rounded-lg border border-teal-100 bg-teal-50 p-6" style={quoteTheme}>
+        <CheckCircle2 className="h-10 w-10" style={{ color: calculator.branding.primaryColor }} />
         <h2 className="mt-4 font-display text-2xl font-bold text-ink">Quote request received</h2>
         <p className="mt-2 text-sm leading-6 text-coal/70">
           {variant === "embed"
@@ -62,6 +63,7 @@ export function PublicQuoteForm({
     <form
       action={calculator.source === "database" && allowSubmission ? createQuoteSubmissionAction : undefined}
       className={variant === "embed" ? "grid gap-5 lg:grid-cols-[1fr_300px]" : "grid gap-6 lg:grid-cols-[1fr_340px]"}
+      style={quoteTheme}
       onSubmit={(event) => {
         if (!allowSubmission) {
           event.preventDefault();
@@ -111,7 +113,7 @@ export function PublicQuoteForm({
                   setAnswers((current) => ({ ...current, [question.id]: Number(event.target.value) }))
                 }
                 required={question.isRequired}
-                className="mt-3 h-12 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="mt-3 h-12 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
               />
             ) : null}
             {question.questionType === "SELECT" ? (
@@ -121,7 +123,7 @@ export function PublicQuoteForm({
                 value={String(answers[question.id])}
                 onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))}
                 required={question.isRequired}
-                className="mt-3 h-12 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="mt-3 h-12 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
               >
                 {question.options.map((option) => (
                   <option key={option} value={option}>
@@ -139,7 +141,7 @@ export function PublicQuoteForm({
                   value="true"
                   checked={Boolean(answers[question.id])}
                   onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.checked }))}
-                  className="h-5 w-5 accent-teal-700"
+                  className="h-5 w-5 accent-[var(--quote-brand)]"
                 />
               </label>
             ) : null}
@@ -151,7 +153,7 @@ export function PublicQuoteForm({
                 value={String(answers[question.id])}
                 onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))}
                 required={question.isRequired}
-                className="mt-3 w-full rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="mt-3 w-full rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
               />
             ) : null}
           </div>
@@ -164,25 +166,25 @@ export function PublicQuoteForm({
               required
               name="customerName"
               placeholder="Name"
-              className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-teal-600 focus:bg-white"
+              className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white"
             />
             <input
               required
               name="customerEmail"
               type="email"
               placeholder="Email"
-              className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-teal-600 focus:bg-white"
+              className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white"
             />
             <input
               name="customerPhone"
               placeholder="Phone"
-              className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-teal-600 focus:bg-white"
+              className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white"
             />
             <textarea
               name="customerNotes"
               placeholder="Project notes"
               rows={4}
-              className="rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none focus:border-teal-600 focus:bg-white md:col-span-2"
+              className="rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white md:col-span-2"
             />
           </div>
           <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 px-4 py-3">
@@ -193,7 +195,7 @@ export function PublicQuoteForm({
                 required
                 name="acceptedLegalAcknowledgement"
                 type="checkbox"
-                className="mt-1 h-4 w-4 shrink-0 accent-teal-700"
+                className="mt-1 h-4 w-4 shrink-0 accent-[var(--quote-brand)]"
               />
               <span>
                 I understand this is a non-binding estimate and agree to the{" "}
@@ -211,7 +213,10 @@ export function PublicQuoteForm({
         </div>
       </section>
       <aside>
-        <div className={variant === "embed" ? "rounded-lg border border-line bg-ink p-4 text-white" : "sticky top-6 rounded-lg border border-line bg-ink p-5 text-white shadow-soft"}>
+        <div
+          className={variant === "embed" ? "rounded-lg border border-line p-4 text-white" : "sticky top-6 rounded-lg border border-line p-5 text-white shadow-soft"}
+          style={{ background: `linear-gradient(135deg, ${calculator.branding.primaryColor}, #111827 72%)` }}
+        >
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Estimated Price</p>
           <p className={variant === "embed" ? "mt-3 font-display text-3xl font-bold" : "mt-3 font-display text-4xl font-bold"}>{formatDollars(total)}</p>
           <p className="mt-3 text-sm leading-6 text-white/70">
@@ -219,7 +224,7 @@ export function PublicQuoteForm({
           </p>
           <SubmitButton
             variant="secondary"
-            className="mt-5 w-full"
+            className="mt-5 w-full border border-white/15 bg-white text-ink hover:bg-white/90"
             pendingLabel="Submitting quote..."
             disabled={!allowSubmission}
           >
@@ -232,6 +237,12 @@ export function PublicQuoteForm({
             )}
           </SubmitButton>
         </div>
+        {calculator.branding.footerText ? (
+          <div className="mt-4 rounded-lg border border-line bg-white p-4 text-sm leading-6 text-coal/70">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-coal/45">{calculator.branding.displayName} note</p>
+            <p className="mt-2">{calculator.branding.footerText}</p>
+          </div>
+        ) : null}
       </aside>
     </form>
   );

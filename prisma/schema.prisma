@@ -40,6 +40,11 @@ model Calculator {
   slug         String   @unique
   businessType String?
   description  String?
+  brandName    String?
+  brandLogoUrl String?
+  brandColor   String?
+  brandIntro   String?
+  brandFooter  String?
   isPublished  Boolean  @default(false)
   isArchived   Boolean  @default(false)
 

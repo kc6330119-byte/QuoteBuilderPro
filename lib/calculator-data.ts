@@ -50,6 +50,14 @@ export type QuoteQuestion = {
 
 export type QuotePricingRule = EnginePricingRule;
 
+export type CalculatorBranding = {
+  displayName: string;
+  logoUrl: string | null;
+  primaryColor: string;
+  introText: string;
+  footerText: string | null;
+};
+
 export type QuoteCalculator = {
   id: string;
   name: string;
@@ -57,6 +65,7 @@ export type QuoteCalculator = {
   description: string;
   isPublished: boolean;
   source: "database" | "mock";
+  branding: CalculatorBranding;
   questions: QuoteQuestion[];
   rules: QuotePricingRule[];
 };
@@ -67,9 +76,12 @@ export type CalculatorEditor = {
   slug: string;
   description: string;
   isPublished: boolean;
+  branding: CalculatorBranding;
   questions: QuoteQuestion[];
   rules: Array<QuotePricingRule & { label: string; configLabel: string; option: string }>;
 };
+
+const defaultBrandColor = "#2563eb";
 
 export async function getCalculatorListItems(): Promise<CalculatorListItem[]> {
   const workspace = await getCurrentWorkspace();
@@ -192,6 +204,7 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
     slug: calculator.slug,
     description: calculator.description ?? "",
     isPublished: calculator.isPublished,
+    branding: normalizeBranding(calculator),
     questions,
     rules: calculator.pricingRules.map((rule) => {
       const ruleType = getDisplayRuleType(rule.ruleType, questionMap.get(rule.questionId ?? "")?.questionType);
@@ -225,6 +238,7 @@ export async function getQuoteCalculatorPreviewById(id: string): Promise<QuoteCa
     description: calculator.description || "Answer a few questions and receive a working estimate.",
     isPublished: calculator.isPublished,
     source: "database",
+    branding: calculator.branding,
     questions: calculator.questions,
     rules: calculator.rules.map(({ id: ruleId, questionId, ruleType, ruleConfig, amount }) => ({
       id: ruleId,
@@ -273,6 +287,7 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
       description: calculator.description ?? "Answer a few questions and receive a working estimate.",
       isPublished: calculator.isPublished,
       source: "database",
+      branding: normalizeBranding(calculator),
       questions,
       rules: calculator.pricingRules.map((rule) => ({
         id: rule.id,
@@ -296,6 +311,13 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
     description: mock.description,
     isPublished: true,
     source: "mock",
+    branding: {
+      displayName: mock.name,
+      logoUrl: null,
+      primaryColor: defaultBrandColor,
+      introText: mock.description,
+      footerText: null
+    },
     questions: mock.fields.map((field, index) => ({
       id: field.id,
       label: field.label,
@@ -359,6 +381,34 @@ function normalizeOptions(options: unknown): string[] {
   }
 
   return [];
+}
+
+function normalizeBranding(calculator: {
+  name: string;
+  description: string | null;
+  brandName: string | null;
+  brandLogoUrl: string | null;
+  brandColor: string | null;
+  brandIntro: string | null;
+  brandFooter: string | null;
+}): CalculatorBranding {
+  const description = calculator.description ?? "Answer a few questions and receive a working estimate.";
+
+  return {
+    displayName: calculator.brandName?.trim() || calculator.name,
+    logoUrl: calculator.brandLogoUrl?.trim() || null,
+    primaryColor: normalizeBrandColor(calculator.brandColor),
+    introText: calculator.brandIntro?.trim() || description,
+    footerText: calculator.brandFooter?.trim() || null
+  };
+}
+
+function normalizeBrandColor(value: string | null) {
+  if (value && /^#[0-9a-f]{6}$/i.test(value.trim())) {
+    return value.trim();
+  }
+
+  return defaultBrandColor;
 }
 
 function getDisplayRuleType(ruleType: string, questionType?: EngineQuestionType) {
