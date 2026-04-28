@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
+import { getCurrentWorkspace } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getOrCreateMockUser, getQuoteCalculatorBySlug, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
+import { getQuoteCalculatorBySlug, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
 import { calculateQuote, getVisibleQuestions, type QuoteAnswers } from "@/lib/quote-engine";
 
 const leadStatuses: LeadStatus[] = ["NEW", "CONTACTED", "WON", "LOST"];
@@ -19,7 +20,7 @@ type ParsedQuestion = {
 };
 
 export async function createCalculatorAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const name = requiredString(formData, "name", "Untitled calculator");
   const slug = await createUniqueSlug(requiredString(formData, "slug", name));
   const description = optionalString(formData, "description");
@@ -31,7 +32,8 @@ export async function createCalculatorAction(formData: FormData) {
   const calculator = await prisma.$transaction(async (tx) => {
     const createdCalculator = await tx.calculator.create({
       data: {
-        userId: user.id,
+        userId: workspace.id,
+        companyId: workspace.companyId,
         name,
         slug,
         description,
@@ -85,6 +87,7 @@ export async function createCalculatorAction(formData: FormData) {
 }
 
 export async function addQuestionAction(formData: FormData) {
+  const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
   const label = requiredString(formData, "label", "");
   const questionType = normalizeQuestionType(requiredString(formData, "questionType", "TEXT"));
@@ -102,11 +105,16 @@ export async function addQuestionAction(formData: FormData) {
     redirect(`/dashboard/calculators/${calculatorId}`);
   }
 
-  const sortOrder = await prisma.question.count({ where: { calculatorId } });
+  const calculator = await getWorkspaceCalculator(calculatorId, workspace.companyId);
+  if (!calculator) {
+    redirect("/dashboard/calculators");
+  }
+
+  const sortOrder = await prisma.question.count({ where: { calculatorId: calculator.id } });
 
   await prisma.question.create({
     data: {
-      calculatorId,
+      calculatorId: calculator.id,
       label,
       questionType,
       options: questionType === "SELECT" ? options : Prisma.DbNull,
@@ -121,7 +129,7 @@ export async function addQuestionAction(formData: FormData) {
 }
 
 export async function updateQuestionAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
   const questionId = requiredString(formData, "questionId", "");
   const label = requiredString(formData, "label", "");
@@ -144,7 +152,7 @@ export async function updateQuestionAction(formData: FormData) {
       id: questionId,
       calculatorId,
       calculator: {
-        userId: user.id,
+        companyId: workspace.companyId,
         isArchived: false
       }
     },
@@ -172,7 +180,7 @@ export async function updateQuestionAction(formData: FormData) {
 }
 
 export async function deleteQuestionAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
   const questionId = requiredString(formData, "questionId", "");
 
@@ -185,7 +193,7 @@ export async function deleteQuestionAction(formData: FormData) {
       id: questionId,
       calculatorId,
       calculator: {
-        userId: user.id,
+        companyId: workspace.companyId,
         isArchived: false
       }
     },
@@ -218,6 +226,7 @@ export async function deleteQuestionAction(formData: FormData) {
 }
 
 export async function addPricingRuleAction(formData: FormData) {
+  const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
   const ruleType = normalizePricingRuleType(requiredString(formData, "ruleType", "base_price"));
   const questionId = optionalString(formData, "questionId");
@@ -228,23 +237,28 @@ export async function addPricingRuleAction(formData: FormData) {
     redirect("/dashboard/calculators");
   }
 
+  const calculator = await getWorkspaceCalculator(calculatorId, workspace.companyId);
+  if (!calculator) {
+    redirect("/dashboard/calculators");
+  }
+
   await prisma.pricingRule.create({
     data: {
-      calculatorId,
+      calculatorId: calculator.id,
       questionId: ruleType === "base_price" ? null : questionId,
       ruleType,
       ruleConfig: ruleType === "base_price" ? Prisma.DbNull : buildRuleConfig(questionId, option) ?? Prisma.DbNull,
       amount,
-      sortOrder: await prisma.pricingRule.count({ where: { calculatorId } })
+      sortOrder: await prisma.pricingRule.count({ where: { calculatorId: calculator.id } })
     }
   });
 
-  revalidateCalculator(calculatorId);
-  redirect(`/dashboard/calculators/${calculatorId}`);
+  revalidateCalculator(calculator.id);
+  redirect(`/dashboard/calculators/${calculator.id}`);
 }
 
 export async function updatePricingRuleAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
   const ruleId = requiredString(formData, "ruleId", "");
   const ruleType = normalizePricingRuleType(requiredString(formData, "ruleType", "base_price"));
@@ -262,7 +276,7 @@ export async function updatePricingRuleAction(formData: FormData) {
       id: ruleId,
       calculatorId,
       calculator: {
-        userId: user.id,
+        companyId: workspace.companyId,
         isArchived: false
       }
     },
@@ -289,7 +303,7 @@ export async function updatePricingRuleAction(formData: FormData) {
 }
 
 export async function deletePricingRuleAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
   const ruleId = requiredString(formData, "ruleId", "");
 
@@ -302,7 +316,7 @@ export async function deletePricingRuleAction(formData: FormData) {
       id: ruleId,
       calculatorId,
       calculator: {
-        userId: user.id,
+        companyId: workspace.companyId,
         isArchived: false
       }
     },
@@ -320,7 +334,7 @@ export async function deletePricingRuleAction(formData: FormData) {
 }
 
 export async function updateCalculatorPublishStatusAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
   const isPublished = formData.get("isPublished") === "true";
 
@@ -331,7 +345,7 @@ export async function updateCalculatorPublishStatusAction(formData: FormData) {
   const calculator = await prisma.calculator.findFirst({
     where: {
       id: calculatorId,
-      userId: user.id,
+      companyId: workspace.companyId,
       isArchived: false
     },
     select: {
@@ -411,7 +425,7 @@ export async function createQuoteSubmissionAction(formData: FormData) {
 }
 
 export async function updateLeadStatusAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const leadId = requiredString(formData, "leadId", "");
   const status = normalizeLeadStatusInput(formData.get("status"));
 
@@ -423,7 +437,7 @@ export async function updateLeadStatusAction(formData: FormData) {
     where: {
       id: leadId,
       calculator: {
-        userId: user.id
+        companyId: workspace.companyId
       }
     },
     select: { id: true }
@@ -444,7 +458,7 @@ export async function updateLeadStatusAction(formData: FormData) {
 }
 
 export async function deleteLeadAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const leadId = requiredString(formData, "leadId", "");
 
   if (!leadId) {
@@ -455,7 +469,7 @@ export async function deleteLeadAction(formData: FormData) {
     where: {
       id: leadId,
       calculator: {
-        userId: user.id
+        companyId: workspace.companyId
       }
     },
     select: { id: true }
@@ -475,7 +489,7 @@ export async function deleteLeadAction(formData: FormData) {
 }
 
 export async function archiveCalculatorAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
 
   if (!calculatorId) {
@@ -485,7 +499,7 @@ export async function archiveCalculatorAction(formData: FormData) {
   const calculator = await prisma.calculator.findFirst({
     where: {
       id: calculatorId,
-      userId: user.id
+      companyId: workspace.companyId
     },
     select: {
       id: true,
@@ -512,7 +526,7 @@ export async function archiveCalculatorAction(formData: FormData) {
 }
 
 export async function deleteCalculatorAction(formData: FormData) {
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
 
   if (!calculatorId) {
@@ -522,7 +536,7 @@ export async function deleteCalculatorAction(formData: FormData) {
   const calculator = await prisma.calculator.findFirst({
     where: {
       id: calculatorId,
-      userId: user.id
+      companyId: workspace.companyId
     },
     select: {
       id: true,
@@ -581,6 +595,20 @@ async function createUniqueSlug(value: string) {
   }
 
   return slug;
+}
+
+async function getWorkspaceCalculator(calculatorId: string, companyId: string) {
+  return prisma.calculator.findFirst({
+    where: {
+      id: calculatorId,
+      companyId,
+      isArchived: false
+    },
+    select: {
+      id: true,
+      slug: true
+    }
+  });
 }
 
 function slugify(value: string) {

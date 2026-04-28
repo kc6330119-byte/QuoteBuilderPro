@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
-import { getOrCreateMockUser } from "@/lib/calculator-data";
+import { getCurrentWorkspace } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getCalculatorTemplateById, type TemplatePricingRule, type TemplateQuestion } from "@/lib/templates";
 
@@ -15,7 +15,7 @@ export async function useTemplateAction(formData: FormData) {
     redirect("/dashboard/templates");
   }
 
-  const user = await getOrCreateMockUser();
+  const workspace = await getCurrentWorkspace();
   const slug = await createUniqueSlug(template.name);
 
   let calculatorId: string;
@@ -24,7 +24,8 @@ export async function useTemplateAction(formData: FormData) {
     const calculator = await prisma.$transaction(async (tx) => {
       const createdCalculator = await tx.calculator.create({
         data: {
-          userId: user.id,
+          userId: workspace.id,
+          companyId: workspace.companyId,
           name: template.name,
           slug,
           businessType: template.businessType,

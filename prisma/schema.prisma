@@ -9,24 +9,39 @@ datasource db {
 
 model User {
   id          String       @id @default(uuid())
+  clerkUserId String?      @unique
   email       String       @unique
   name        String?
+  companyId   String?
+  company     Company?     @relation(fields: [companyId], references: [id])
   calculators Calculator[]
   userPlans   UserPlan[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
+model Company {
+  id          String       @id @default(uuid())
+  name        String
+  slug        String       @unique
+  users       User[]
+  calculators Calculator[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
 model Calculator {
-  id           String  @id @default(uuid())
+  id           String   @id @default(uuid())
   userId       String
-  user         User    @relation(fields: [userId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
+  companyId    String?
+  company      Company? @relation(fields: [companyId], references: [id])
   name         String
-  slug         String  @unique
+  slug         String   @unique
   businessType String?
   description  String?
-  isPublished  Boolean @default(false)
-  isArchived   Boolean @default(false)
+  isPublished  Boolean  @default(false)
+  isArchived   Boolean  @default(false)
 
   questions    Question[]
   pricingRules PricingRule[]
@@ -63,20 +78,20 @@ model PricingRule {
 }
 
 model QuoteSubmission {
-  id                          String     @id @default(uuid())
-  calculatorId                String
-  calculator                  Calculator @relation(fields: [calculatorId], references: [id])
-  customerName                String
-  customerEmail               String
-  customerPhone               String?
-  customerNotes               String?
-  answers                     Json
-  estimatedPrice              Decimal    @db.Decimal(18, 2)
-  acceptedEstimateDisclaimer  Boolean    @default(false)
-  acceptedLegalTerms          Boolean    @default(false)
-  acceptedAt                  DateTime?
-  status                      String     @default("NEW")
-  createdAt                   DateTime   @default(now())
+  id                         String     @id @default(uuid())
+  calculatorId               String
+  calculator                 Calculator @relation(fields: [calculatorId], references: [id])
+  customerName               String
+  customerEmail              String
+  customerPhone              String?
+  customerNotes              String?
+  answers                    Json
+  estimatedPrice             Decimal    @db.Decimal(18, 2)
+  acceptedEstimateDisclaimer Boolean    @default(false)
+  acceptedLegalTerms         Boolean    @default(false)
+  acceptedAt                 DateTime?
+  status                     String     @default("NEW")
+  createdAt                  DateTime   @default(now())
 }
 
 model Plan {

@@ -1,12 +1,12 @@
 import { DashboardShell } from "@/components/dashboard-shell";
-import { getMockUser } from "@/lib/auth";
+import { getCurrentWorkspace } from "@/lib/auth";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const user = getMockUser();
+  const user = await getCurrentWorkspace();
 
   return <DashboardShell user={user}>{children}</DashboardShell>;
 }

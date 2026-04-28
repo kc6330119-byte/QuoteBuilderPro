@@ -10,7 +10,7 @@ QuoteBuilder Pro is a SaaS MVP foundation for creating pricing and quote calcula
 - Prisma ORM
 - Neon Postgres
 - Netlify-ready deployment
-- Mock authentication
+- Clerk authentication
 - No Stripe and no AI in this MVP
 
 ## Routes
@@ -21,7 +21,13 @@ QuoteBuilder Pro is a SaaS MVP foundation for creating pricing and quote calcula
 - `/dashboard/calculators/new` - calculator builder
 - `/dashboard/calculators/[id]` - calculator questions and pricing rules editor
 - `/dashboard/leads` - quote submission leads
+- `/dashboard/templates` - calculator template library
+- `/dashboard/how-to-use` - in-app guide
+- `/sign-in` - Clerk sign-in page
+- `/sign-up` - Clerk sign-up page
 - `/quote/[slug]` - public quote page
+- `/embed/[slug]` - embeddable calculator page
+- `/terms` and `/privacy` - starter legal pages
 
 ## Local setup
 
@@ -37,9 +43,20 @@ npm install
 cp .env.example .env
 ```
 
-3. Add your Neon connection string to `.env`.
+3. Add your Neon connection string and Clerk keys to `.env`.
 
 Use the direct Neon connection string for local Prisma migration commands. If you later add pooled runtime connections, update `prisma/schema.prisma` with a `directUrl` setting before splitting pooled and direct URLs.
+
+Clerk requires:
+
+```bash
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL="/dashboard"
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL="/dashboard"
+```
 
 4. Generate Prisma Client:
 
@@ -66,6 +83,7 @@ Open `http://localhost:3000`.
 The Prisma schema is in `prisma/schema.prisma` and includes:
 
 - `User`
+- `Company`
 - `Calculator`
 - `Question`
 - `PricingRule`
@@ -77,14 +95,9 @@ The main calculator and lead workflow now reads and writes through Prisma using 
 
 Quote pricing is handled by `lib/quote-engine.ts`. It supports `base_price`, `quantity_multiplier`, `option_price`, and `checkbox_addon` rules stored in the `PricingRule` table.
 
-## Mock authentication
+## Authentication and workspaces
 
-Authentication is intentionally mocked for now in `lib/auth.ts`. You can change the displayed user by setting:
-
-```bash
-MOCK_AUTH_EMAIL="owner@quotebuilder.pro"
-MOCK_AUTH_NAME="Demo Owner"
-```
+Dashboard routes are protected with Clerk. `lib/auth.ts` resolves the signed-in Clerk user, creates or updates the local `User`, creates a company workspace, and scopes dashboard calculators/leads to that workspace. Public quote and embed routes remain available for published calculators.
 
 ## Netlify deployment
 
@@ -94,8 +107,12 @@ Set these environment variables in Netlify:
 
 - `DATABASE_URL`
 - `NEXT_PUBLIC_APP_URL`
-- `MOCK_AUTH_EMAIL`
-- `MOCK_AUTH_NAME`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `NEXT_PUBLIC_CLERK_SIGN_IN_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_UP_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`
+- `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`
 
 Then deploy with the default build command:
 
@@ -105,8 +122,7 @@ npm run build
 
 ## Next implementation steps
 
-- Replace mock calculator and lead data with Prisma reads and writes.
-- Add real authentication.
-- Add create/update/delete workflows for calculators.
-- Persist public quote submissions to `QuoteSubmission`.
-- Add teams, billing, and analytics after the core workflow is validated.
+- Add workspace invitation flows and member roles.
+- Add embed domain restrictions.
+- Add billing after the core workflow is validated.
+- Add analytics and conversion reporting.

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getMockUser } from "@/lib/auth";
+import { getCurrentWorkspace } from "@/lib/auth";
 import { calculators as mockCalculators, leads as mockLeads } from "@/lib/mock-data";
 import {
   getConfigString,
@@ -71,22 +71,10 @@ export type CalculatorEditor = {
   rules: Array<QuotePricingRule & { label: string; configLabel: string; option: string }>;
 };
 
-export async function getOrCreateMockUser() {
-  const mockUser = getMockUser();
-
-  return prisma.user.upsert({
-    where: { email: mockUser.email },
-    update: { name: mockUser.name },
-    create: {
-      email: mockUser.email,
-      name: mockUser.name
-    }
-  });
-}
-
 export async function getCalculatorListItems(): Promise<CalculatorListItem[]> {
+  const workspace = await getCurrentWorkspace();
   const calculators = await prisma.calculator.findMany({
-    where: { isArchived: false },
+    where: { companyId: workspace.companyId, isArchived: false },
     include: {
       questions: true,
       submissions: true
@@ -115,11 +103,15 @@ export async function getCalculatorListItems(): Promise<CalculatorListItem[]> {
 }
 
 export async function getDashboardStats() {
+  const workspace = await getCurrentWorkspace();
   const [calculatorCount, publishedCount, leadCount, leadTotals] = await Promise.all([
-    prisma.calculator.count({ where: { isArchived: false } }),
-    prisma.calculator.count({ where: { isPublished: true, isArchived: false } }),
-    prisma.quoteSubmission.count(),
-    prisma.quoteSubmission.findMany({ select: { estimatedPrice: true } })
+    prisma.calculator.count({ where: { companyId: workspace.companyId, isArchived: false } }),
+    prisma.calculator.count({ where: { companyId: workspace.companyId, isPublished: true, isArchived: false } }),
+    prisma.quoteSubmission.count({ where: { calculator: { companyId: workspace.companyId } } }),
+    prisma.quoteSubmission.findMany({
+      where: { calculator: { companyId: workspace.companyId } },
+      select: { estimatedPrice: true }
+    })
   ]);
 
   const pipeline = leadTotals.reduce((sum, lead) => sum + Number(lead.estimatedPrice), 0);
@@ -133,7 +125,13 @@ export async function getDashboardStats() {
 }
 
 export async function getLeadListItems(limit?: number): Promise<LeadListItem[]> {
+  const workspace = await getCurrentWorkspace();
   const submissions = await prisma.quoteSubmission.findMany({
+    where: {
+      calculator: {
+        companyId: workspace.companyId
+      }
+    },
     include: {
       calculator: {
         select: {
@@ -160,6 +158,7 @@ export async function getLeadListItems(limit?: number): Promise<LeadListItem[]> 
 }
 
 export async function getCalculatorEditorById(id: string): Promise<CalculatorEditor | null> {
+  const workspace = await getCurrentWorkspace();
   const calculator = await prisma.calculator.findUnique({
     where: { id },
     include: {
@@ -172,7 +171,7 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
     }
   });
 
-  if (!calculator || calculator.isArchived) {
+  if (!calculator || calculator.isArchived || calculator.companyId !== workspace.companyId) {
     return null;
   }
 

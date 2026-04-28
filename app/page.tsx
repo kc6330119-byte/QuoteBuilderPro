@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import {
   ArrowRight,
   BarChart3,
@@ -54,15 +55,24 @@ export default function LandingPage() {
             </a>
           </div>
           <div className="flex items-center gap-2">
-            <ButtonLink href="/dashboard" variant="ghost" size="sm">
-              Dashboard
-            </ButtonLink>
-            <Link
-              href="/dashboard/calculators/new"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-bold text-white shadow-crisp transition hover:bg-[#1d4ed8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
-            >
-              Get started free
-            </Link>
+            <Show when="signed-out">
+              <SignInButton mode="modal">
+                <button className="inline-flex h-10 items-center justify-center rounded-md px-3 text-sm font-bold text-coal transition hover:bg-[#eef4ff]">
+                  Log in
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <button className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-bold text-white shadow-crisp transition hover:bg-[#1d4ed8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]">
+                  Get started free
+                </button>
+              </SignUpButton>
+            </Show>
+            <Show when="signed-in">
+              <ButtonLink href="/dashboard" variant="ghost" size="sm">
+                Dashboard
+              </ButtonLink>
+              <UserButton />
+            </Show>
           </div>
         </nav>
 
@@ -81,7 +91,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
-                href="/dashboard/calculators/new"
+                href="/dashboard/templates"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-5 text-base font-bold text-white shadow-crisp transition hover:-translate-y-0.5 hover:bg-[#1d4ed8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
               >
                 Start your free trial <ArrowRight className="h-4 w-4" />

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 import { CircleHelp, ClipboardList, FilePlus2, LayoutDashboard, Layers3, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,7 @@ export function DashboardShell({
   user
 }: {
   children: React.ReactNode;
-  user: { name: string; email: string; initials: string };
+  user: { name: string; email: string; initials: string; companyName: string };
 }) {
   const pathname = usePathname();
 
@@ -32,7 +33,7 @@ export function DashboardShell({
           </span>
           <span>
             <span className="block font-display text-lg font-bold">QuoteBuilder Pro</span>
-            <span className="text-xs font-medium text-coal/60">Mock workspace</span>
+            <span className="text-xs font-medium text-coal/60">{user.companyName}</span>
           </span>
         </Link>
         <nav className="mt-8 space-y-1">
@@ -56,9 +57,7 @@ export function DashboardShell({
         </nav>
         <div className="absolute bottom-6 left-5 right-5 rounded-lg border border-line bg-paper p-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-teal-700 text-sm font-bold text-white">
-              {user.initials}
-            </span>
+            <UserButton />
             <div className="min-w-0">
               <p className="truncate text-sm font-bold text-ink">{user.name}</p>
               <p className="truncate text-xs text-coal/60">{user.email}</p>
@@ -98,6 +97,9 @@ export function DashboardShell({
                   </Link>
                 );
               })}
+              <div className="pl-1">
+                <UserButton />
+              </div>
             </div>
           </div>
         </header>
