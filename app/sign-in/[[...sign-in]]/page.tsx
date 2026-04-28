@@ -5,7 +5,7 @@ export default function SignInPage() {
   return (
     <AuthCard
       title="Welcome back."
-      description="Sign in to manage quote calculators, embed codes, and customer leads for your company workspace."
+      description="Sign in to manage quote calculators, embed codes, and customer leads for your company."
     >
       <SignIn />
     </AuthCard>

@@ -1,5 +1,4 @@
 import { Mail, PhoneCall } from "lucide-react";
-import { ButtonLink } from "@/components/button";
 import { LeadManagementControls } from "@/components/lead-management-controls";
 import { PageHeader } from "@/components/page-header";
 import { getLeadListItems } from "@/lib/calculator-data";
@@ -63,19 +62,6 @@ export default async function LeadsPage() {
           )}
         </div>
       </section>
-      <div className="rounded-lg border border-blue-900/20 bg-[linear-gradient(135deg,#111827,#172554)] p-5 text-white">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="font-display text-xl font-bold">Submissions are stored in Neon.</h2>
-            <p className="mt-2 text-sm text-white/70">
-              Customer quote requests are now persisted as QuoteSubmission records and displayed from the database.
-            </p>
-          </div>
-          <ButtonLink href="/dashboard/calculators" variant="secondary">
-            View calculators
-          </ButtonLink>
-        </div>
-      </div>
     </div>
   );
 }

@@ -7,7 +7,7 @@ export const termsSections = [
   {
     title: "1. Acceptance of these terms",
     body: [
-      "These Terms of Service are sample MVP terms for QuoteBuilder Pro. By accessing or using the service, you agree to these terms. If you do not agree, do not use the service.",
+      "These Terms of Service apply to QuoteBuilder Pro. By accessing or using the service, you agree to these terms. If you do not agree, do not use the service.",
       "These terms are not a substitute for advice from a licensed attorney. Before selling QuoteBuilder Pro commercially, have counsel review these terms for your business model, state, customers, and risk profile."
     ]
   },
@@ -43,7 +43,7 @@ export const termsSections = [
     title: "6. Availability, maintenance, and changes",
     body: [
       "QuoteBuilder Pro is provided using commercially reasonable efforts, but we do not guarantee uninterrupted access, error-free operation, permanent availability, or permanent data retention.",
-      "We may change, suspend, or discontinue features or the service with reasonable notice when practical. Early customers should treat the product as an MVP or beta unless a separate written agreement says otherwise."
+      "We may change, suspend, or discontinue features or the service with reasonable notice when practical. Early customers should treat the product as an evolving service unless a separate written agreement says otherwise."
     ]
   },
   {
@@ -80,14 +80,14 @@ export const privacySections = [
   {
     title: "3. Sharing and service providers",
     body: [
-      "We may use service providers for hosting, database storage, deployment, analytics, email, authentication, security, and support. These providers may process information only as needed to help us operate the service.",
+      "We may use service providers for hosting, data storage, analytics, email, authentication, security, and support. These providers may process information only as needed to help us operate the service.",
       "We do not sell lead information. We may disclose information if required by law, to protect rights or security, or in connection with a business transfer."
     ]
   },
   {
     title: "4. Data security",
     body: [
-      "We use commercially reasonable safeguards appropriate for an MVP SaaS product, including HTTPS, access controls, secure environment variables, and managed infrastructure providers.",
+      "We use commercially reasonable safeguards appropriate for a SaaS product, including HTTPS, access controls, secure environment variables, and managed infrastructure providers.",
       "No system can be guaranteed 100 percent secure. Businesses should avoid collecting unnecessary sensitive information through calculators."
     ]
   },
@@ -116,7 +116,7 @@ export const privacySections = [
     title: "8. Contact",
     body: [
       "For privacy or data questions, contact QuoteBuilder Pro using the support channel provided by the site owner.",
-      "This policy is MVP-ready sample language and should be reviewed by counsel before broad commercial launch."
+      "This policy should be reviewed by counsel before broad commercial launch."
     ]
   }
 ];

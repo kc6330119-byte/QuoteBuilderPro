@@ -12,7 +12,7 @@ export default function PrivacyPage() {
     <LegalPage
       eyebrow="Privacy Policy"
       title="How QuoteBuilder Pro handles lead and account data."
-      description="This starter privacy policy explains what data the MVP collects, how it is used, and the basic safeguards and retention posture for calculator leads."
+      description="This privacy policy explains what data QuoteBuilder Pro collects, how it is used, and the basic safeguards and retention posture for calculator leads."
       sections={privacySections}
     />
   );

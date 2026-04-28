@@ -24,10 +24,10 @@ export function AuthCard({
             <p className="mt-4 text-base leading-8 text-coal/70">{description}</p>
           </div>
           <div className="mt-8 rounded-xl border border-[#dbe5f4] bg-white p-5 shadow-crisp">
-            <p className="text-sm font-bold text-ink">Protected workspaces</p>
+            <p className="text-sm font-bold text-ink">Private dashboard access</p>
             <p className="mt-2 text-sm leading-6 text-coal/70">
-              Dashboards, calculators, and leads are scoped to the signed-in company workspace. Public quote pages stay
-              available only for published calculators.
+              Dashboards, calculators, and leads are limited to signed-in company users. Public quote pages stay available
+              only for published calculators.
             </p>
           </div>
         </div>

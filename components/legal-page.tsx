@@ -40,9 +40,8 @@ export function LegalPage({
 
       <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900">
-          This page is sample MVP language for product testing and planning. It is not legal advice. Have a licensed
-          attorney review your final terms, privacy policy, customer agreements, and state-specific obligations before
-          relying on them commercially.
+          This page contains starter policy language and is not legal advice. Have a licensed attorney review your final
+          terms, privacy policy, customer agreements, and state-specific obligations before relying on them commercially.
         </div>
 
         <div className="mt-6 space-y-4">

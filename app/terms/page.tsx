@@ -12,7 +12,7 @@ export default function TermsPage() {
     <LegalPage
       eyebrow="Terms of Service"
       title="Terms that keep estimates clear and expectations sane."
-      description="These starter terms explain that QuoteBuilder Pro provides software, not field services, and that calculator outputs are planning estimates rather than binding quotes."
+      description="These terms explain that QuoteBuilder Pro provides software, not field services, and that calculator outputs are planning estimates rather than binding quotes."
       sections={termsSections}
     />
   );

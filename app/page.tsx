@@ -207,7 +207,7 @@ export default function LandingPage() {
       <section className="border-b border-[#dbe5f4] bg-white">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-3 lg:px-8">
           {[
-            { label: "Mock leads captured", value: totalLeads, icon: Users },
+            { label: "Leads captured", value: totalLeads, icon: Users },
             {
               label: "Published calculators",
               value: calculators.filter((item) => item.status === "PUBLISHED").length,
@@ -375,7 +375,7 @@ export default function LandingPage() {
           {[
             {
               title: "Calculator builder",
-              body: "Define base pricing, question fields, simple price rules, and a public slug.",
+              body: "Define base pricing, customer questions, simple price rules, and a public quote link.",
               icon: FileText
             },
             {
@@ -384,7 +384,7 @@ export default function LandingPage() {
               icon: Workflow
             },
             {
-              title: "Lead workspace",
+              title: "Lead dashboard",
               body: "Review submissions, quoted totals, source calculator, and lead status from one dashboard.",
               icon: LockKeyhole
             }
@@ -413,7 +413,7 @@ export default function LandingPage() {
             },
             {
               title: "Capture and close",
-              body: "Route every estimate into a lead workspace with the quote value attached.",
+              body: "Route every estimate into a lead dashboard with the quote value attached.",
               icon: CircleDollarSign
             }
           ].map((step) => {

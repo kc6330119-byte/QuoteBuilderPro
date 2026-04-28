@@ -80,7 +80,7 @@ export function PublicQuoteForm({
       <section className="space-y-5">
         {!allowSubmission ? (
           <div className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold leading-6 text-sky-900">
-            Preview mode is only visible to signed-in workspace members. Publish this calculator before sharing the public
+            Preview mode is only visible to signed-in team members. Publish this calculator before sharing the public
             quote page or embed code with customers.
           </div>
         ) : null}

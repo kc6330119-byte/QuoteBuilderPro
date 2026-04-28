@@ -14,7 +14,7 @@ export default async function DashboardPage() {
     <div className="space-y-8">
       <PageHeader
         title="Dashboard"
-        description="Create quote calculators, publish them, and track customer submissions from your Neon-backed workspace."
+        description="Create quote calculators, publish them, and track customer submissions from your private dashboard."
         actions={
           <>
             <ButtonLink href="/dashboard/calculators/new">
@@ -29,7 +29,7 @@ export default async function DashboardPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Published calculators" value={String(stats.publishedCount)} detail={`${stats.calculatorCount} total calculators saved.`} icon={<ClipboardList className="h-5 w-5" />} />
-        <StatCard label="Lead submissions" value={String(stats.leadCount)} detail="Persisted quote requests from public pages." icon={<Users className="h-5 w-5" />} />
+        <StatCard label="Lead submissions" value={String(stats.leadCount)} detail="Saved quote requests from public pages." icon={<Users className="h-5 w-5" />} />
         <StatCard label="Pipeline quoted" value={formatDollars(stats.pipeline)} detail="Total estimated value from submissions." icon={<DollarSign className="h-5 w-5" />} />
         <StatCard label="Avg conversion" value="Soon" detail="Conversion tracking comes after real traffic." icon={<TrendingUp className="h-5 w-5" />} />
       </section>
@@ -64,10 +64,9 @@ export default async function DashboardPage() {
 
         <div className="rounded-lg border border-blue-900/20 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.38),transparent_42%),linear-gradient(135deg,#111827,#172554)] p-5 text-white shadow-soft">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-100">Live workflow</p>
-          <h2 className="mt-3 font-display text-2xl font-bold">Calculators now write to Neon.</h2>
+          <h2 className="mt-3 font-display text-2xl font-bold">Your quote pipeline is ready.</h2>
           <p className="mt-3 text-sm leading-6 text-white/70">
-            The create form saves calculators and questions, public quote pages save submissions, and the leads table
-            reads from the database.
+            Create calculators, publish customer quote forms, and review every request with the estimated value attached.
           </p>
           <ButtonLink href="/dashboard/calculators" variant="secondary" className="mt-5">
             Manage calculators <ArrowUpRight className="h-4 w-4" />
