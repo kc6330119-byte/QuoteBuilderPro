@@ -1,7 +1,8 @@
-import { ArrowUpRight, EyeOff, Plus, Rocket, Save, SlidersHorizontal } from "lucide-react";
+import { ArrowUpRight, EyeOff, HelpCircle, Plus, Rocket, Save, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/badge";
 import { BranchConditionFields } from "@/components/branch-condition-fields";
 import { Button, ButtonLink } from "@/components/button";
+import { CalculatorBuilderGuide } from "@/components/calculator-builder-guide";
 import { CalculatorDangerActions } from "@/components/calculator-danger-actions";
 import { CalculatorEmbedPanel } from "@/components/calculator-embed-panel";
 import { EditorDeleteForm } from "@/components/editor-delete-form";
@@ -69,18 +70,15 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
           </form>
         </div>
 
-        <CalculatorEmbedPanel
-          id={calculator.id}
-          slug={calculator.slug}
-          isPublished={calculator.isPublished}
-          appUrl={appUrl}
-        />
+        <CalculatorBuilderGuide calculator={calculator} />
 
         <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="font-display text-xl font-bold text-ink">Questions</h2>
-              <p className="mt-1 text-sm text-coal/70">Questions render on the public quote page in this order.</p>
+              <p className="mt-1 text-sm text-coal/70">
+                Think of these as the customer interview. Start broad, then use show/hide logic for follow-up details.
+              </p>
             </div>
           </div>
           <div className="mt-5 space-y-3">
@@ -175,13 +173,21 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
         <form action={addQuestionAction} className="rounded-lg border border-line bg-white p-5 shadow-crisp">
           <input type="hidden" name="calculatorId" value={calculator.id} />
           <h2 className="font-display text-xl font-bold text-ink">Add question</h2>
+          <div className="mt-3 rounded-lg border border-teal-100 bg-teal-50 p-4 text-sm leading-6 text-teal-950/80">
+            <p className="font-bold text-ink">Recommended pattern</p>
+            <p className="mt-1">
+              First ask the main service choice. Then add follow-up questions and set &quot;Only ask this when&quot; to the
+              matching answer. Example: ask &quot;What project type?&quot; first, then show &quot;Kitchen remodel level&quot; only when
+              Kitchen is selected.
+            </p>
+          </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label className="space-y-2 md:col-span-2">
               <span className="text-sm font-semibold text-coal">Question label</span>
               <input
                 required
                 name="label"
-                placeholder="How many locations need service?"
+                placeholder="What service do you need?"
                 className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
               />
             </label>
@@ -200,7 +206,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               <span className="text-sm font-semibold text-coal">Options for select</span>
               <input
                 name="options"
-                placeholder="Basic, Standard, Premium"
+                placeholder="Kitchen, Bathroom, Room addition"
                 className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
               />
             </label>
@@ -341,6 +347,24 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
         <form action={addPricingRuleAction} className="rounded-lg border border-line bg-white p-5 shadow-crisp">
           <input type="hidden" name="calculatorId" value={calculator.id} />
           <h2 className="font-display text-xl font-bold text-ink">Add pricing rule</h2>
+          <div className="mt-3 space-y-2 rounded-lg border border-line bg-paper p-4 text-xs leading-5 text-coal/70">
+            <div className="flex items-center gap-2 font-bold text-ink">
+              <HelpCircle className="h-4 w-4 text-teal-700" />
+              Plain-English rule guide
+            </div>
+            <p>
+              <strong>Base price:</strong> starting cost for every quote.
+            </p>
+            <p>
+              <strong>Quantity multiplier:</strong> number answer times amount, like rental days x daily rate.
+            </p>
+            <p>
+              <strong>Option price:</strong> add amount when a specific select answer is chosen.
+            </p>
+            <p>
+              <strong>Checkbox add-on:</strong> add amount when a yes/no add-on is checked.
+            </p>
+          </div>
           <div className="mt-5 space-y-4">
             <label className="space-y-2">
               <span className="text-sm font-semibold text-coal">Rule type</span>
@@ -369,10 +393,10 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               </select>
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Selected option</span>
+              <span className="text-sm font-semibold text-coal">Matching answer</span>
               <input
                 name="option"
-                placeholder="Only for option_price rules"
+                placeholder="Only for option price rules"
                 className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
               />
             </label>
@@ -393,6 +417,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
             <Plus className="h-4 w-4" /> Add pricing rule
           </SubmitButton>
         </form>
+
+        <CalculatorEmbedPanel
+          id={calculator.id}
+          slug={calculator.slug}
+          isPublished={calculator.isPublished}
+          appUrl={appUrl}
+        />
 
         <CalculatorDangerActions calculatorId={calculator.id} calculatorName={calculator.name} />
       </aside>

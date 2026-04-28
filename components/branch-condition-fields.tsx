@@ -35,11 +35,11 @@ export function BranchConditionFields({
 
   return (
     <div className="mt-4 rounded-md border border-dashed border-line bg-white p-3">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">Branching</p>
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">Show/hide logic</p>
       <p className="mt-1 text-xs leading-5 text-coal/60">{getBranchSummary(parentQuestion, answerValue)}</p>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <label className="space-y-1">
-          <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Show this question when</span>
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Only ask this when</span>
           <select
             name="visibilityQuestionId"
             value={parentQuestionId}
@@ -169,16 +169,16 @@ function getDefaultAnswerValue(parentQuestion?: BranchQuestion) {
 
 function getBranchSummary(parentQuestion: BranchQuestion | undefined, answerValue: string) {
   if (!parentQuestion) {
-    return "Always shown on the public quote page.";
+    return "Always ask this question. Choose another question here only when this should be a follow-up.";
   }
 
   if (parentQuestion.questionType === "BOOLEAN") {
-    return `Only shows when "${parentQuestion.label}" is ${answerValue === "false" ? "not checked" : "checked"}.`;
+    return `Only ask this when "${parentQuestion.label}" is ${answerValue === "false" ? "not checked" : "checked"}.`;
   }
 
   if (!answerValue) {
-    return `Choose the answer to "${parentQuestion.label}" that should reveal this question.`;
+    return `Choose the answer to "${parentQuestion.label}" that should trigger this follow-up.`;
   }
 
-  return `Only shows when "${parentQuestion.label}" equals "${answerValue}".`;
+  return `Only ask this when "${parentQuestion.label}" equals "${answerValue}".`;
 }
