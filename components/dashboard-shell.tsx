@@ -64,6 +64,14 @@ export function DashboardShell({
               <p className="truncate text-xs text-coal/60">{user.email}</p>
             </div>
           </div>
+          <div className="mt-4 flex gap-3 border-t border-line pt-3 text-xs font-semibold text-coal/55">
+            <Link href="/terms" className="transition hover:text-teal-700">
+              Terms
+            </Link>
+            <Link href="/privacy" className="transition hover:text-teal-700">
+              Privacy
+            </Link>
+          </div>
         </div>
       </aside>
       <div className="lg:pl-72">

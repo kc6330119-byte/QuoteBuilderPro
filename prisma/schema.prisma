@@ -63,17 +63,20 @@ model PricingRule {
 }
 
 model QuoteSubmission {
-  id             String     @id @default(uuid())
-  calculatorId   String
-  calculator     Calculator @relation(fields: [calculatorId], references: [id])
-  customerName   String
-  customerEmail  String
-  customerPhone  String?
-  customerNotes  String?
-  answers        Json
-  estimatedPrice Decimal    @db.Decimal(18, 2)
-  status         String     @default("NEW")
-  createdAt      DateTime   @default(now())
+  id                          String     @id @default(uuid())
+  calculatorId                String
+  calculator                  Calculator @relation(fields: [calculatorId], references: [id])
+  customerName                String
+  customerEmail               String
+  customerPhone               String?
+  customerNotes               String?
+  answers                     Json
+  estimatedPrice              Decimal    @db.Decimal(18, 2)
+  acceptedEstimateDisclaimer  Boolean    @default(false)
+  acceptedLegalTerms          Boolean    @default(false)
+  acceptedAt                  DateTime?
+  status                      String     @default("NEW")
+  createdAt                   DateTime   @default(now())
 }
 
 model Plan {

@@ -10,10 +10,10 @@ export default async function QuotePage({
   searchParams
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ submitted?: string }>;
+  searchParams: Promise<{ legal?: string; submitted?: string }>;
 }) {
   const { slug } = await params;
-  const { submitted } = await searchParams;
+  const { legal, submitted } = await searchParams;
   const calculator = await getQuoteCalculatorBySlug(slug);
 
   if (!calculator || !calculator.isPublished) {
@@ -60,7 +60,7 @@ export default async function QuotePage({
           <h1 className="mt-3 font-display text-4xl font-black leading-tight text-ink md:text-5xl">{calculator.name}</h1>
           <p className="mt-4 text-lg leading-8 text-coal/70">{calculator.description}</p>
         </div>
-        <PublicQuoteForm calculator={calculator} submitted={submitted === "1"} />
+        <PublicQuoteForm calculator={calculator} submitted={submitted === "1"} legalRequired={legal === "required"} />
       </section>
     </main>
   );

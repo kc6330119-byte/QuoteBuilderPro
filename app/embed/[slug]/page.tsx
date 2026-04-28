@@ -9,10 +9,10 @@ export default async function EmbedQuotePage({
   searchParams
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ submitted?: string }>;
+  searchParams: Promise<{ legal?: string; submitted?: string }>;
 }) {
   const { slug } = await params;
-  const { submitted } = await searchParams;
+  const { legal, submitted } = await searchParams;
   const calculator = await getQuoteCalculatorBySlug(slug);
 
   if (!calculator || !calculator.isPublished) {
@@ -39,7 +39,12 @@ export default async function EmbedQuotePage({
           <h1 className="mt-2 font-display text-3xl font-black leading-tight text-ink">{calculator.name}</h1>
           <p className="mt-2 text-sm leading-6 text-coal/70">{calculator.description}</p>
         </div>
-        <PublicQuoteForm calculator={calculator} submitted={submitted === "1"} variant="embed" />
+        <PublicQuoteForm
+          calculator={calculator}
+          submitted={submitted === "1"}
+          variant="embed"
+          legalRequired={legal === "required"}
+        />
         <p className="mt-4 text-center text-xs font-semibold text-coal/45">Powered by QuoteBuilder Pro</p>
       </section>
     </main>

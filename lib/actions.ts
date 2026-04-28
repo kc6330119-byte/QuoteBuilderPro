@@ -365,6 +365,11 @@ export async function createQuoteSubmissionAction(formData: FormData) {
     redirect(returnTo);
   }
 
+  const acceptedLegalAcknowledgement = formData.get("acceptedLegalAcknowledgement") === "on";
+  if (!acceptedLegalAcknowledgement) {
+    redirect(`${returnTo}?legal=required`);
+  }
+
   const rawAnswers: QuoteAnswers = Object.fromEntries(
     calculator.questions.map((question) => {
       const rawValue = formData.get(`answer_${question.id}`);
@@ -392,7 +397,10 @@ export async function createQuoteSubmissionAction(formData: FormData) {
       customerPhone: optionalString(formData, "customerPhone"),
       customerNotes: optionalString(formData, "customerNotes"),
       answers,
-      estimatedPrice: estimatedPrice.toFixed(2)
+      estimatedPrice: estimatedPrice.toFixed(2),
+      acceptedEstimateDisclaimer: true,
+      acceptedLegalTerms: true,
+      acceptedAt: new Date()
     }
   });
 

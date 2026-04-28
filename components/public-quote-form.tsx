@@ -5,6 +5,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { SubmitButton } from "@/components/submit-button";
 import { createQuoteSubmissionAction } from "@/lib/actions";
 import type { QuoteCalculator } from "@/lib/calculator-data";
+import { estimateDisclaimer } from "@/lib/legal-content";
 import { calculateQuote, getVisibleQuestions } from "@/lib/quote-engine";
 import { formatDollars } from "@/lib/utils";
 
@@ -13,11 +14,13 @@ type Answers = Record<string, number | string | boolean>;
 export function PublicQuoteForm({
   calculator,
   submitted = false,
-  variant = "page"
+  variant = "page",
+  legalRequired = false
 }: {
   calculator: QuoteCalculator;
   submitted?: boolean;
   variant?: "page" | "embed";
+  legalRequired?: boolean;
 }) {
   const [answers, setAnswers] = useState<Answers>(() =>
     Object.fromEntries(
@@ -45,6 +48,7 @@ export function PublicQuoteForm({
             : "Your estimate was submitted. The lead is now available in the dashboard leads view."}
         </p>
         <p className="mt-4 text-sm font-semibold text-teal-700">Estimated Price: {formatDollars(total)}</p>
+        <p className="mt-3 text-xs leading-5 text-coal/60">{estimateDisclaimer}</p>
       </div>
     );
   }
@@ -64,6 +68,11 @@ export function PublicQuoteForm({
       <input type="hidden" name="calculatorSlug" value={calculator.slug} />
       <input type="hidden" name="returnTo" value={variant === "embed" ? `/embed/${calculator.slug}` : `/quote/${calculator.slug}`} />
       <section className="space-y-5">
+        {legalRequired ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-6 text-amber-900">
+            Please acknowledge the non-binding estimate disclaimer and legal terms before submitting your quote request.
+          </div>
+        ) : null}
         {visibleQuestions.length < calculator.questions.length ? (
           <div className="rounded-lg border border-teal-100 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800">
             Showing the next questions based on your selections.
@@ -159,6 +168,29 @@ export function PublicQuoteForm({
               rows={4}
               className="rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none focus:border-teal-600 focus:bg-white md:col-span-2"
             />
+          </div>
+          <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 px-4 py-3">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-900">Non-binding estimate</p>
+            <p className="mt-2 text-xs leading-5 text-amber-900/85">{estimateDisclaimer}</p>
+            <label className="mt-3 flex items-start gap-3 text-xs font-semibold leading-5 text-amber-950">
+              <input
+                required
+                name="acceptedLegalAcknowledgement"
+                type="checkbox"
+                className="mt-1 h-4 w-4 shrink-0 accent-teal-700"
+              />
+              <span>
+                I understand this is a non-binding estimate and agree to the{" "}
+                <a href="/terms" target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                  Terms
+                </a>{" "}
+                and{" "}
+                <a href="/privacy" target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                  Privacy Policy
+                </a>
+                .
+              </span>
+            </label>
           </div>
         </div>
       </section>

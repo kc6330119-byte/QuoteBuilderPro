@@ -379,6 +379,23 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <footer className="border-t border-[#dbe5f4] bg-white">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-[#64748b] sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+          <div>
+            <p className="font-display text-base font-black text-[#111827]">QuoteBuilder Pro</p>
+            <p className="mt-1">Quote calculators, lead capture, and non-binding estimate workflows for service businesses.</p>
+          </div>
+          <div className="flex flex-wrap gap-4 font-semibold">
+            <Link href="/terms" className="transition hover:text-[#1d4ed8]">
+              Terms
+            </Link>
+            <Link href="/privacy" className="transition hover:text-[#1d4ed8]">
+              Privacy
+            </Link>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
