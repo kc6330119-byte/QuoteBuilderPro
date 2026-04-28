@@ -25,7 +25,7 @@ import { calculators } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
 
 const demoVideoUrl =
-  "https://res.cloudinary.com/dnmrgvjdm/video/upload/v1777354631/QuoteBuiderPro_gnktap.mp4";
+  "https://res.cloudinary.com/dnmrgvjdm/video/upload/v1777385200/QuoteBuilderProFinal_cmnqsq.mp4";
 
 export default function LandingPage() {
   const totalLeads = calculators.reduce((sum, calculator) => sum + calculator.leads, 0);

@@ -13,7 +13,7 @@ Primary audience: contractors, remodelers, rolloff rental operators, landscapers
 ## Recording Prep
 
 - Use demo-safe data only.
-- Published demo video asset: `https://res.cloudinary.com/dnmrgvjdm/video/upload/v1777354631/QuoteBuiderPro_gnktap.mp4`
+- Published demo video asset: `https://res.cloudinary.com/dnmrgvjdm/video/upload/v1777385200/QuoteBuilderProFinal_cmnqsq.mp4`
 - Avoid opening Clerk, Netlify, Neon, GitHub, account menus, API keys, environment variables, or browser password prompts.
 - If your email appears in the dashboard sidebar, crop it out or keep the mouse away from the account area.
 - Use a published demo calculator, preferably Rolloff Container Rental or General Contractor / Home Builder.
