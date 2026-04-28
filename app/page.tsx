@@ -366,9 +366,9 @@ export default function LandingPage() {
 
       <section id="features" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#2563eb]">MVP foundation</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#2563eb]">Quote workflow</p>
           <h2 className="mt-3 font-display text-3xl font-black text-[#111827]">
-            Built for the first paid workflow
+            Built for service businesses that need better quote requests
           </h2>
         </div>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -431,23 +431,34 @@ export default function LandingPage() {
             );
           })}
         </div>
-        <div id="templates" className="mt-8 rounded-lg border border-[#dbe5f4] bg-[#111827] p-6 text-white">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div
+          id="templates"
+          className="mt-8 overflow-hidden rounded-xl border border-[#dbe5f4] bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.34),transparent_38%),linear-gradient(135deg,#111827,#172554)] p-6 text-white shadow-soft"
+        >
+          <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-center">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#bfdbfe]">Production foundation</p>
-              <h2 className="mt-2 font-display text-2xl font-black">Ready for Neon, Prisma, and Netlify.</h2>
-              <p className="mt-2 text-sm text-white/70">
-                The app is deployed, the database is migrated, and the next product step is replacing mock records with
-                persisted calculators and submissions.
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#bfdbfe]">Ready to capture better leads?</p>
+              <h2 className="mt-2 font-display text-3xl font-black">Start with a template, then publish your quote flow.</h2>
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">
+                Choose a starter calculator, customize the questions and pricing rules, preview the customer experience,
+                then share the quote page or embed it on your website.
               </p>
             </div>
-            <Link
-              id="pricing"
-              href="/dashboard/calculators/new"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-bold text-white transition hover:bg-[#1d4ed8]"
-            >
-              Start building <ArrowRight className="h-4 w-4" />
-            </Link>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <Link
+                id="pricing"
+                href="/dashboard/templates"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-5 text-sm font-bold text-white shadow-crisp transition hover:-translate-y-0.5 hover:bg-[#1d4ed8]"
+              >
+                Start from a template <ArrowRight className="h-4 w-4" />
+              </Link>
+              <a
+                href="#demo-video"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/15 bg-white/10 px-5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-white hover:text-[#111827]"
+              >
+                Watch demo <PlayCircle className="h-4 w-4" />
+              </a>
+            </div>
           </div>
         </div>
       </section>
