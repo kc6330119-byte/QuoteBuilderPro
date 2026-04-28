@@ -27,7 +27,7 @@ export default async function CalculatorsPage() {
           ))}
         </section>
       ) : (
-        <section className="rounded-lg border border-line bg-white p-8 text-center shadow-crisp">
+        <section className="rounded-lg border border-[#dbe5f4] bg-white p-8 text-center shadow-crisp">
           <h2 className="font-display text-2xl font-bold text-ink">Create your first calculator</h2>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-coal/70">
             Saved calculators will appear here with their public quote link and lead performance.

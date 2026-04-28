@@ -13,9 +13,9 @@ export function CalculatorBuilderGuide({ calculator }: { calculator: CalculatorE
   const totalSteps = 5;
 
   return (
-    <section className="overflow-hidden rounded-xl border border-line bg-white shadow-crisp">
-      <div className="relative border-b border-line bg-[radial-gradient(circle_at_top_left,_rgba(15,118,110,0.14),_transparent_34%),linear-gradient(135deg,_#fbfaf4,_#ffffff)] p-5">
-        <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-teal-700/10" />
+    <section className="overflow-hidden rounded-xl border border-[#dbe5f4] bg-white shadow-crisp">
+      <div className="relative border-b border-[#dbe5f4] bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.14),_transparent_34%),linear-gradient(135deg,_#ffffff,_#f8fbff)] p-5">
+        <div className="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-blue-600/10" />
         <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -41,19 +41,19 @@ export function CalculatorBuilderGuide({ calculator }: { calculator: CalculatorE
         <div>
           <div className="h-2 overflow-hidden rounded-full bg-mist">
             <div
-              className="h-full rounded-full bg-teal-700 transition-all"
+              className="h-full rounded-full bg-blue-600 transition-all"
               style={{ width: `${Math.round((completedSteps / totalSteps) * 100)}%` }}
             />
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {getChecklist(calculator, baseRules.length, pricedRules.length).map((step) => (
-              <div key={step.label} className="rounded-lg border border-line bg-paper p-4">
+              <div key={step.label} className="rounded-lg border border-[#dbe5f4] bg-[#f8fbff] p-4">
                 <div className="flex items-start gap-3">
                   <span
                     className={
                       step.complete
-                        ? "mt-0.5 rounded-full bg-teal-700 p-1 text-white"
-                        : "mt-0.5 rounded-full border border-line bg-white p-1 text-coal/45"
+                        ? "mt-0.5 rounded-full bg-blue-600 p-1 text-white"
+                        : "mt-0.5 rounded-full border border-[#dbe5f4] bg-white p-1 text-coal/45"
                     }
                   >
                     <CheckCircle2 className="h-4 w-4" />
@@ -68,13 +68,13 @@ export function CalculatorBuilderGuide({ calculator }: { calculator: CalculatorE
           </div>
         </div>
 
-        <aside className="rounded-lg border border-teal-100 bg-teal-50 p-4">
+        <aside className="rounded-lg border border-blue-100 bg-blue-50 p-4">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-teal-800" />
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-900">Next best step</p>
+            <Sparkles className="h-4 w-4 text-blue-800" />
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-900">Next best step</p>
           </div>
           <p className="mt-3 text-sm font-bold leading-6 text-ink">{getNextStep(calculator, baseRules.length, pricedRules.length)}</p>
-          <div className="mt-4 space-y-3 text-xs leading-5 text-teal-950/75">
+          <div className="mt-4 space-y-3 text-xs leading-5 text-blue-950/75">
             <p>
               Questions: <strong>{calculator.questions.length}</strong>
             </p>
@@ -91,7 +91,7 @@ export function CalculatorBuilderGuide({ calculator }: { calculator: CalculatorE
         </aside>
       </div>
 
-      <div className="border-t border-line bg-ink px-5 py-4 text-white">
+      <div className="border-t border-blue-900/20 bg-[linear-gradient(135deg,#111827,#172554)] px-5 py-4 text-white">
         <div className="grid gap-3 text-sm md:grid-cols-3">
           <GuideRecipe
             icon={<ClipboardList className="h-4 w-4" />}
@@ -117,7 +117,7 @@ export function CalculatorBuilderGuide({ calculator }: { calculator: CalculatorE
 function GuideRecipe({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
   return (
     <div className="rounded-lg border border-white/10 bg-white/[0.06] p-3">
-      <div className="flex items-center gap-2 text-teal-100">
+      <div className="flex items-center gap-2 text-blue-100">
         {icon}
         <p className="font-bold text-white">{title}</p>
       </div>

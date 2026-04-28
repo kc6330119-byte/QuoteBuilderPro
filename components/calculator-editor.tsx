@@ -23,7 +23,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_420px]">
       <section className="space-y-6">
-        <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
+        <div className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -46,7 +46,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
           </div>
           <form
             action={updateCalculatorPublishStatusAction}
-            className="mt-5 flex flex-col gap-4 rounded-md border border-line bg-paper p-4 md:flex-row md:items-center md:justify-between"
+            className="mt-5 flex flex-col gap-4 rounded-md border border-[#dbe5f4] bg-[#f8fbff] p-4 md:flex-row md:items-center md:justify-between"
           >
             <input type="hidden" name="calculatorId" value={calculator.id} />
             <input type="hidden" name="isPublished" value={calculator.isPublished ? "false" : "true"} />
@@ -72,7 +72,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
 
         <CalculatorBuilderGuide calculator={calculator} />
 
-        <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
+        <div className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp">
           <div className="flex items-center justify-between gap-4">
             <div>
               <h2 className="font-display text-xl font-bold text-ink">Questions</h2>
@@ -84,7 +84,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
           <div className="mt-5 space-y-3">
             {calculator.questions.length > 0 ? (
               calculator.questions.map((question) => (
-                <div key={question.id} className="rounded-lg border border-line bg-paper p-4">
+                <div key={question.id} className="rounded-lg border border-[#dbe5f4] bg-[#f8fbff] p-4">
                   <form action={updateQuestionAction}>
                     <input type="hidden" name="calculatorId" value={calculator.id} />
                     <input type="hidden" name="questionId" value={question.id} />
@@ -95,7 +95,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                           required
                           name="label"
                           defaultValue={question.label}
-                          className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm font-semibold text-ink outline-none transition focus:border-teal-600"
+                          className="h-10 w-full rounded-md border border-[#dbe5f4] bg-white px-3 text-sm font-semibold text-ink outline-none transition focus:border-blue-500"
                         />
                       </label>
                       <label className="space-y-1">
@@ -103,7 +103,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                         <select
                           name="questionType"
                           defaultValue={question.questionType}
-                          className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none transition focus:border-teal-600"
+                          className="h-10 w-full rounded-md border border-[#dbe5f4] bg-white px-3 text-sm outline-none transition focus:border-blue-500"
                         >
                           <option value="NUMBER">Number</option>
                           <option value="SELECT">Select</option>
@@ -118,7 +118,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                           type="number"
                           min={1}
                           defaultValue={question.sortOrder + 1}
-                          className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none transition focus:border-teal-600"
+                          className="h-10 w-full rounded-md border border-[#dbe5f4] bg-white px-3 text-sm outline-none transition focus:border-blue-500"
                         />
                       </label>
                       <label className="space-y-1 md:col-span-2">
@@ -127,15 +127,15 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                           name="options"
                           defaultValue={question.options.join(", ")}
                           placeholder="Only used for select questions"
-                          className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none transition focus:border-teal-600"
+                          className="h-10 w-full rounded-md border border-[#dbe5f4] bg-white px-3 text-sm outline-none transition focus:border-blue-500"
                         />
                       </label>
-                      <label className="flex items-center gap-2 rounded-md border border-line bg-white px-3 py-2">
+                      <label className="flex items-center gap-2 rounded-md border border-[#dbe5f4] bg-white px-3 py-2">
                         <input
                           name="isRequired"
                           type="checkbox"
                           defaultChecked={question.isRequired}
-                          className="h-4 w-4 accent-teal-700"
+                          className="h-4 w-4 accent-blue-600"
                         />
                         <span className="text-sm font-semibold text-coal">Required</span>
                       </label>
@@ -152,7 +152,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                       <span className="text-xs text-coal/55">Changes update the public quote form after save.</span>
                     </div>
                   </form>
-                  <div className="mt-3 border-t border-line pt-3">
+                  <div className="mt-3 border-t border-[#dbe5f4] pt-3">
                     <EditorDeleteForm
                       kind="question"
                       calculatorId={calculator.id}
@@ -163,17 +163,17 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                 </div>
               ))
             ) : (
-              <div className="rounded-lg border border-line bg-paper px-4 py-8 text-center text-sm text-coal/70">
+              <div className="rounded-lg border border-[#dbe5f4] bg-[#f8fbff] px-4 py-8 text-center text-sm text-coal/70">
                 No questions yet.
               </div>
             )}
           </div>
         </div>
 
-        <form action={addQuestionAction} className="rounded-lg border border-line bg-white p-5 shadow-crisp">
+        <form action={addQuestionAction} className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp">
           <input type="hidden" name="calculatorId" value={calculator.id} />
           <h2 className="font-display text-xl font-bold text-ink">Add question</h2>
-          <div className="mt-3 rounded-lg border border-teal-100 bg-teal-50 p-4 text-sm leading-6 text-teal-950/80">
+          <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-950/80">
             <p className="font-bold text-ink">Recommended pattern</p>
             <p className="mt-1">
               First ask the main service choice. Then add follow-up questions and set &quot;Only ask this when&quot; to the
@@ -188,14 +188,14 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                 required
                 name="label"
                 placeholder="What service do you need?"
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               />
             </label>
             <label className="space-y-2">
               <span className="text-sm font-semibold text-coal">Type</span>
               <select
                 name="questionType"
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               >
                 <option value="NUMBER">Number</option>
                 <option value="SELECT">Select</option>
@@ -207,11 +207,11 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               <input
                 name="options"
                 placeholder="Kitchen, Bathroom, Room addition"
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               />
             </label>
-            <label className="flex items-center gap-2 rounded-md border border-line bg-paper px-3 py-3">
-              <input name="isRequired" type="checkbox" className="h-4 w-4 accent-teal-700" />
+            <label className="flex items-center gap-2 rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 py-3">
+              <input name="isRequired" type="checkbox" className="h-4 w-4 accent-blue-600" />
               <span className="text-sm font-semibold text-coal">Required</span>
             </label>
             <div className="md:col-span-2">
@@ -225,11 +225,11 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
       </section>
 
       <aside className="space-y-6">
-        <div className="rounded-lg border border-line bg-ink p-5 text-white shadow-soft">
+        <div className="rounded-lg border border-blue-900/20 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.34),transparent_44%),linear-gradient(135deg,#111827,#172554)] p-5 text-white shadow-soft">
           <div className="flex items-center gap-3">
-            <SlidersHorizontal className="h-5 w-5 text-teal-100" />
+            <SlidersHorizontal className="h-5 w-5 text-blue-100" />
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Pricing rules</p>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-100">Pricing rules</p>
               <h2 className="font-display text-xl font-bold">Calculation engine</h2>
             </div>
           </div>
@@ -256,7 +256,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                         <select
                           name="ruleType"
                           defaultValue={rule.ruleType}
-                          className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition focus:border-teal-300"
+                          className="h-10 w-full rounded-md border border-white/10 bg-slate-950/40 px-3 text-sm text-white outline-none transition focus:border-blue-300"
                         >
                           <option value="base_price">Base price</option>
                           <option value="quantity_multiplier">Quantity multiplier</option>
@@ -269,7 +269,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                         <select
                           name="questionId"
                           defaultValue={rule.questionId ?? ""}
-                          className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition focus:border-teal-300"
+                          className="h-10 w-full rounded-md border border-white/10 bg-slate-950/40 px-3 text-sm text-white outline-none transition focus:border-blue-300"
                         >
                           <option value="">No question</option>
                           {calculator.questions.map((question) => (
@@ -286,7 +286,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                             name="option"
                             defaultValue={rule.option}
                             placeholder="For option_price"
-                            className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-teal-300"
+                            className="h-10 w-full rounded-md border border-white/10 bg-slate-950/40 px-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-blue-300"
                           />
                         </label>
                         <label className="space-y-1">
@@ -298,7 +298,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                             min={0}
                             step="0.01"
                             defaultValue={rule.amount}
-                            className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition focus:border-teal-300"
+                            className="h-10 w-full rounded-md border border-white/10 bg-slate-950/40 px-3 text-sm text-white outline-none transition focus:border-blue-300"
                           />
                         </label>
                         <label className="space-y-1">
@@ -308,7 +308,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                             type="number"
                             min={1}
                             defaultValue={index + 1}
-                            className="h-10 w-full rounded-md border border-white/10 bg-ink px-3 text-sm text-white outline-none transition focus:border-teal-300"
+                            className="h-10 w-full rounded-md border border-white/10 bg-slate-950/40 px-3 text-sm text-white outline-none transition focus:border-blue-300"
                           />
                         </label>
                       </div>
@@ -344,12 +344,12 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
           </div>
         </div>
 
-        <form action={addPricingRuleAction} className="rounded-lg border border-line bg-white p-5 shadow-crisp">
+        <form action={addPricingRuleAction} className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp">
           <input type="hidden" name="calculatorId" value={calculator.id} />
           <h2 className="font-display text-xl font-bold text-ink">Add pricing rule</h2>
-          <div className="mt-3 space-y-2 rounded-lg border border-line bg-paper p-4 text-xs leading-5 text-coal/70">
+          <div className="mt-3 space-y-2 rounded-lg border border-[#dbe5f4] bg-[#f8fbff] p-4 text-xs leading-5 text-coal/70">
             <div className="flex items-center gap-2 font-bold text-ink">
-              <HelpCircle className="h-4 w-4 text-teal-700" />
+              <HelpCircle className="h-4 w-4 text-blue-700" />
               Plain-English rule guide
             </div>
             <p>
@@ -370,7 +370,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               <span className="text-sm font-semibold text-coal">Rule type</span>
               <select
                 name="ruleType"
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               >
                 <option value="base_price">Base price</option>
                 <option value="quantity_multiplier">Quantity multiplier</option>
@@ -382,7 +382,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               <span className="text-sm font-semibold text-coal">Question</span>
               <select
                 name="questionId"
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               >
                 <option value="">No question</option>
                 {calculator.questions.map((question) => (
@@ -397,7 +397,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               <input
                 name="option"
                 placeholder="Only for option price rules"
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               />
             </label>
             <label className="space-y-2">
@@ -409,7 +409,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                 min={0}
                 step="0.01"
                 placeholder="250"
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               />
             </label>
           </div>

@@ -6,7 +6,7 @@ import { formatDate, formatDollars } from "@/lib/utils";
 
 export function CalculatorCard({ calculator }: { calculator: CalculatorListItem }) {
   return (
-    <article className="rounded-lg border border-line bg-white p-5 shadow-crisp transition duration-200 hover:-translate-y-0.5 hover:border-teal-600">
+    <article className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp transition duration-200 hover:-translate-y-0.5 hover:border-blue-500">
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -16,7 +16,7 @@ export function CalculatorCard({ calculator }: { calculator: CalculatorListItem 
           <p className="mt-2 text-sm leading-6 text-coal/70">{calculator.description}</p>
         </div>
       </div>
-      <div className="mt-5 grid grid-cols-3 gap-3 border-y border-line py-4 text-sm">
+      <div className="mt-5 grid grid-cols-3 gap-3 border-y border-[#dbe5f4] py-4 text-sm">
         <div>
           <p className="text-coal/60">Leads</p>
           <p className="mt-1 font-semibold text-ink">{calculator.leads}</p>

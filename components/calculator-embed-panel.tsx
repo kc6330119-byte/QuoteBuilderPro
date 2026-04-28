@@ -28,10 +28,10 @@ export function CalculatorEmbedPanel({
   }
 
   return (
-    <section className="rounded-lg border border-line bg-white p-5 shadow-crisp">
+    <section className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">Embed Code</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">Embed Code</p>
           <h2 className="mt-2 font-display text-xl font-bold text-ink">Add this calculator to another website</h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-coal/70">
             Paste this script where the quote calculator should appear. The widget loads in a responsive iframe and
@@ -56,12 +56,12 @@ export function CalculatorEmbedPanel({
             readOnly
             value={snippet}
             rows={3}
-            className="w-full resize-none rounded-md border border-line bg-paper px-3 py-3 font-mono text-xs leading-5 text-ink outline-none"
+            className="w-full resize-none rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 py-3 font-mono text-xs leading-5 text-ink outline-none"
           />
         </label>
         <div className="space-y-2">
           <span className="text-sm font-semibold text-coal">Published URL</span>
-          <div className="rounded-md border border-line bg-paper px-3 py-3 text-xs leading-5 text-coal/70">
+          <div className="rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 py-3 text-xs leading-5 text-coal/70">
             {publicUrl}
           </div>
           <Button type="button" onClick={copySnippet} variant="secondary" className="w-full">
@@ -71,9 +71,9 @@ export function CalculatorEmbedPanel({
         </div>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-lg border border-line bg-paper">
-        <div className="flex items-center gap-2 border-b border-line bg-white px-4 py-3 text-sm font-bold text-ink">
-          <Code2 className="h-4 w-4 text-teal-700" />
+      <div className="mt-5 overflow-hidden rounded-lg border border-[#dbe5f4] bg-[#f8fbff]">
+        <div className="flex items-center gap-2 border-b border-[#dbe5f4] bg-white px-4 py-3 text-sm font-bold text-ink">
+          <Code2 className="h-4 w-4 text-blue-700" />
           Iframe preview
         </div>
         <iframe

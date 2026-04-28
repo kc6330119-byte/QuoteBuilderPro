@@ -16,15 +16,15 @@ export default async function LeadsPage() {
         title="Lead submissions"
         description="Review incoming quote requests, estimated value, customer contact details, and follow-up status."
       />
-      <section className="overflow-hidden rounded-lg border border-line bg-white shadow-crisp">
-        <div className="hidden grid-cols-[1.15fr_0.9fr_130px_190px_1.1fr] border-b border-line bg-paper px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-coal/60 lg:grid">
+      <section className="overflow-hidden rounded-lg border border-[#dbe5f4] bg-white shadow-crisp">
+        <div className="hidden grid-cols-[1.15fr_0.9fr_130px_190px_1.1fr] border-b border-[#dbe5f4] bg-[#f8fbff] px-5 py-3 text-xs font-bold uppercase tracking-[0.12em] text-coal/60 lg:grid">
           <span>Lead</span>
           <span>Calculator</span>
           <span>Quote</span>
           <span>Manage</span>
           <span>Answers</span>
         </div>
-        <div className="divide-y divide-line">
+        <div className="divide-y divide-[#dbe5f4]">
           {leads.length > 0 ? (
             leads.map((lead) => (
               <article key={lead.id} className="grid gap-4 px-5 py-5 lg:grid-cols-[1.15fr_0.9fr_130px_190px_1.1fr] lg:items-center">
@@ -63,7 +63,7 @@ export default async function LeadsPage() {
           )}
         </div>
       </section>
-      <div className="rounded-lg border border-line bg-ink p-5 text-white">
+      <div className="rounded-lg border border-blue-900/20 bg-[linear-gradient(135deg,#111827,#172554)] p-5 text-white">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="font-display text-xl font-bold">Submissions are stored in Neon.</h2>

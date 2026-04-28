@@ -52,7 +52,7 @@ export function CalculatorBuilderForm() {
   return (
     <form action={createCalculatorAction} className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <section className="space-y-6">
-        <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
+        <div className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp">
           <h2 className="font-display text-xl font-bold text-ink">Calculator details</h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label className="space-y-2">
@@ -62,7 +62,7 @@ export function CalculatorBuilderForm() {
                 required
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               />
             </label>
             <label className="space-y-2">
@@ -72,7 +72,7 @@ export function CalculatorBuilderForm() {
                 required
                 value={slug}
                 onChange={(event) => setSlug(event.target.value)}
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               />
             </label>
             <label className="space-y-2">
@@ -81,7 +81,7 @@ export function CalculatorBuilderForm() {
                 name="businessType"
                 value={businessType}
                 onChange={(event) => setBusinessType(event.target.value)}
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               />
             </label>
             <label className="space-y-2 md:col-span-2">
@@ -91,7 +91,7 @@ export function CalculatorBuilderForm() {
                 rows={4}
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                className="w-full rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 py-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               />
             </label>
             <label className="space-y-2">
@@ -103,10 +103,10 @@ export function CalculatorBuilderForm() {
                 step="0.01"
                 value={basePrice}
                 onChange={(event) => setBasePrice(Number(event.target.value))}
-                className="h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
               />
             </label>
-            <label className="flex items-center justify-between gap-3 rounded-md border border-line bg-paper px-3 py-3">
+            <label className="flex items-center justify-between gap-3 rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 py-3">
               <span>
                 <span className="block text-sm font-semibold text-coal">Publish after save</span>
                 <span className="text-xs text-coal/60">Published calculators get a public quote page.</span>
@@ -116,13 +116,13 @@ export function CalculatorBuilderForm() {
                 type="checkbox"
                 checked={published}
                 onChange={(event) => setPublished(event.target.checked)}
-                className="h-5 w-5 accent-teal-700"
+                className="h-5 w-5 accent-blue-600"
               />
             </label>
           </div>
         </div>
 
-        <div className="rounded-lg border border-line bg-white p-5 shadow-crisp">
+        <div className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="font-display text-xl font-bold text-ink">Pricing inputs</h2>
@@ -136,7 +136,7 @@ export function CalculatorBuilderForm() {
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className="grid gap-3 rounded-lg border border-line bg-paper p-3 md:grid-cols-[32px_1fr_150px_160px]"
+                className="grid gap-3 rounded-lg border border-[#dbe5f4] bg-[#f8fbff] p-3 md:grid-cols-[32px_1fr_150px_160px]"
               >
                 <input type="hidden" name="questionIds" value={field.id} />
                 <div className="flex items-center text-coal/40">
@@ -154,7 +154,7 @@ export function CalculatorBuilderForm() {
                         current.map((item) => (item.id === field.id ? { ...item, label: value } : item))
                       );
                     }}
-                    className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none focus:border-teal-600"
+                    className="h-10 w-full rounded-md border border-[#dbe5f4] bg-white px-3 text-sm outline-none focus:border-blue-500"
                   />
                 </label>
                 <label className="space-y-1">
@@ -168,7 +168,7 @@ export function CalculatorBuilderForm() {
                         current.map((item) => (item.id === field.id ? { ...item, type: value } : item))
                       );
                     }}
-                    className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none focus:border-teal-600"
+                    className="h-10 w-full rounded-md border border-[#dbe5f4] bg-white px-3 text-sm outline-none focus:border-blue-500"
                   >
                     <option value="NUMBER">Number</option>
                     <option value="SELECT">Select</option>
@@ -190,7 +190,7 @@ export function CalculatorBuilderForm() {
                         current.map((item) => (item.id === field.id ? { ...item, pricing: value } : item))
                       );
                     }}
-                    className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none focus:border-teal-600"
+                    className="h-10 w-full rounded-md border border-[#dbe5f4] bg-white px-3 text-sm outline-none focus:border-blue-500"
                   />
                 </label>
                 <label className="flex items-center gap-2 text-xs font-semibold text-coal/65 md:col-start-2">
@@ -204,7 +204,7 @@ export function CalculatorBuilderForm() {
                         current.map((item) => (item.id === field.id ? { ...item, required: value } : item))
                       );
                     }}
-                    className="h-4 w-4 accent-teal-700"
+                    className="h-4 w-4 accent-blue-600"
                   />
                   Required question {index + 1}
                 </label>
@@ -220,7 +220,7 @@ export function CalculatorBuilderForm() {
                           current.map((item) => (item.id === field.id ? { ...item, options: value } : item))
                         );
                       }}
-                      className="h-10 w-full rounded-md border border-line bg-white px-3 text-sm outline-none focus:border-teal-600"
+                      className="h-10 w-full rounded-md border border-[#dbe5f4] bg-white px-3 text-sm outline-none focus:border-blue-500"
                     />
                   </label>
                 ) : (
@@ -233,8 +233,8 @@ export function CalculatorBuilderForm() {
       </section>
 
       <aside className="space-y-4">
-        <div className="sticky top-6 rounded-lg border border-line bg-ink p-5 text-white shadow-soft">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Live preview</p>
+        <div className="sticky top-6 rounded-lg border border-blue-900/20 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.34),transparent_44%),linear-gradient(135deg,#111827,#172554)] p-5 text-white shadow-soft">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-100">Live preview</p>
           <h2 className="mt-3 font-display text-2xl font-bold">{name}</h2>
           <p className="mt-2 text-sm leading-6 text-white/70">/{slug}</p>
           <div className="mt-5 space-y-3">

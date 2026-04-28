@@ -6,19 +6,19 @@ import { cn } from "@/lib/utils";
 
 export function TemplateCard({ template }: { template: CalculatorTemplate }) {
   return (
-    <article className="group relative overflow-hidden rounded-lg border border-line bg-white p-5 shadow-crisp transition duration-200 hover:-translate-y-0.5 hover:border-teal-600">
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-700 via-ink to-amber-600 opacity-0 transition group-hover:opacity-100" />
+    <article className="group relative overflow-hidden rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp transition duration-200 hover:-translate-y-0.5 hover:border-blue-500">
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-blue-400 to-teal-400 opacity-0 transition group-hover:opacity-100" />
       <div className="flex items-start justify-between gap-4">
         <div className={cn("flex h-11 w-11 items-center justify-center rounded-md text-white shadow-crisp", template.accent)}>
           <Layers3 className="h-5 w-5" />
         </div>
-        <span className="rounded-full border border-line bg-paper px-2.5 py-1 text-xs font-bold uppercase tracking-[0.12em] text-coal/60">
+        <span className="rounded-full border border-[#dbe5f4] bg-[#f8fbff] px-2.5 py-1 text-xs font-bold uppercase tracking-[0.12em] text-coal/60">
           Starter
         </span>
       </div>
       <h2 className="mt-5 font-display text-xl font-bold text-ink">{template.name}</h2>
       <p className="mt-2 min-h-[72px] text-sm leading-6 text-coal/70">{template.description}</p>
-      <div className="mt-5 border-t border-line pt-4">
+      <div className="mt-5 border-t border-[#dbe5f4] pt-4">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-coal/50">Business type</p>
         <p className="mt-1 text-sm font-semibold text-coal">{template.businessType}</p>
       </div>

@@ -25,10 +25,10 @@ export function DashboardShell({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
-      <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-line bg-white/[0.92] px-5 py-6 backdrop-blur lg:block">
+    <div className="min-h-screen bg-[#f7faff] text-ink">
+      <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-[#dbe5f4] bg-white/[0.94] px-5 py-6 shadow-[8px_0_30px_rgba(15,23,42,0.04)] backdrop-blur lg:block">
         <Link href="/" className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-ink text-sm font-bold text-white">
+          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-600 text-sm font-bold text-white shadow-crisp">
             QB
           </span>
           <span>
@@ -46,7 +46,7 @@ export function DashboardShell({
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold transition",
-                  active ? "bg-teal-50 text-teal-700" : "text-coal/70 hover:bg-paper hover:text-ink"
+                  active ? "bg-blue-50 text-blue-700 shadow-sm" : "text-coal/70 hover:bg-[#eef4ff] hover:text-ink"
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -55,7 +55,7 @@ export function DashboardShell({
             );
           })}
         </nav>
-        <div className="absolute bottom-6 left-5 right-5 rounded-lg border border-line bg-paper p-4">
+        <div className="absolute bottom-6 left-5 right-5 rounded-lg border border-[#dbe5f4] bg-[#f8fbff] p-4">
           <div className="flex items-center gap-3">
             <UserButton />
             <div className="min-w-0">
@@ -63,18 +63,18 @@ export function DashboardShell({
               <p className="truncate text-xs text-coal/60">{user.email}</p>
             </div>
           </div>
-          <div className="mt-4 flex gap-3 border-t border-line pt-3 text-xs font-semibold text-coal/55">
-            <Link href="/terms" className="transition hover:text-teal-700">
+          <div className="mt-4 flex gap-3 border-t border-[#dbe5f4] pt-3 text-xs font-semibold text-coal/55">
+            <Link href="/terms" className="transition hover:text-blue-700">
               Terms
             </Link>
-            <Link href="/privacy" className="transition hover:text-teal-700">
+            <Link href="/privacy" className="transition hover:text-blue-700">
               Privacy
             </Link>
           </div>
         </div>
       </aside>
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b border-line bg-paper/[0.92] px-4 py-3 backdrop-blur lg:hidden">
+        <header className="sticky top-0 z-20 border-b border-[#dbe5f4] bg-[#f7faff]/[0.92] px-4 py-3 backdrop-blur lg:hidden">
           <div className="flex items-center justify-between">
             <Link href="/" className="font-display text-lg font-bold">
               QuoteBuilder Pro
@@ -90,7 +90,7 @@ export function DashboardShell({
                     aria-label={item.name}
                     className={cn(
                       "rounded-md p-2 transition",
-                      active ? "bg-teal-50 text-teal-700" : "text-coal/70 hover:bg-white"
+                      active ? "bg-blue-50 text-blue-700" : "text-coal/70 hover:bg-white"
                     )}
                   >
                     <Icon className="h-4 w-4" />

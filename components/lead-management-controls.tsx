@@ -75,7 +75,7 @@ function StatusSubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="h-9 rounded-full border border-line bg-white px-3 text-xs font-bold text-coal shadow-sm transition hover:border-teal-600 hover:text-teal-700 disabled:cursor-not-allowed disabled:opacity-55"
+      className="h-9 rounded-full border border-[#dbe5f4] bg-white px-3 text-xs font-bold text-coal shadow-sm transition hover:border-blue-500 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-55"
     >
       {pending ? "Saving" : "Save"}
     </button>

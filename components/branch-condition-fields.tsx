@@ -34,8 +34,8 @@ export function BranchConditionFields({
   }
 
   return (
-    <div className="mt-4 rounded-md border border-dashed border-line bg-white p-3">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-teal-700">Show/hide logic</p>
+    <div className="mt-4 rounded-md border border-dashed border-[#dbe5f4] bg-white p-3">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">Show/hide logic</p>
       <p className="mt-1 text-xs leading-5 text-coal/60">{getBranchSummary(parentQuestion, answerValue)}</p>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <label className="space-y-1">
@@ -44,7 +44,7 @@ export function BranchConditionFields({
             name="visibilityQuestionId"
             value={parentQuestionId}
             onChange={(event) => handleParentChange(event.target.value)}
-            className="h-10 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+            className="h-10 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
           >
             <option value="">Always show</option>
             {candidateQuestions.map((question) => (
@@ -79,7 +79,7 @@ function renderAnswerField(
           name="visibilityValue"
           value=""
           disabled
-          className="h-10 w-full rounded-md border border-line bg-paper px-3 text-sm text-coal/45 outline-none"
+          className="h-10 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm text-coal/45 outline-none"
         >
           <option value="">No branch condition</option>
         </select>
@@ -96,7 +96,7 @@ function renderAnswerField(
           name="visibilityValue"
           value={answerValue}
           onChange={(event) => setAnswerValue(event.target.value)}
-          className="h-10 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+          className="h-10 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
         >
           <option value="">Choose an answer</option>
           {parentQuestion.options.map((option) => (
@@ -119,7 +119,7 @@ function renderAnswerField(
           name="visibilityValue"
           value={answerValue || "true"}
           onChange={(event) => setAnswerValue(event.target.value)}
-          className="h-10 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+          className="h-10 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
         >
           <option value="true">Checked / Yes</option>
           <option value="false">Not checked / No</option>
@@ -137,7 +137,7 @@ function renderAnswerField(
         value={answerValue}
         onChange={(event) => setAnswerValue(event.target.value)}
         placeholder={parentQuestion.questionType === "NUMBER" ? "Example: 3" : "Enter exact text"}
-        className="h-10 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-teal-600 focus:bg-white"
+        className="h-10 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
       />
     </label>
   );

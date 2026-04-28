@@ -30,10 +30,10 @@ export default async function TemplatesPage({
         </div>
       ) : null}
 
-      <section className="rounded-xl border border-line bg-[radial-gradient(circle_at_top_left,rgba(13,148,136,0.14),transparent_34%),linear-gradient(135deg,#ffffff,#f5f4ef)] p-5 shadow-crisp">
+      <section className="rounded-xl border border-[#dbe5f4] bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.14),transparent_34%),linear-gradient(135deg,#ffffff,#f8fbff)] p-5 shadow-crisp">
         <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">Template library</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">Template library</p>
             <h2 className="mt-2 font-display text-2xl font-bold text-ink">Fast starts, not locked-in presets.</h2>
           </div>
           <p className="text-sm leading-6 text-coal/70">

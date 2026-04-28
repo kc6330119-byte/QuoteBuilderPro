@@ -35,14 +35,14 @@ export default async function DashboardPage() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
-        <div className="rounded-lg border border-line bg-white shadow-crisp">
-          <div className="flex items-center justify-between border-b border-line px-5 py-4">
+        <div className="rounded-lg border border-[#dbe5f4] bg-white shadow-crisp">
+          <div className="flex items-center justify-between border-b border-[#dbe5f4] bg-[#f8fbff] px-5 py-4">
             <h2 className="font-display text-xl font-bold text-ink">Recent leads</h2>
             <ButtonLink href="/dashboard/leads" variant="ghost" size="sm">
               Open all
             </ButtonLink>
           </div>
-          <div className="divide-y divide-line">
+          <div className="divide-y divide-[#dbe5f4]">
             {leads.length > 0 ? (
               leads.map((lead) => (
                 <div key={lead.id} className="grid gap-3 px-5 py-4 md:grid-cols-[1fr_180px_140px] md:items-center">
@@ -62,8 +62,8 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-line bg-ink p-5 text-white shadow-soft">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Live workflow</p>
+        <div className="rounded-lg border border-blue-900/20 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.38),transparent_42%),linear-gradient(135deg,#111827,#172554)] p-5 text-white shadow-soft">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-100">Live workflow</p>
           <h2 className="mt-3 font-display text-2xl font-bold">Calculators now write to Neon.</h2>
           <p className="mt-3 text-sm leading-6 text-white/70">
             The create form saves calculators and questions, public quote pages save submissions, and the leads table

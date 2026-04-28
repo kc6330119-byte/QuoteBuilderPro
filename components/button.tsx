@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 type ButtonVariant = "primary" | "secondary" | "ghost" | "outline";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-ink text-white shadow-crisp hover:bg-coal",
-  secondary: "bg-teal-700 text-white shadow-crisp hover:bg-teal-900",
-  ghost: "bg-transparent text-coal hover:bg-mist",
-  outline: "border border-line bg-white text-coal hover:border-teal-600 hover:text-teal-700"
+  primary: "bg-blue-600 text-white shadow-crisp hover:bg-blue-700",
+  secondary: "bg-blue-600 text-white shadow-crisp hover:bg-blue-700",
+  ghost: "bg-transparent text-coal hover:bg-blue-50 hover:text-blue-700",
+  outline: "border border-[#dbe5f4] bg-white text-coal hover:border-blue-500 hover:text-blue-700"
 };
 
 const sizes = {
@@ -34,7 +34,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600 disabled:cursor-not-allowed disabled:opacity-55",
+        "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-55",
         variants[variant],
         sizes[size],
         className
@@ -58,7 +58,7 @@ export function ButtonLink({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600",
+        "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600",
         variants[variant],
         sizes[size],
         className
