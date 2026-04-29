@@ -33,7 +33,13 @@ export type LeadListItem = {
   estimatedPrice: number;
   status: LeadStatus;
   answersSummary: string;
+  answerItems: LeadAnswerItem[];
   createdAt: Date | string;
+};
+
+export type LeadAnswerItem = {
+  label: string;
+  value: string;
 };
 
 export type LeadStatus = "NEW" | "CONTACTED" | "WON" | "LOST";
@@ -165,6 +171,7 @@ export async function getLeadListItems(limit?: number): Promise<LeadListItem[]> 
     estimatedPrice: Number(submission.estimatedPrice),
     status: normalizeLeadStatus(submission.status),
     answersSummary: summarizeAnswers(submission.answers),
+    answerItems: getAnswerItems(submission.answers),
     createdAt: submission.createdAt
   }));
 }
@@ -431,11 +438,17 @@ function getRuleLabel(ruleType: string) {
 }
 
 function summarizeAnswers(answers: unknown) {
+  const values = getAnswerItems(answers).map((answer) => `${answer.label}: ${answer.value}`);
+
+  return values.length > 0 ? values.join(" | ") : "No answers captured.";
+}
+
+function getAnswerItems(answers: unknown): LeadAnswerItem[] {
   if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
-    return "No answers captured.";
+    return [];
   }
 
-  const values = Object.values(answers as Record<string, unknown>)
+  return Object.values(answers as Record<string, unknown>)
     .map((entry) => {
       if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
         return null;
@@ -443,13 +456,26 @@ function summarizeAnswers(answers: unknown) {
 
       const label = (entry as Record<string, unknown>).label;
       const value = (entry as Record<string, unknown>).value;
-      if (typeof label !== "string") return null;
+      if (typeof label !== "string" || !label.trim()) return null;
 
-      return `${label}: ${String(value)}`;
+      return {
+        label,
+        value: formatAnswerValue(value)
+      };
     })
-    .filter((value): value is string => Boolean(value));
+    .filter((value): value is LeadAnswerItem => Boolean(value));
+}
 
-  return values.length > 0 ? values.join(" | ") : "No answers captured.";
+function formatAnswerValue(value: unknown) {
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  if (value === null || value === undefined || value === "") {
+    return "Not answered";
+  }
+
+  return String(value);
 }
 
 function normalizeLeadStatus(status: string): LeadStatus {
