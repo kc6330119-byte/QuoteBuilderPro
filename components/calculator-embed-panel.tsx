@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Code2, Copy, ExternalLink } from "lucide-react";
+import { Check, Code2, Copy, Eye } from "lucide-react";
 import { Button, ButtonLink } from "@/components/button";
 
 export function CalculatorEmbedPanel({
@@ -38,8 +38,8 @@ export function CalculatorEmbedPanel({
             resizes itself as customers answer questions.
           </p>
         </div>
-        <ButtonLink href={previewUrl} target="_blank" rel="noreferrer" variant="outline">
-          {isPublished ? "Preview" : "Preview draft"} <ExternalLink className="h-4 w-4" />
+        <ButtonLink href={previewUrl} variant="outline">
+          {isPublished ? "Preview" : "Preview draft"} <Eye className="h-4 w-4" />
         </ButtonLink>
       </div>
 

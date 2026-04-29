@@ -30,7 +30,7 @@ export function CalculatorBuilderGuide({ calculator }: { calculator: CalculatorE
               pricing rules to the answers that change the estimate.
             </p>
           </div>
-          <ButtonLink href={`/preview/${calculator.id}`} target="_blank" rel="noreferrer" variant="outline">
+          <ButtonLink href={`/preview/${calculator.id}`} variant="outline">
             <Eye className="h-4 w-4" />
             Preview flow
           </ButtonLink>
