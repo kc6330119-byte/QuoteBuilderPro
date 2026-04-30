@@ -43,7 +43,15 @@ export const termsSections = [
     title: "6. Availability, maintenance, and changes",
     body: [
       "QuoteBuilder Pro is provided using commercially reasonable efforts, but we do not guarantee uninterrupted access, error-free operation, permanent availability, or permanent data retention.",
-      "We may change, suspend, or discontinue features or the service with reasonable notice when practical. Early customers should treat the product as an evolving service unless a separate written agreement says otherwise."
+      "We may change, suspend, or discontinue features or the service with reasonable notice when practical. Early customers should treat the product as an evolving service unless a separate written agreement says otherwise.",
+      "QuoteBuilder Pro relies on third-party service providers, including hosting, database infrastructure, and payment processors. We are not responsible for failures, outages, or security incidents caused by third-party providers."
+    ]
+  },
+  {
+    title: "6A. Disclaimer of warranties",
+    body: [
+      'QuoteBuilder Pro is provided on an "as is" and "as available" basis. To the maximum extent permitted by law, we disclaim all warranties, express or implied, including warranties of merchantability, fitness for a particular purpose, and non-infringement.',
+      "We do not guarantee that the service will be uninterrupted, secure, or error-free, or that results obtained from the service will be accurate or reliable."
     ]
   },
   {
@@ -57,7 +65,27 @@ export const termsSections = [
     title: "8. Limitation of liability",
     body: [
       "To the maximum extent allowed by law, QuoteBuilder Pro is not liable for lost profits, lost business, lost data, inaccurate estimates, service provider disputes, customer disputes, indirect damages, incidental damages, consequential damages, or damages caused by third-party services.",
-      "QuoteBuilder Pro is not responsible for promises, estimates, contracts, workmanship, delivery, scheduling, billing, refunds, or customer service provided by businesses that use the platform."
+      "QuoteBuilder Pro is not responsible for promises, estimates, contracts, workmanship, delivery, scheduling, billing, refunds, or customer service provided by businesses that use the platform.",
+      "To the maximum extent permitted by law, the total liability of QuoteBuilder Pro for any claims arising out of or relating to the service shall not exceed the amount paid by the customer to QuoteBuilder Pro in the twelve (12) months preceding the claim, or one hundred dollars (100 USD), whichever is greater."
+    ]
+  },
+  {
+    title: "9. Indemnification",
+    body: [
+      "You agree to defend, indemnify, and hold harmless QuoteBuilder Pro and its operators from and against any claims, damages, liabilities, losses, and expenses arising out of or related to:"
+    ],
+    bullets: [
+      "your use of the service",
+      "your calculator configurations or pricing",
+      "your services, contracts, or customer interactions",
+      "your collection or handling of personal data",
+      "your violation of applicable laws or these terms"
+    ]
+  },
+  {
+    title: "10. Governing law",
+    body: [
+      "These terms are governed by the laws of the State of Nevada, without regard to conflict of law principles."
     ]
   }
 ];
@@ -78,10 +106,18 @@ export const privacySections = [
     ]
   },
   {
+    title: "2A. Role of the parties (data controller vs processor)",
+    body: [
+      "QuoteBuilder Pro acts as a data processor for information submitted through quote calculators on behalf of the business using the platform. The business that creates and operates a calculator is the data controller and is responsible for determining what information is collected, how it is used, and ensuring compliance with applicable data protection laws.",
+      "Visitors who submit information through a calculator should direct privacy requests, including access, correction, or deletion, to the business that owns the calculator."
+    ]
+  },
+  {
     title: "3. Sharing and service providers",
     body: [
       "We may use service providers for hosting, data storage, analytics, email, authentication, security, and support. These providers may process information only as needed to help us operate the service.",
-      "We do not sell lead information. We may disclose information if required by law, to protect rights or security, or in connection with a business transfer."
+      "We do not sell lead information. We may disclose information if required by law, to protect rights or security, or in connection with a business transfer.",
+      "Businesses embedding QuoteBuilder Pro calculators on external websites are responsible for providing appropriate privacy notices, obtaining any required user consent, and complying with applicable laws related to tracking, cookies, and personal data collection."
     ]
   },
   {
@@ -94,7 +130,7 @@ export const privacySections = [
   {
     title: "5. Data retention and deletion",
     body: [
-      "We keep information while it is needed to provide the service, comply with legal obligations, resolve disputes, maintain records, and support business operations.",
+      "We retain account and lead data only as long as necessary to provide the service and fulfill legitimate business purposes. Data may persist in backups for a limited period. Deleted data may not be immediately removed from all systems.",
       "Customers may request export or deletion of available account and lead data, subject to legal, security, backup, and operational limitations."
     ]
   },

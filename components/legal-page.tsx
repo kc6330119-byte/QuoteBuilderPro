@@ -5,6 +5,7 @@ import { legalLastUpdated } from "@/lib/legal-content";
 type LegalSection = {
   title: string;
   body: string[];
+  bullets?: string[];
 };
 
 export function LegalPage({
@@ -54,6 +55,13 @@ export function LegalPage({
                     {paragraph}
                   </p>
                 ))}
+                {section.bullets ? (
+                  <ul className="list-disc space-y-2 pl-5 text-sm leading-7 text-coal/75">
+                    {section.bullets.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
               </div>
             </article>
           ))}
