@@ -22,8 +22,8 @@ export const billingPlans: BillingPlan[] = [
     calculatorLimit: 1,
     leadLimit: 50,
     stripePriceId: process.env.STRIPE_STARTER_PRICE_ID,
-    description: "For one service business testing a focused quote flow.",
-    features: ["1 published calculator", "50 leads per month", "Branding and embed code", "Lead dashboard"]
+    description: "For one service business using templates to launch a focused quote flow.",
+    features: ["1 published calculator", "50 leads per month", "Templates and guided builder", "Branding and embed code"]
   },
   {
     tier: "PRO",
