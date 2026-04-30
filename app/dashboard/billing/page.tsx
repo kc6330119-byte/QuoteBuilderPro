@@ -42,7 +42,7 @@ export default async function BillingPage({
         }
       />
 
-      <BillingNotice state={params.checkout} />
+      <BillingNotice state={params.checkout} currentPlan={data.currentPlan} />
 
       <section className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
         <div className="overflow-hidden rounded-xl border border-[#dbe5f4] bg-white shadow-crisp">
@@ -216,7 +216,7 @@ function UsageTile({ label, value, limit }: { label: string; value: number; limi
   );
 }
 
-function BillingNotice({ state }: { state?: string }) {
+function BillingNotice({ state, currentPlan }: { state?: string; currentPlan: BillingPlan | null }) {
   const notices: Record<string, { tone: string; message: string }> = {
     success: {
       tone: "border-teal-200 bg-teal-50 text-teal-800",
@@ -244,7 +244,9 @@ function BillingNotice({ state }: { state?: string }) {
     },
     "calculator-limit": {
       tone: "border-amber-200 bg-amber-50 text-amber-800",
-      message: "You have reached the published calculator limit for your current plan."
+      message: currentPlan
+        ? `Your ${currentPlan.name} plan includes ${currentPlan.calculatorLimit} published calculators. Upgrade to Agency or unpublish another calculator to publish more.`
+        : "Choose a paid plan before publishing calculators to customers."
     }
   };
   const notice = state ? notices[state] : null;
