@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { CircleHelp, ClipboardList, FilePlus2, LayoutDashboard, Layers3, Users } from "lucide-react";
+import { CircleHelp, ClipboardList, FilePlus2, LayoutDashboard, Layers3, ShieldCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -17,12 +17,15 @@ const navigation = [
 
 export function DashboardShell({
   children,
-  user
+  user,
+  isAdmin = false
 }: {
   children: React.ReactNode;
   user: { name: string; email: string; initials: string; companyName: string };
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
+  const visibleNavigation = isAdmin ? [...navigation, { name: "Admin", href: "/admin", icon: ShieldCheck }] : navigation;
 
   return (
     <div className="min-h-screen bg-[#f7faff] text-ink">
@@ -37,7 +40,7 @@ export function DashboardShell({
           </span>
         </Link>
         <nav className="mt-8 space-y-1">
-          {navigation.map((item) => {
+          {visibleNavigation.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;
             return (
@@ -80,7 +83,7 @@ export function DashboardShell({
               QuoteBuilder Pro
             </Link>
             <div className="flex items-center gap-1">
-              {navigation.map((item) => {
+              {visibleNavigation.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
                 return (

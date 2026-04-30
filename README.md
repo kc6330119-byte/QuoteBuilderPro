@@ -23,6 +23,7 @@ QuoteBuilder Pro is a SaaS MVP foundation for creating pricing and quote calcula
 - `/dashboard/leads` - quote submission leads
 - `/dashboard/templates` - calculator template library
 - `/dashboard/how-to-use` - in-app guide
+- `/admin` - internal QuoteBuilder Pro owner dashboard
 - `/sign-in` - Clerk sign-in page
 - `/sign-up` - Clerk sign-up page
 - `/quote/[slug]` - public quote page
@@ -57,9 +58,12 @@ NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
 NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
 NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL="/dashboard"
 NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL="/dashboard"
+ADMIN_EMAILS="kc6330119@gmail.com"
 ```
 
 Use the same `pk_...` value for `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_PUBLISHABLE_KEY`. The publishable key is safe to expose; the `CLERK_SECRET_KEY` must stay private.
+
+`ADMIN_EMAILS` controls access to the internal `/admin` owner dashboard. Use a comma-separated list if more than one operator needs access.
 
 4. Generate Prisma Client:
 
@@ -117,6 +121,7 @@ Set these environment variables in Netlify:
 - `NEXT_PUBLIC_CLERK_SIGN_UP_URL`
 - `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`
 - `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`
+- `ADMIN_EMAILS`
 
 Then deploy with the default build command:
 
