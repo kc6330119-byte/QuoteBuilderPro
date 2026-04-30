@@ -79,6 +79,9 @@ export default function LandingPage() {
             <a href="#pricing" className="transition hover:text-[#1d4ed8]">
               Pricing
             </a>
+            <Link href="/contact" className="transition hover:text-[#1d4ed8]">
+              Contact
+            </Link>
           </div>
           <div className="flex items-center gap-2">
             <Show when="signed-out">
@@ -490,6 +493,9 @@ export default function LandingPage() {
             <p className="mt-1">Quote calculators, lead capture, and non-binding estimate workflows for service businesses.</p>
           </div>
           <div className="flex flex-wrap gap-4 font-semibold">
+            <Link href="/contact" className="transition hover:text-[#1d4ed8]">
+              Contact
+            </Link>
             <Link href="/terms" className="transition hover:text-[#1d4ed8]">
               Terms
             </Link>

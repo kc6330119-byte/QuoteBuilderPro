@@ -24,9 +24,14 @@ export function LegalPage({
       <section className="relative overflow-hidden border-b border-line bg-white">
         <div className="surface-grid absolute inset-0 opacity-35" />
         <div className="relative mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-coal/70 transition hover:text-ink">
-            <ArrowLeft className="h-4 w-4" /> Back to QuoteBuilder Pro
-          </Link>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-coal/70 transition hover:text-ink">
+              <ArrowLeft className="h-4 w-4" /> Back to QuoteBuilder Pro
+            </Link>
+            <Link href="/contact" className="text-sm font-semibold text-coal/70 transition hover:text-blue-700">
+              Contact
+            </Link>
+          </div>
           <div className="mt-12 max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-teal-700">
               <ShieldCheck className="h-3.5 w-3.5" />

@@ -68,6 +68,9 @@ export function DashboardShell({
             </div>
           </div>
           <div className="mt-4 flex gap-3 border-t border-[#dbe5f4] pt-3 text-xs font-semibold text-coal/55">
+            <Link href="/contact" className="transition hover:text-blue-700">
+              Contact
+            </Link>
             <Link href="/terms" className="transition hover:text-blue-700">
               Terms
             </Link>
