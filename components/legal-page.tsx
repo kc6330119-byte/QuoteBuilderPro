@@ -40,12 +40,7 @@ export function LegalPage({
       </section>
 
       <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900">
-          This page contains starter policy language and is not legal advice. Have a licensed attorney review your final
-          terms, privacy policy, customer agreements, and state-specific obligations before relying on them commercially.
-        </div>
-
-        <div className="mt-6 space-y-4">
+        <div className="space-y-4">
           {sections.map((section) => (
             <article key={section.title} className="rounded-xl border border-line bg-white p-5 shadow-crisp">
               <h2 className="font-display text-xl font-bold text-ink">{section.title}</h2>
