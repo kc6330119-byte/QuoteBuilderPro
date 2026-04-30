@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { CircleHelp, ClipboardList, FilePlus2, LayoutDashboard, Layers3, ShieldCheck, Users } from "lucide-react";
+import { CircleHelp, ClipboardList, CreditCard, FilePlus2, LayoutDashboard, Layers3, ShieldCheck, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
@@ -12,6 +12,7 @@ const navigation = [
   { name: "Create", href: "/dashboard/calculators/new", icon: FilePlus2 },
   { name: "Templates", href: "/dashboard/templates", icon: Layers3 },
   { name: "Leads", href: "/dashboard/leads", icon: Users },
+  { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { name: "Guide", href: "/dashboard/how-to-use", icon: CircleHelp }
 ];
 

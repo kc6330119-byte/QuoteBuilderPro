@@ -6,6 +6,7 @@ import { Prisma } from "@prisma/client";
 import { getCurrentWorkspace } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getQuoteCalculatorBySlug, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
+import { getBillingPlanByTier, isPaidSubscriptionStatus } from "@/lib/plans";
 import { calculateQuote, getVisibleQuestions, type QuoteAnswers } from "@/lib/quote-engine";
 
 const leadStatuses: LeadStatus[] = ["NEW", "CONTACTED", "WON", "LOST"];
@@ -350,12 +351,39 @@ export async function updateCalculatorPublishStatusAction(formData: FormData) {
     },
     select: {
       id: true,
-      slug: true
+      slug: true,
+      isPublished: true,
+      company: {
+        select: {
+          planTier: true,
+          subscriptionStatus: true,
+          calculators: {
+            where: {
+              isPublished: true,
+              isArchived: false
+            },
+            select: { id: true }
+          }
+        }
+      }
     }
   });
 
   if (!calculator) {
     redirect("/dashboard/calculators");
+  }
+
+  if (isPublished) {
+    const company = calculator.company;
+    const plan = getBillingPlanByTier(company?.planTier);
+    if (!company || !plan || !isPaidSubscriptionStatus(company.subscriptionStatus)) {
+      redirect("/dashboard/billing?checkout=plan-required");
+    }
+
+    const publishedCalculatorCount = company.calculators.filter((item) => item.id !== calculator.id).length;
+    if (!calculator.isPublished && publishedCalculatorCount >= plan.calculatorLimit) {
+      redirect("/dashboard/billing?checkout=calculator-limit");
+    }
   }
 
   await prisma.calculator.update({

@@ -11,7 +11,8 @@ QuoteBuilder Pro is a SaaS MVP foundation for creating pricing and quote calcula
 - Neon Postgres
 - Netlify-ready deployment
 - Clerk authentication
-- No Stripe and no AI in this MVP
+- Stripe subscription billing foundation
+- No AI in this MVP
 
 ## Routes
 
@@ -23,6 +24,7 @@ QuoteBuilder Pro is a SaaS MVP foundation for creating pricing and quote calcula
 - `/dashboard/leads` - quote submission leads
 - `/dashboard/templates` - calculator template library
 - `/dashboard/how-to-use` - in-app guide
+- `/dashboard/billing` - Stripe plan selection and subscription status
 - `/admin` - internal QuoteBuilder Pro owner dashboard
 - `/sign-in` - Clerk sign-in page
 - `/sign-up` - Clerk sign-up page
@@ -44,7 +46,7 @@ npm install
 cp .env.example .env
 ```
 
-3. Add your Neon connection string and Clerk keys to `.env`.
+3. Add your Neon connection string, Clerk keys, and Stripe keys to `.env`.
 
 Use the direct Neon connection string for local Prisma migration commands. If you later add pooled runtime connections, update `prisma/schema.prisma` with a `directUrl` setting before splitting pooled and direct URLs.
 
@@ -64,6 +66,19 @@ ADMIN_EMAILS="kc6330119@gmail.com"
 Use the same `pk_...` value for `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_PUBLISHABLE_KEY`. The publishable key is safe to expose; the `CLERK_SECRET_KEY` must stay private.
 
 `ADMIN_EMAILS` controls access to the internal `/admin` owner dashboard. Use a comma-separated list if more than one operator needs access.
+
+Stripe billing requires:
+
+```bash
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
+STRIPE_SECRET_KEY="sk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+STRIPE_STARTER_PRICE_ID="price_..."
+STRIPE_PRO_PRICE_ID="price_..."
+STRIPE_AGENCY_PRICE_ID="price_..."
+```
+
+For local webhook testing, forward Stripe events to `/api/stripe/webhook` and use the generated `whsec_...` value.
 
 4. Generate Prisma Client:
 
@@ -122,6 +137,12 @@ Set these environment variables in Netlify:
 - `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`
 - `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`
 - `ADMIN_EMAILS`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_STARTER_PRICE_ID`
+- `STRIPE_PRO_PRICE_ID`
+- `STRIPE_AGENCY_PRICE_ID`
 
 Then deploy with the default build command:
 
@@ -129,9 +150,17 @@ Then deploy with the default build command:
 npm run build
 ```
 
+After the deployment is live, create a Stripe webhook endpoint:
+
+```text
+https://quote-builder-pro.com/api/stripe/webhook
+```
+
+Subscribe it to `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, and `invoice.payment_failed`, then add the generated `STRIPE_WEBHOOK_SECRET` to Netlify.
+
 ## Next implementation steps
 
 - Add workspace invitation flows and member roles.
 - Add embed domain restrictions.
-- Add billing after the core workflow is validated.
+- Add subscription limit enforcement and plan upgrade/downgrade management.
 - Add analytics and conversion reporting.

@@ -1,5 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { getBillingPlanLabel } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 
 export type AdminUser = {
@@ -42,15 +43,6 @@ export async function getAdminDashboardData() {
       },
       include: {
         users: {
-          include: {
-            userPlans: {
-              include: {
-                plan: true
-              },
-              orderBy: { startedAt: "desc" },
-              take: 1
-            }
-          },
           orderBy: { createdAt: "asc" }
         },
         calculators: {
@@ -87,15 +79,14 @@ export async function getAdminDashboardData() {
       return latest;
     }, null);
     const latestActivityAt = latestLeadAt ?? latestCalculatorAt ?? company.updatedAt;
-    const activePlan = owner?.userPlans[0];
 
     return {
       id: company.id,
       name: company.name,
       ownerName: owner?.name ?? "No owner name",
       ownerEmail: owner?.email ?? "No owner email",
-      planName: activePlan?.plan.name ?? "Manual / no plan",
-      planStatus: activePlan?.status ?? "Not assigned",
+      planName: getBillingPlanLabel(company.planTier),
+      planStatus: formatSubscriptionStatus(company.subscriptionStatus),
       userCount: company.users.length,
       calculatorCount: calculators.length,
       publishedCount,
@@ -124,6 +115,17 @@ function getAdminEmails() {
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
+}
+
+function formatSubscriptionStatus(status: string | null | undefined) {
+  if (!status || status === "NONE") {
+    return "Not subscribed";
+  }
+
+  return status
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function getPrimaryEmail(clerkUser: Awaited<ReturnType<typeof currentUser>>) {

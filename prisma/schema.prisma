@@ -21,13 +21,19 @@ model User {
 }
 
 model Company {
-  id          String       @id @default(uuid())
-  name        String
-  slug        String       @unique
-  users       User[]
-  calculators Calculator[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id                           String       @id @default(uuid())
+  name                         String
+  slug                         String       @unique
+  stripeCustomerId             String?      @unique
+  stripeSubscriptionId         String?      @unique
+  stripePriceId                String?
+  planTier                     String       @default("FREE")
+  subscriptionStatus           String       @default("NONE")
+  subscriptionCurrentPeriodEnd DateTime?
+  users                        User[]
+  calculators                  Calculator[]
+  createdAt                    DateTime     @default(now())
+  updatedAt                    DateTime     @updatedAt
 }
 
 model Calculator {
