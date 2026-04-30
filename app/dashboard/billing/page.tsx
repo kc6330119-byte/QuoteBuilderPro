@@ -1,6 +1,6 @@
 import { ArrowUpRight, CheckCircle2, CreditCard, GaugeCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { Badge } from "@/components/badge";
-import { ButtonLink } from "@/components/button";
+import { Button, ButtonLink } from "@/components/button";
 import { PageHeader } from "@/components/page-header";
 import { SubmitButton } from "@/components/submit-button";
 import { createBillingPortalSessionAction, createCheckoutSessionAction } from "@/lib/billing-actions";
@@ -105,6 +105,7 @@ export default async function BillingPage({
             plan={plan}
             currentTier={data.company.planTier}
             hasActiveSubscription={hasActiveSubscription}
+            hasStripeCustomer={Boolean(data.company.stripeCustomerId)}
           />
         ))}
       </section>
@@ -115,14 +116,17 @@ export default async function BillingPage({
 function PlanCard({
   plan,
   currentTier,
-  hasActiveSubscription
+  hasActiveSubscription,
+  hasStripeCustomer
 }: {
   plan: BillingPlan;
   currentTier: string;
   hasActiveSubscription: boolean;
+  hasStripeCustomer: boolean;
 }) {
   const isCurrent = hasActiveSubscription && currentTier === plan.tier;
   const canStartCheckout = Boolean(plan.stripePriceId) && !hasActiveSubscription;
+  const canManagePlan = hasActiveSubscription && hasStripeCustomer && !isCurrent;
 
   return (
     <article
@@ -155,17 +159,41 @@ function PlanCard({
         ))}
       </div>
 
-      <form action={createCheckoutSessionAction} className="mt-6">
-        <input type="hidden" name="tier" value={plan.tier} />
-        <SubmitButton
-          className="w-full"
-          pendingLabel="Opening Stripe..."
-          disabled={!canStartCheckout}
-          variant={plan.highlighted ? "primary" : "outline"}
-        >
-          {isCurrent ? "Current plan" : hasActiveSubscription ? "Manage in Stripe" : plan.stripePriceId ? `Choose ${plan.name}` : "Missing Stripe price"}
-        </SubmitButton>
-      </form>
+      <div className="mt-6">
+        {isCurrent ? (
+          <Button type="button" className="w-full" variant="outline" disabled>
+            Current plan
+          </Button>
+        ) : hasActiveSubscription ? (
+          <form action={createBillingPortalSessionAction}>
+            <SubmitButton
+              className="w-full"
+              pendingLabel="Opening Stripe..."
+              disabled={!canManagePlan}
+              variant={plan.highlighted ? "primary" : "outline"}
+            >
+              Switch in Stripe
+            </SubmitButton>
+          </form>
+        ) : (
+          <form action={createCheckoutSessionAction}>
+            <input type="hidden" name="tier" value={plan.tier} />
+            <SubmitButton
+              className="w-full"
+              pendingLabel="Opening Stripe..."
+              disabled={!canStartCheckout}
+              variant={plan.highlighted ? "primary" : "outline"}
+            >
+              {plan.stripePriceId ? `Choose ${plan.name}` : "Missing Stripe price"}
+            </SubmitButton>
+          </form>
+        )}
+      </div>
+      {hasActiveSubscription && !isCurrent ? (
+        <p className="mt-3 text-xs leading-5 text-coal/55">
+          Opens Stripe’s customer portal so plan changes stay tied to Stripe invoices and proration.
+        </p>
+      ) : null}
     </article>
   );
 }
