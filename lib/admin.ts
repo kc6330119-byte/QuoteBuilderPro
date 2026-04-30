@@ -34,6 +34,12 @@ export function isAdminEmail(email: string | null | undefined) {
 export async function getAdminDashboardData() {
   const [companies, totalUsers, totalCalculators, publishedCalculators, totalLeads, leadTotals] = await Promise.all([
     prisma.company.findMany({
+      where: {
+        OR: [
+          { users: { some: {} } },
+          { calculators: { some: {} } }
+        ]
+      },
       include: {
         users: {
           include: {

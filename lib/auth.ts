@@ -1,5 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type WorkspaceUser = {
@@ -30,7 +31,7 @@ export async function getCurrentWorkspace(): Promise<WorkspaceUser> {
   const name = getDisplayName(clerkUser, email);
   const companyName = getCompanyName(name);
 
-  let user = await prisma.user.findFirst({
+  const user = await prisma.user.findFirst({
     where: {
       OR: [{ clerkUserId: clerkUser.id }, { email }]
     },
@@ -51,40 +52,78 @@ export async function getCurrentWorkspace(): Promise<WorkspaceUser> {
     return toWorkspaceUser(updatedUser, clerkUser.id);
   }
 
-  const companyCount = await prisma.company.count();
-  const company = await prisma.company.create({
-    data: {
-      name: companyName,
-      slug: await createUniqueCompanySlug(companyName)
+  try {
+    const createdOrUpdatedUser = await prisma.$transaction(async (tx) => {
+      const existingUser = await tx.user.findFirst({
+        where: {
+          OR: [{ clerkUserId: clerkUser.id }, { email }]
+        },
+        include: { company: true }
+      });
+
+      if (existingUser?.company) {
+        return tx.user.update({
+          where: { id: existingUser.id },
+          data: {
+            clerkUserId: clerkUser.id,
+            email,
+            name
+          },
+          include: { company: true }
+        });
+      }
+
+      const companyCount = await tx.company.count();
+      const company = await tx.company.create({
+        data: {
+          name: companyName,
+          slug: await createUniqueCompanySlug(companyName, tx)
+        }
+      });
+
+      const workspaceUser = existingUser
+        ? await tx.user.update({
+            where: { id: existingUser.id },
+            data: {
+              clerkUserId: clerkUser.id,
+              email,
+              name,
+              companyId: company.id
+            },
+            include: { company: true }
+          })
+        : await tx.user.create({
+            data: {
+              clerkUserId: clerkUser.id,
+              email,
+              name,
+              companyId: company.id
+            },
+            include: { company: true }
+          });
+
+      await adoptLegacyCalculators(tx, workspaceUser.id, company.id, companyCount === 0);
+
+      return workspaceUser;
+    });
+
+    return toWorkspaceUser(createdOrUpdatedUser, clerkUser.id);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      const recoveredUser = await prisma.user.findFirst({
+        where: {
+          OR: [{ clerkUserId: clerkUser.id }, { email }]
+        },
+        include: { company: true }
+      });
+
+      if (recoveredUser?.company) {
+        return toWorkspaceUser(recoveredUser, clerkUser.id);
+      }
     }
-  });
 
-  if (user) {
-    user = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        clerkUserId: clerkUser.id,
-        email,
-        name,
-        companyId: company.id
-      },
-      include: { company: true }
-    });
-  } else {
-    user = await prisma.user.create({
-      data: {
-        clerkUserId: clerkUser.id,
-        email,
-        name,
-        companyId: company.id
-      },
-      include: { company: true }
-    });
+    throw error;
   }
-
-  await adoptLegacyCalculators(user.id, company.id, companyCount === 0);
-
-  return toWorkspaceUser(user, clerkUser.id);
 }
 
 function getPrimaryEmail(clerkUser: Awaited<ReturnType<typeof currentUser>>) {
@@ -121,8 +160,13 @@ function toWorkspaceUser(user: UserWithCompany, clerkUserId: string): WorkspaceU
   };
 }
 
-async function adoptLegacyCalculators(userId: string, companyId: string, adoptAllUnassigned: boolean) {
-  await prisma.calculator.updateMany({
+async function adoptLegacyCalculators(
+  client: Prisma.TransactionClient,
+  userId: string,
+  companyId: string,
+  adoptAllUnassigned: boolean
+) {
+  await client.calculator.updateMany({
     where: adoptAllUnassigned ? { companyId: null } : { companyId: null, userId },
     data: {
       companyId,
@@ -131,12 +175,12 @@ async function adoptLegacyCalculators(userId: string, companyId: string, adoptAl
   });
 }
 
-async function createUniqueCompanySlug(value: string) {
+async function createUniqueCompanySlug(value: string, client: Prisma.TransactionClient | typeof prisma = prisma) {
   const baseSlug = slugify(value);
   let slug = baseSlug;
   let suffix = 2;
 
-  while (await prisma.company.findUnique({ where: { slug }, select: { id: true } })) {
+  while (await client.company.findUnique({ where: { slug }, select: { id: true } })) {
     slug = `${baseSlug}-${suffix}`;
     suffix += 1;
   }
