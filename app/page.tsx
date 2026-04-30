@@ -26,6 +26,22 @@ import { formatCurrency } from "@/lib/utils";
 
 const demoVideoUrl =
   "https://res.cloudinary.com/dnmrgvjdm/video/upload/v1777385200/QuoteBuilderProFinal_cmnqsq.mp4";
+const softwareJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "QuoteBuilder Pro",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  description:
+    "QuoteBuilder Pro helps service businesses create embeddable quote calculators, publish estimate forms, and capture qualified customer leads.",
+  offers: {
+    "@type": "AggregateOffer",
+    priceCurrency: "USD",
+    lowPrice: "29",
+    highPrice: "199",
+    offerCount: "3"
+  }
+};
 
 export default function LandingPage() {
   const totalLeads = calculators.reduce((sum, calculator) => sum + calculator.leads, 0);
@@ -33,6 +49,10 @@ export default function LandingPage() {
 
   return (
     <main className="min-h-screen bg-[#f7faff] text-ink">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }}
+      />
       <section className="relative overflow-hidden border-b border-[#dbe5f4] bg-[linear-gradient(180deg,#ffffff_0%,#f3f8ff_100%)]">
         <div className="surface-grid absolute inset-0 opacity-45" />
         <div className="absolute right-0 top-28 hidden h-[30rem] w-[34rem] rounded-l-full bg-[#dbeafe] opacity-70 blur-3xl lg:block" />

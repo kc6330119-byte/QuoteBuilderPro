@@ -1,10 +1,18 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import { PublicQuoteForm } from "@/components/public-quote-form";
 import { QuoteBrandMark } from "@/components/quote-brand-mark";
 import { getQuoteCalculatorBySlug } from "@/lib/calculator-data";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Quote Calculator",
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export default async function QuotePage({
   params,

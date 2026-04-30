@@ -3,8 +3,11 @@ import { LegalPage } from "@/components/legal-page";
 import { termsSections } from "@/lib/legal-content";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | QuoteBuilder Pro",
-  description: "Terms of Service for QuoteBuilder Pro."
+  title: "Terms of Service",
+  description: "Terms of Service for QuoteBuilder Pro.",
+  alternates: {
+    canonical: "/terms"
+  }
 };
 
 export default function TermsPage() {

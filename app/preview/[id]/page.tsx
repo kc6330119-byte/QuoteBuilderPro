@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { PublicQuoteForm } from "@/components/public-quote-form";
@@ -6,6 +7,13 @@ import { QuoteBrandMark } from "@/components/quote-brand-mark";
 import { getQuoteCalculatorPreviewById } from "@/lib/calculator-data";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Calculator Preview",
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export default async function CalculatorPreviewPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

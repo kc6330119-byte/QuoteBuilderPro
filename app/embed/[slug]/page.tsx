@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import { EmbedResizeReporter } from "@/components/embed-resize-reporter";
 import { PublicQuoteForm } from "@/components/public-quote-form";
 import { QuoteBrandMark } from "@/components/quote-brand-mark";
 import { getQuoteCalculatorBySlug } from "@/lib/calculator-data";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Embedded Quote Calculator",
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export default async function EmbedQuotePage({
   params,

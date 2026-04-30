@@ -3,8 +3,11 @@ import { LegalPage } from "@/components/legal-page";
 import { privacySections } from "@/lib/legal-content";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | QuoteBuilder Pro",
-  description: "Privacy Policy for QuoteBuilder Pro."
+  title: "Privacy Policy",
+  description: "Privacy Policy for QuoteBuilder Pro.",
+  alternates: {
+    canonical: "/privacy"
+  }
 };
 
 export default function PrivacyPage() {
