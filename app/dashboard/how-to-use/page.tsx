@@ -1,7 +1,19 @@
-import { ArrowRight, BookOpenCheck, CheckCircle2, CircleDollarSign, ClipboardList, Lightbulb, Route, Users, Workflow } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpenCheck,
+  CheckCircle2,
+  CircleDollarSign,
+  ClipboardList,
+  Lightbulb,
+  PlayCircle,
+  Route,
+  Users,
+  Workflow
+} from "lucide-react";
 import { ButtonLink } from "@/components/button";
 import { PageHeader } from "@/components/page-header";
 import { howToUseSteps, howToUseTips } from "@/lib/how-to-use";
+import { quoteBuilderDemoOriginalUrl, quoteBuilderDemoVideoUrl } from "@/lib/video-assets";
 
 const guideIcons = [BookOpenCheck, Route, CircleDollarSign, CheckCircle2, Workflow, Users];
 
@@ -22,6 +34,50 @@ export default function DashboardHowToUsePage() {
           </>
         }
       />
+
+      <section className="overflow-hidden rounded-xl border border-[#dbe5f4] bg-white shadow-crisp">
+        <div className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-center">
+          <div className="p-6 lg:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">
+              <PlayCircle className="h-3.5 w-3.5" />
+              Demo walkthrough
+            </div>
+            <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-ink">
+              Watch a calculator come together from template to lead.
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-coal/70">
+              Use this short walkthrough when you want to see the full flow before building: choose a template, adjust
+              questions, preview the customer quote path, publish, and collect a lead.
+            </p>
+            <a
+              href={quoteBuilderDemoOriginalUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-4 text-sm font-bold text-coal shadow-crisp transition hover:border-blue-500 hover:text-blue-700"
+            >
+              Open video <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+
+          <div className="relative bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.22),transparent_38%),linear-gradient(135deg,#eff6ff,#ffffff)] p-4 lg:p-6">
+            <div className="absolute bottom-6 left-10 right-10 h-20 rounded-full bg-blue-400/20 blur-2xl" />
+            <div className="relative overflow-hidden rounded-2xl border border-[#dbe5f4] bg-white p-3 shadow-soft">
+              <div className="flex items-center gap-2 border-b border-[#dbe5f4] px-3 py-3">
+                <span className="h-3 w-3 rounded-full bg-[#ef4444]" />
+                <span className="h-3 w-3 rounded-full bg-[#f59e0b]" />
+                <span className="h-3 w-3 rounded-full bg-[#22c55e]" />
+                <span className="ml-3 text-xs font-bold uppercase tracking-[0.14em] text-coal/50">
+                  QuoteBuilder Pro demo
+                </span>
+              </div>
+              <video controls preload="metadata" playsInline className="aspect-video w-full rounded-xl bg-[#0f172a]">
+                <source src={quoteBuilderDemoVideoUrl} type="video/mp4" />
+                Your browser does not support the video tag. Open the demo video link instead.
+              </video>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="overflow-hidden rounded-xl border border-blue-900/20 bg-[radial-gradient(circle_at_top_right,rgba(37,99,235,0.34),transparent_44%),linear-gradient(135deg,#111827,#172554)] text-white shadow-soft">
         <div className="grid gap-6 p-6 lg:grid-cols-[0.72fr_1.28fr] lg:p-8">

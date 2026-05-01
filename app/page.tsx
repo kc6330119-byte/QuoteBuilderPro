@@ -23,9 +23,8 @@ import { ButtonLink } from "@/components/button";
 import { howToUseSteps, howToUseTips } from "@/lib/how-to-use";
 import { calculators } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/utils";
+import { quoteBuilderDemoOriginalUrl, quoteBuilderDemoVideoUrl } from "@/lib/video-assets";
 
-const demoVideoUrl =
-  "https://res.cloudinary.com/dnmrgvjdm/video/upload/v1777385200/QuoteBuilderProFinal_cmnqsq.mp4";
 const softwareJsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -274,7 +273,7 @@ export default function LandingPage() {
                   Try templates <ArrowRight className="h-4 w-4" />
                 </ButtonLink>
                 <a
-                  href={demoVideoUrl}
+                  href={quoteBuilderDemoOriginalUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#dbe5f4] bg-white px-4 text-sm font-semibold text-coal shadow-crisp transition hover:border-[#2563eb] hover:text-[#1d4ed8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
@@ -301,7 +300,7 @@ export default function LandingPage() {
                   playsInline
                   className="aspect-video w-full rounded-xl bg-[#0f172a]"
                 >
-                  <source src={demoVideoUrl} type="video/mp4" />
+                  <source src={quoteBuilderDemoVideoUrl} type="video/mp4" />
                   Your browser does not support the video tag. Open the demo video link instead.
                 </video>
               </div>
