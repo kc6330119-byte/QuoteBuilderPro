@@ -1,5 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
@@ -20,7 +21,7 @@ type UserWithCompany = {
   company: { id: string; name: string } | null;
 };
 
-export async function getCurrentWorkspace(): Promise<WorkspaceUser> {
+export const getCurrentWorkspace = cache(async (): Promise<WorkspaceUser> => {
   const clerkUser = await currentUser();
 
   if (!clerkUser) {
@@ -39,6 +40,10 @@ export async function getCurrentWorkspace(): Promise<WorkspaceUser> {
   });
 
   if (user?.company) {
+    if (user.clerkUserId === clerkUser.id && user.email === email && user.name === name) {
+      return toWorkspaceUser(user, clerkUser.id);
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -124,7 +129,7 @@ export async function getCurrentWorkspace(): Promise<WorkspaceUser> {
 
     throw error;
   }
-}
+});
 
 function getPrimaryEmail(clerkUser: Awaited<ReturnType<typeof currentUser>>) {
   const email = clerkUser?.primaryEmailAddress?.emailAddress ?? clerkUser?.emailAddresses[0]?.emailAddress;
