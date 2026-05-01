@@ -6,6 +6,7 @@ import { CalculatorBuilderGuide } from "@/components/calculator-builder-guide";
 import { CalculatorDangerActions } from "@/components/calculator-danger-actions";
 import { CalculatorEmbedPanel } from "@/components/calculator-embed-panel";
 import { EditorDeleteForm } from "@/components/editor-delete-form";
+import { FieldHelp } from "@/components/field-help";
 import { SubmitButton } from "@/components/submit-button";
 import {
   addPricingRuleAction,
@@ -111,7 +112,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Business display name</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Business display name
+                <FieldHelp title="Business display name">
+                  <p>This is the customer-facing name shown on the public quote page and embedded widget.</p>
+                  <p>Use the contractor or service business name, not the internal calculator name.</p>
+                </FieldHelp>
+              </span>
               <input
                 name="brandName"
                 defaultValue={calculator.branding.displayName}
@@ -120,7 +127,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               />
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Logo URL</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Logo URL
+                <FieldHelp title="Logo URL">
+                  <p>Paste a direct link to a hosted logo image.</p>
+                  <p>If this is blank, QuoteBuilder Pro shows initials instead.</p>
+                </FieldHelp>
+              </span>
               <input
                 name="brandLogoUrl"
                 defaultValue={calculator.branding.logoUrl ?? ""}
@@ -129,7 +142,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               />
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Primary color</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Primary color
+                <FieldHelp title="Primary color">
+                  <p>This color styles buttons, highlights, and the estimate card on the public quote form.</p>
+                  <p>Pick a color close to the customer&apos;s brand for a simple white-label feel.</p>
+                </FieldHelp>
+              </span>
               <div className="flex gap-2">
                 <input
                   name="brandColor"
@@ -143,7 +162,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               </div>
             </label>
             <label className="space-y-2 md:col-span-2">
-              <span className="text-sm font-semibold text-coal">Intro message</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Intro message
+                <FieldHelp title="Intro message">
+                  <p>This appears above the customer questions.</p>
+                  <p>Use it to set expectations, such as &quot;Answer a few questions to receive a ballpark estimate.&quot;</p>
+                </FieldHelp>
+              </span>
               <textarea
                 name="brandIntro"
                 rows={3}
@@ -153,7 +178,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               />
             </label>
             <label className="space-y-2 md:col-span-2">
-              <span className="text-sm font-semibold text-coal">Optional footer note</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Optional footer note
+                <FieldHelp title="Footer note">
+                  <p>This appears below the quote form.</p>
+                  <p>Good place for reminders like &quot;Final pricing depends on site conditions.&quot;</p>
+                </FieldHelp>
+              </span>
               <textarea
                 name="brandFooter"
                 rows={2}
@@ -186,7 +217,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                     <input type="hidden" name="questionId" value={question.id} />
                     <div className="grid gap-3 md:grid-cols-[1fr_140px_110px]">
                       <label className="space-y-1">
-                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Label</span>
+                        <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-coal/50">
+                          Label
+                          <FieldHelp title="Question label">
+                            <p>This is the exact question the customer sees.</p>
+                            <p>Use plain customer language, like &quot;What type of remodel do you need?&quot;</p>
+                          </FieldHelp>
+                        </span>
                         <input
                           required
                           name="label"
@@ -195,7 +232,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                         />
                       </label>
                       <label className="space-y-1">
-                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Type</span>
+                        <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-coal/50">
+                          Type
+                          <FieldHelp title="Question type">
+                            <p>Select is best for fixed choices like Kitchen, Bathroom, or Garage.</p>
+                            <p>Number is best for quantities. Checkbox is best for yes/no add-ons.</p>
+                          </FieldHelp>
+                        </span>
                         <select
                           name="questionType"
                           defaultValue={question.questionType}
@@ -208,7 +251,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                         </select>
                       </label>
                       <label className="space-y-1">
-                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Order</span>
+                        <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-coal/50">
+                          Order
+                          <FieldHelp title="Question order">
+                            <p>Lower numbers appear earlier in the public quote form.</p>
+                            <p>Put broad service questions first, then follow-up details later.</p>
+                          </FieldHelp>
+                        </span>
                         <input
                           name="sortOrder"
                           type="number"
@@ -218,7 +267,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                         />
                       </label>
                       <label className="space-y-1 md:col-span-2">
-                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Options</span>
+                        <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-coal/50">
+                          Options
+                          <FieldHelp title="Select options">
+                            <p>Only used when the question type is Select.</p>
+                            <p>Separate choices with commas, like Kitchen, Bathroom, Room addition.</p>
+                          </FieldHelp>
+                        </span>
                         <input
                           name="options"
                           defaultValue={question.options.join(", ")}
@@ -234,6 +289,10 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                           className="h-4 w-4 accent-blue-600"
                         />
                         <span className="text-sm font-semibold text-coal">Required</span>
+                        <FieldHelp title="Required question">
+                          <p>Required questions must be answered before a customer submits the quote request.</p>
+                          <p>Use this for information needed to calculate a meaningful estimate.</p>
+                        </FieldHelp>
                       </label>
                     </div>
                     <BranchConditionFields
@@ -279,7 +338,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
           </div>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <label className="space-y-2 md:col-span-2">
-              <span className="text-sm font-semibold text-coal">Question label</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Question label
+                <FieldHelp title="Question label">
+                  <p>Write the question exactly how a customer should read it.</p>
+                  <p>Example: &quot;What type of kitchen remodel do you need?&quot;</p>
+                </FieldHelp>
+              </span>
               <input
                 required
                 name="label"
@@ -288,7 +353,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               />
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Type</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Type
+                <FieldHelp title="Question type">
+                  <p>Select is for a list of choices. Number is for quantities. Checkbox is for a yes/no add-on.</p>
+                  <p>For most first questions, Select is the safest choice.</p>
+                </FieldHelp>
+              </span>
               <select
                 name="questionType"
                 className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
@@ -299,7 +370,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               </select>
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Options for select</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Options for select
+                <FieldHelp title="Select options">
+                  <p>Only fill this in for Select questions.</p>
+                  <p>Use commas between answers, like Kitchen, Bathroom, Garage.</p>
+                </FieldHelp>
+              </span>
               <input
                 name="options"
                 placeholder="Kitchen, Bathroom, Room addition"
@@ -309,6 +386,10 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
             <label className="flex items-center gap-2 rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 py-3">
               <input name="isRequired" type="checkbox" className="h-4 w-4 accent-blue-600" />
               <span className="text-sm font-semibold text-coal">Required</span>
+              <FieldHelp title="Required question">
+                <p>Turn this on when the answer is needed for a useful estimate.</p>
+                <p>Leave optional for nice-to-have details or follow-up notes.</p>
+              </FieldHelp>
             </label>
             <div className="md:col-span-2">
               <BranchConditionFields questions={calculator.questions} />
@@ -348,7 +429,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                     </div>
                     <div className="mt-4 grid gap-3">
                       <label className="space-y-1">
-                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Rule type</span>
+                        <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-white/45">
+                          Rule type
+                          <FieldHelp title="Rule type" tone="dark">
+                            <p>Base price starts every quote with the same amount.</p>
+                            <p>Quantity, option, and checkbox rules change the estimate based on customer answers.</p>
+                          </FieldHelp>
+                        </span>
                         <select
                           name="ruleType"
                           defaultValue={rule.ruleType}
@@ -361,7 +448,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                         </select>
                       </label>
                       <label className="space-y-1">
-                        <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Question</span>
+                        <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-white/45">
+                          Question
+                          <FieldHelp title="Rule question" tone="dark">
+                            <p>Choose the question this pricing rule listens to.</p>
+                            <p>Base price usually uses &quot;No question&quot; because it applies to every quote.</p>
+                          </FieldHelp>
+                        </span>
                         <select
                           name="questionId"
                           defaultValue={rule.questionId ?? ""}
@@ -377,7 +470,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                       </label>
                       <div className="grid gap-3 sm:grid-cols-[1fr_120px_86px]">
                         <label className="space-y-1">
-                          <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Option</span>
+                          <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-white/45">
+                            Option
+                            <FieldHelp title="Matching answer" tone="dark">
+                              <p>For option price rules, type the exact Select answer that should add this amount.</p>
+                              <p>Example: Quartz countertops.</p>
+                            </FieldHelp>
+                          </span>
                           <input
                             name="option"
                             defaultValue={rule.option}
@@ -386,7 +485,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                           />
                         </label>
                         <label className="space-y-1">
-                          <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Amount</span>
+                          <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-white/45">
+                            Amount
+                            <FieldHelp title="Rule amount" tone="dark">
+                              <p>This is the dollar amount added by the rule.</p>
+                              <p>For quantity rules, this amount is multiplied by the customer&apos;s number answer.</p>
+                            </FieldHelp>
+                          </span>
                           <input
                             required
                             name="amount"
@@ -398,7 +503,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
                           />
                         </label>
                         <label className="space-y-1">
-                          <span className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Order</span>
+                          <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-white/45">
+                            Order
+                            <FieldHelp title="Rule order" tone="dark" align="left">
+                              <p>Controls how rules are displayed in this editor.</p>
+                              <p>The quote total is calculated from all matching rules.</p>
+                            </FieldHelp>
+                          </span>
                           <input
                             name="sortOrder"
                             type="number"
@@ -463,7 +574,15 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
           </div>
           <div className="mt-5 space-y-4">
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Rule type</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Rule type
+                <FieldHelp title="Rule type">
+                  <p>Base price: starting amount for every quote.</p>
+                  <p>Quantity multiplier: customer number x amount.</p>
+                  <p>Option price: add amount when a Select answer matches.</p>
+                  <p>Checkbox add-on: add amount when checked.</p>
+                </FieldHelp>
+              </span>
               <select
                 name="ruleType"
                 className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
@@ -475,7 +594,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               </select>
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Question</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Question
+                <FieldHelp title="Rule question">
+                  <p>Attach the rule to the question that should affect pricing.</p>
+                  <p>For a base price, leave this set to &quot;No question&quot;.</p>
+                </FieldHelp>
+              </span>
               <select
                 name="questionId"
                 className="h-11 w-full rounded-md border border-[#dbe5f4] bg-[#f8fbff] px-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white"
@@ -489,7 +614,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               </select>
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Matching answer</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Matching answer
+                <FieldHelp title="Matching answer">
+                  <p>Only needed for option price rules.</p>
+                  <p>Type the answer exactly as it appears in the Select question, like Kitchen or Quartz.</p>
+                </FieldHelp>
+              </span>
               <input
                 name="option"
                 placeholder="Only for option price rules"
@@ -497,7 +628,13 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               />
             </label>
             <label className="space-y-2">
-              <span className="text-sm font-semibold text-coal">Amount</span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-coal">
+                Amount
+                <FieldHelp title="Amount">
+                  <p>Enter the dollar value for this rule.</p>
+                  <p>Example: 250 adds $250. For quantity rules, 250 means $250 per unit.</p>
+                </FieldHelp>
+              </span>
               <input
                 required
                 name="amount"

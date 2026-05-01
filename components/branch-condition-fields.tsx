@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { FieldHelp } from "@/components/field-help";
 import type { QuoteQuestion } from "@/lib/calculator-data";
 import type { VisibilityCondition } from "@/lib/quote-engine";
 
@@ -35,11 +36,23 @@ export function BranchConditionFields({
 
   return (
     <div className="mt-4 rounded-md border border-dashed border-[#dbe5f4] bg-white p-3">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">Show/hide logic</p>
+      <div className="flex items-center gap-2">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">Show/hide logic</p>
+        <FieldHelp title="Show/hide logic">
+          <p>Use this when a question should only appear after a specific earlier answer.</p>
+          <p>Example: show &quot;Kitchen cabinet level&quot; only when &quot;Project type&quot; equals &quot;Kitchen&quot;.</p>
+        </FieldHelp>
+      </div>
       <p className="mt-1 text-xs leading-5 text-coal/60">{getBranchSummary(parentQuestion, answerValue)}</p>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <label className="space-y-1">
-          <span className="text-xs font-bold uppercase tracking-[0.12em] text-coal/50">Only ask this when</span>
+          <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-coal/50">
+            Only ask this when
+            <FieldHelp title="Parent question">
+              <p>Choose the earlier question that controls whether this follow-up appears.</p>
+              <p>Leave this set to &quot;Always show&quot; for questions every customer should answer.</p>
+            </FieldHelp>
+          </span>
           <select
             name="visibilityQuestionId"
             value={parentQuestionId}
