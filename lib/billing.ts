@@ -10,8 +10,10 @@ export async function getBillingDashboardData() {
       calculators: {
         where: { isArchived: false },
         include: {
-          submissions: {
-            select: { id: true, createdAt: true }
+          _count: {
+            select: {
+              submissions: true
+            }
           }
         }
       }
@@ -23,7 +25,7 @@ export async function getBillingDashboardData() {
   }
 
   const currentPlan = getBillingPlanByTier(company.planTier);
-  const leadCount = company.calculators.flatMap((calculator) => calculator.submissions).length;
+  const leadCount = company.calculators.reduce((sum, calculator) => sum + calculator._count.submissions, 0);
 
   return {
     company: {

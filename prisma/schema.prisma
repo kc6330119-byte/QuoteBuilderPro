@@ -18,6 +18,8 @@ model User {
   userPlans   UserPlan[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+
+  @@index([companyId, createdAt], name: "User_companyId_createdAt_idx")
 }
 
 model Company {
@@ -60,6 +62,10 @@ model Calculator {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId], name: "Calculator_userId_idx")
+  @@index([companyId, isArchived, updatedAt(sort: Desc)], name: "Calculator_company_archive_updated_idx")
+  @@index([companyId, isPublished, isArchived], name: "Calculator_company_publish_archive_idx")
 }
 
 model Question {
@@ -74,6 +80,8 @@ model Question {
   isRequired          Boolean    @default(false)
 
   pricingRules PricingRule[]
+
+  @@index([calculatorId, sortOrder], name: "Question_calculator_sort_idx")
 }
 
 model PricingRule {
@@ -86,6 +94,9 @@ model PricingRule {
   ruleConfig   Json?
   amount       Decimal    @db.Decimal(18, 2)
   sortOrder    Int        @default(0)
+
+  @@index([calculatorId, sortOrder], name: "PricingRule_calculator_sort_idx")
+  @@index([questionId], name: "PricingRule_questionId_idx")
 }
 
 model QuoteSubmission {
@@ -103,6 +114,8 @@ model QuoteSubmission {
   acceptedAt                 DateTime?
   status                     String     @default("NEW")
   createdAt                  DateTime   @default(now())
+
+  @@index([calculatorId, createdAt(sort: Desc)], name: "QuoteSubmission_calculator_created_idx")
 }
 
 model Plan {
@@ -124,4 +137,7 @@ model UserPlan {
   status    String
   startedAt DateTime  @default(now())
   endsAt    DateTime?
+
+  @@index([userId], name: "UserPlan_userId_idx")
+  @@index([planId], name: "UserPlan_planId_idx")
 }

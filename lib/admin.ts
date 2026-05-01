@@ -33,7 +33,7 @@ export function isAdminEmail(email: string | null | undefined) {
 }
 
 export async function getAdminDashboardData() {
-  const [companies, totalUsers, totalCalculators, publishedCalculators, totalLeads, leadTotals] = await Promise.all([
+  const [companies, totalUsers, totalCalculators, publishedCalculators, totalLeads, pipelineTotal] = await Promise.all([
     prisma.company.findMany({
       where: {
         OR: [
@@ -62,7 +62,11 @@ export async function getAdminDashboardData() {
     prisma.calculator.count({ where: { isArchived: false } }),
     prisma.calculator.count({ where: { isPublished: true, isArchived: false } }),
     prisma.quoteSubmission.count(),
-    prisma.quoteSubmission.findMany({ select: { estimatedPrice: true } })
+    prisma.quoteSubmission.aggregate({
+      _sum: {
+        estimatedPrice: true
+      }
+    })
   ]);
 
   const accounts = companies.map((company) => {
@@ -104,7 +108,7 @@ export async function getAdminDashboardData() {
       calculatorCount: totalCalculators,
       publishedCalculatorCount: publishedCalculators,
       leadCount: totalLeads,
-      pipelineValue: leadTotals.reduce((sum, lead) => sum + Number(lead.estimatedPrice), 0)
+      pipelineValue: Number(pipelineTotal._sum.estimatedPrice ?? 0)
     },
     accounts
   };

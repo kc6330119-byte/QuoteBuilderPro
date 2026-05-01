@@ -94,51 +94,66 @@ export async function getCalculatorListItems(): Promise<CalculatorListItem[]> {
   const calculators = await prisma.calculator.findMany({
     where: { companyId: workspace.companyId, isArchived: false },
     include: {
-      questions: true,
-      submissions: true
+      _count: {
+        select: {
+          questions: true,
+          submissions: true
+        }
+      }
     },
     orderBy: { updatedAt: "desc" }
   });
+  const quoteStats =
+    calculators.length > 0
+      ? await prisma.quoteSubmission.groupBy({
+          by: ["calculatorId"],
+          where: {
+            calculatorId: {
+              in: calculators.map((calculator) => calculator.id)
+            }
+          },
+          _avg: {
+            estimatedPrice: true
+          }
+        })
+      : [];
+  const avgQuoteByCalculatorId = new Map(
+    quoteStats.map((stat) => [stat.calculatorId, Number(stat._avg.estimatedPrice ?? 0)])
+  );
 
   return calculators.map((calculator) => {
-    const quoteTotals = calculator.submissions.map((submission) => Number(submission.estimatedPrice));
-    const avgQuote =
-      quoteTotals.length > 0 ? quoteTotals.reduce((sum, total) => sum + total, 0) / quoteTotals.length : 0;
-
     return {
       id: calculator.id,
       name: calculator.name,
       slug: calculator.slug,
       description: calculator.description ?? "No description yet.",
       status: calculator.isPublished ? "PUBLISHED" : "DRAFT",
-      leads: calculator.submissions.length,
+      leads: calculator._count.submissions,
       conversionRate: 0,
-      avgQuote,
+      avgQuote: avgQuoteByCalculatorId.get(calculator.id) ?? 0,
       updatedAt: calculator.updatedAt,
-      questionCount: calculator.questions.length
+      questionCount: calculator._count.questions
     };
   });
 }
 
 export async function getDashboardStats() {
   const workspace = await getCurrentWorkspace();
-  const [calculatorCount, publishedCount, leadCount, leadTotals] = await Promise.all([
+  const [calculatorCount, publishedCount, leadCount, pipelineTotal] = await Promise.all([
     prisma.calculator.count({ where: { companyId: workspace.companyId, isArchived: false } }),
     prisma.calculator.count({ where: { companyId: workspace.companyId, isPublished: true, isArchived: false } }),
     prisma.quoteSubmission.count({ where: { calculator: { companyId: workspace.companyId } } }),
-    prisma.quoteSubmission.findMany({
+    prisma.quoteSubmission.aggregate({
       where: { calculator: { companyId: workspace.companyId } },
-      select: { estimatedPrice: true }
+      _sum: { estimatedPrice: true }
     })
   ]);
-
-  const pipeline = leadTotals.reduce((sum, lead) => sum + Number(lead.estimatedPrice), 0);
 
   return {
     calculatorCount,
     publishedCount,
     leadCount,
-    pipeline
+    pipeline: Number(pipelineTotal._sum.estimatedPrice ?? 0)
   };
 }
 
