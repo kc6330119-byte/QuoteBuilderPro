@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import "./globals.css";
 
 const siteUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "https://quote-builder-pro.com").replace(/\/$/, "");
@@ -44,6 +45,7 @@ export const metadata: Metadata = {
 
 const clerkPublishableKey =
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? process.env.CLERK_PUBLISHABLE_KEY;
+const googleAnalyticsMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 export default function RootLayout({
   children
@@ -53,7 +55,10 @@ export default function RootLayout({
   return (
     <ClerkProvider publishableKey={clerkPublishableKey}>
       <html lang="en">
-        <body>{children}</body>
+        <body>
+          {children}
+          <GoogleAnalytics measurementId={googleAnalyticsMeasurementId} />
+        </body>
       </html>
     </ClerkProvider>
   );

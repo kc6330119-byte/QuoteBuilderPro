@@ -50,6 +50,12 @@ cp .env.example .env
 
 Use the direct Neon connection string for local Prisma migration commands. If you later add pooled runtime connections, update `prisma/schema.prisma` with a `directUrl` setting before splitting pooled and direct URLs.
 
+Google Analytics is optional and only tracks public marketing pages when configured:
+
+```bash
+NEXT_PUBLIC_GA_MEASUREMENT_ID="G-XXXXXXXXXX"
+```
+
 Clerk requires:
 
 ```bash
@@ -129,6 +135,7 @@ Set these environment variables in Netlify:
 
 - `DATABASE_URL`
 - `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 - `CLERK_PUBLISHABLE_KEY`
 - `CLERK_SECRET_KEY`
