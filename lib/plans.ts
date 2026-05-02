@@ -28,8 +28,8 @@ export const billingPlans: BillingPlan[] = [
   {
     tier: "PRO",
     name: "Pro",
-    price: 79,
-    priceLabel: "$79/mo",
+    price: 59,
+    priceLabel: "$59/mo",
     calculatorLimit: 5,
     leadLimit: 500,
     stripePriceId: process.env.STRIPE_PRO_PRICE_ID,
@@ -40,8 +40,8 @@ export const billingPlans: BillingPlan[] = [
   {
     tier: "AGENCY",
     name: "Agency",
-    price: 199,
-    priceLabel: "$199/mo",
+    price: 149,
+    priceLabel: "$149/mo",
     calculatorLimit: 20,
     leadLimit: 2000,
     stripePriceId: process.env.STRIPE_AGENCY_PRICE_ID,
