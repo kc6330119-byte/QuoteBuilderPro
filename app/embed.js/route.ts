@@ -7,11 +7,19 @@ export function GET() {
 
   const publicId = currentScript.getAttribute("data-public-id");
   const slug = currentScript.getAttribute("data-slug") || currentScript.getAttribute("data-calculator");
-  if (!slug) {
-    console.warn("QuoteBuilder Pro embed: missing data-slug or data-calculator.");
+  if (!publicId || !slug) {
+    console.warn("QuoteBuilder Pro embed: missing data-public-id or data-slug.");
+
+    const targetSelector = currentScript.getAttribute("data-target");
+    let fallbackContainer = targetSelector ? document.querySelector(targetSelector) : null;
+    if (!fallbackContainer) {
+      fallbackContainer = document.createElement("div");
+      currentScript.insertAdjacentElement("afterend", fallbackContainer);
+    }
+    fallbackContainer.innerHTML = '<div style="box-sizing:border-box;width:100%;border:1px solid #dbe5f4;border-radius:14px;background:#f8fbff;padding:24px;text-align:center;font-family:Inter,system-ui,sans-serif;color:#111827;"><p style="margin:0 0 8px;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#0f766e;">Quote unavailable</p><p style="margin:0;font-size:16px;font-weight:800;">This calculator needs an updated secure embed code.</p></div>';
     return;
   }
-  const frameKey = publicId ? publicId + "/" + slug : slug;
+  const frameKey = publicId + "/" + slug;
 
   const scriptUrl = new URL(currentScript.src);
   const baseUrl = scriptUrl.origin;
@@ -28,9 +36,7 @@ export function GET() {
   container.style.maxWidth = "100%";
 
   const iframe = document.createElement("iframe");
-  iframe.src = publicId
-    ? baseUrl + "/embed/" + encodeURIComponent(publicId) + "/" + encodeURIComponent(slug)
-    : baseUrl + "/embed/" + encodeURIComponent(slug);
+  iframe.src = baseUrl + "/embed/" + encodeURIComponent(publicId) + "/" + encodeURIComponent(slug);
   iframe.title = "Quote calculator";
   iframe.loading = "lazy";
   iframe.style.width = "100%";

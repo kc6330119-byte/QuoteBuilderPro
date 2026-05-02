@@ -818,7 +818,6 @@ function revalidateCalculator(calculatorId: string) {
   revalidatePath("/dashboard/calculators");
   revalidatePath(`/dashboard/calculators/${calculatorId}`);
   revalidatePath(`/preview/${calculatorId}`);
-  revalidatePath("/quote/[slug]", "page");
   revalidatePath("/quote/[publicId]/[slug]", "page");
   revalidatePath("/embed/[publicId]/[slug]", "page");
 }
