@@ -227,7 +227,7 @@ export function PublicQuoteForm({
           </p>
           <SubmitButton
             variant="secondary"
-            className="mt-5 w-full border border-white/15 bg-white text-ink hover:bg-white/90"
+            className="mt-5 w-full border border-white/15 bg-white !text-ink hover:bg-white/90 hover:!text-ink"
             pendingLabel="Submitting quote..."
             disabled={!allowSubmission}
           >
