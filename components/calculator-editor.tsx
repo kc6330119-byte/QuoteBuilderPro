@@ -17,6 +17,7 @@ import {
   updateQuestionAction
 } from "@/lib/actions";
 import type { CalculatorEditor as CalculatorEditorData } from "@/lib/calculator-data";
+import { buildPublicQuotePath } from "@/lib/public-calculator-paths";
 import { formatDollars } from "@/lib/utils";
 
 export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorData }) {
@@ -37,7 +38,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
               <p className="mt-2 text-sm leading-6 text-coal/70">{calculator.description || "No description yet."}</p>
             </div>
             {calculator.isPublished ? (
-              <ButtonLink href={`/quote/${calculator.slug}`} variant="outline">
+              <ButtonLink href={buildPublicQuotePath(calculator)} variant="outline">
                 Public quote <ArrowUpRight className="h-4 w-4" />
               </ButtonLink>
             ) : (
@@ -654,6 +655,7 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
         <CalculatorEmbedPanel
           id={calculator.id}
           slug={calculator.slug}
+          publicId={calculator.publicId}
           isPublished={calculator.isPublished}
           appUrl={appUrl}
         />

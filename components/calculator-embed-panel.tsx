@@ -3,23 +3,31 @@
 import { useMemo, useState } from "react";
 import { Check, Code2, Copy, Eye } from "lucide-react";
 import { Button, ButtonLink } from "@/components/button";
+import { buildPublicCalculatorFrameKey, buildPublicEmbedPath, buildPublicQuotePath } from "@/lib/public-calculator-paths";
 
 export function CalculatorEmbedPanel({
   id,
   slug,
+  publicId,
   isPublished,
   appUrl
 }: {
   id: string;
   slug: string;
+  publicId: string;
   isPublished: boolean;
   appUrl: string;
 }) {
   const [copied, setCopied] = useState(false);
   const baseUrl = appUrl.replace(/\/$/, "");
-  const publicUrl = `${baseUrl}/quote/${slug}`;
+  const publicUrl = `${baseUrl}${buildPublicQuotePath({ publicId, slug })}`;
   const previewUrl = `/preview/${id}`;
-  const snippet = useMemo(() => `<script src="${baseUrl}/embed.js" data-slug="${slug}"></script>`, [baseUrl, slug]);
+  const embedPath = buildPublicEmbedPath({ publicId, slug });
+  const frameKey = buildPublicCalculatorFrameKey({ publicId, slug });
+  const snippet = useMemo(
+    () => `<script src="${baseUrl}/embed.js" data-public-id="${publicId}" data-slug="${slug}"></script>`,
+    [baseUrl, publicId, slug]
+  );
 
   async function copySnippet() {
     await navigator.clipboard.writeText(snippet);
@@ -77,8 +85,9 @@ export function CalculatorEmbedPanel({
           Iframe preview
         </div>
         <iframe
-          src={previewUrl}
+          src={isPublished ? embedPath : previewUrl}
           title="Embedded quote calculator preview"
+          data-quotebuilder-frame={frameKey}
           className="block h-[720px] w-full border-0 bg-white"
         />
       </div>

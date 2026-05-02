@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { getCurrentWorkspace } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { createUniquePublicCalculatorId } from "@/lib/public-calculator-id";
 import { getCalculatorTemplateById, type TemplatePricingRule, type TemplateQuestion } from "@/lib/templates";
 
 export async function useTemplateAction(formData: FormData) {
@@ -16,7 +17,8 @@ export async function useTemplateAction(formData: FormData) {
   }
 
   const workspace = await getCurrentWorkspace();
-  const slug = await createUniqueSlug(template.name);
+  const slug = createSlug(template.name);
+  const publicId = await createUniquePublicCalculatorId();
 
   let calculatorId: string;
 
@@ -28,6 +30,7 @@ export async function useTemplateAction(formData: FormData) {
           companyId: workspace.companyId,
           name: template.name,
           slug,
+          publicId,
           businessType: template.businessType,
           description: `${template.description} Customize questions and pricing rules before publishing.`,
           isPublished: false
@@ -118,20 +121,7 @@ function buildTemplateRuleConfig(rule: TemplatePricingRule) {
   };
 }
 
-async function createUniqueSlug(value: string) {
-  const baseSlug = slugify(value);
-  let slug = baseSlug;
-  let suffix = 2;
-
-  while (await prisma.calculator.findUnique({ where: { slug }, select: { id: true } })) {
-    slug = `${baseSlug}-${suffix}`;
-    suffix += 1;
-  }
-
-  return slug;
-}
-
-function slugify(value: string) {
+function createSlug(value: string) {
   return (
     value
       .toLowerCase()

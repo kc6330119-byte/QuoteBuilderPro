@@ -45,7 +45,8 @@ model Calculator {
   companyId    String?
   company      Company? @relation(fields: [companyId], references: [id])
   name         String
-  slug         String   @unique
+  slug         String
+  publicId     String   @unique
   businessType String?
   description  String?
   brandName    String?

@@ -29,7 +29,9 @@ QuoteBuilder Pro is a SaaS MVP foundation for creating pricing and quote calcula
 - `/sign-in` - Clerk sign-in page
 - `/sign-up` - Clerk sign-up page
 - `/quote/[slug]` - public quote page
+- `/quote/[publicId]/[slug]` - secure public quote page with an opaque calculator identifier
 - `/embed/[slug]` - embeddable calculator page
+- `/embed/[publicId]/[slug]` - secure embeddable calculator page with an opaque calculator identifier
 - `/terms` and `/privacy` - starter legal pages
 
 ## Local setup

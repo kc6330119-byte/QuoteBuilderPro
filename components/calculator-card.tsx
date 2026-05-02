@@ -2,6 +2,7 @@ import { ArrowUpRight, BarChart3, CalendarDays } from "lucide-react";
 import { Badge } from "@/components/badge";
 import { Button, ButtonLink } from "@/components/button";
 import type { CalculatorListItem } from "@/lib/calculator-data";
+import { buildPublicQuotePath } from "@/lib/public-calculator-paths";
 import { formatDate, formatDollars } from "@/lib/utils";
 
 export function CalculatorCard({ calculator }: { calculator: CalculatorListItem }) {
@@ -46,7 +47,7 @@ export function CalculatorCard({ calculator }: { calculator: CalculatorListItem 
             Manage
           </ButtonLink>
           {calculator.status === "PUBLISHED" ? (
-            <ButtonLink href={`/quote/${calculator.slug}`} variant="outline" size="sm">
+            <ButtonLink href={buildPublicQuotePath(calculator)} variant="outline" size="sm">
               View quote <ArrowUpRight className="h-4 w-4" />
             </ButtonLink>
           ) : (

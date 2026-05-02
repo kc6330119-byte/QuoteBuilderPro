@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-export function EmbedResizeReporter({ slug }: { slug: string }) {
+export function EmbedResizeReporter({ frameKey }: { frameKey: string }) {
   useEffect(() => {
     let frame = 0;
 
@@ -20,7 +20,8 @@ export function EmbedResizeReporter({ slug }: { slug: string }) {
         window.parent.postMessage(
           {
             type: "quotebuilder:resize",
-            slug,
+            key: frameKey,
+            slug: frameKey,
             height
           },
           "*"
@@ -40,7 +41,7 @@ export function EmbedResizeReporter({ slug }: { slug: string }) {
       window.removeEventListener("load", sendHeight);
       window.removeEventListener("resize", sendHeight);
     };
-  }, [slug]);
+  }, [frameKey]);
 
   return null;
 }

@@ -14,6 +14,7 @@ export type CalculatorListItem = {
   id: string;
   name: string;
   slug: string;
+  publicId: string;
   description: string;
   status: "DRAFT" | "PUBLISHED";
   leads: number;
@@ -68,6 +69,7 @@ export type QuoteCalculator = {
   id: string;
   name: string;
   slug: string;
+  publicId: string;
   description: string;
   isPublished: boolean;
   source: "database" | "mock";
@@ -80,6 +82,7 @@ export type CalculatorEditor = {
   id: string;
   name: string;
   slug: string;
+  publicId: string;
   description: string;
   isPublished: boolean;
   branding: CalculatorBranding;
@@ -126,6 +129,7 @@ export async function getCalculatorListItems(): Promise<CalculatorListItem[]> {
       id: calculator.id,
       name: calculator.name,
       slug: calculator.slug,
+      publicId: calculator.publicId,
       description: calculator.description ?? "No description yet.",
       status: calculator.isPublished ? "PUBLISHED" : "DRAFT",
       leads: calculator._count.submissions,
@@ -224,6 +228,7 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
     id: calculator.id,
     name: calculator.name,
     slug: calculator.slug,
+    publicId: calculator.publicId,
     description: calculator.description ?? "",
     isPublished: calculator.isPublished,
     branding: normalizeBranding(calculator),
@@ -257,6 +262,7 @@ export async function getQuoteCalculatorPreviewById(id: string): Promise<QuoteCa
     id: calculator.id,
     name: calculator.name,
     slug: calculator.slug,
+    publicId: calculator.publicId,
     description: calculator.description || "Answer a few questions and receive a working estimate.",
     isPublished: calculator.isPublished,
     source: "database",
@@ -272,9 +278,9 @@ export async function getQuoteCalculatorPreviewById(id: string): Promise<QuoteCa
   };
 }
 
-export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalculator | null> {
+export async function getQuoteCalculatorByPublicId(publicId: string, slug: string): Promise<QuoteCalculator | null> {
   const calculator = await prisma.calculator.findUnique({
-    where: { slug },
+    where: { publicId },
     include: {
       questions: {
         include: {
@@ -287,7 +293,7 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
   });
 
   if (calculator) {
-    if (calculator.isArchived || !calculator.isPublished) {
+    if (calculator.slug !== slug || calculator.isArchived || !calculator.isPublished) {
       return null;
     }
 
@@ -306,6 +312,7 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
       id: calculator.id,
       name: calculator.name,
       slug: calculator.slug,
+      publicId: calculator.publicId,
       description: calculator.description ?? "Answer a few questions and receive a working estimate.",
       isPublished: calculator.isPublished,
       source: "database",
@@ -321,6 +328,10 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
     };
   }
 
+  return null;
+}
+
+export async function getMockQuoteCalculatorBySlug(slug: string): Promise<QuoteCalculator | null> {
   const mock = mockCalculators.find((item) => item.slug === slug && item.status === "PUBLISHED");
   if (!mock) {
     return null;
@@ -330,6 +341,7 @@ export async function getQuoteCalculatorBySlug(slug: string): Promise<QuoteCalcu
     id: mock.id,
     name: mock.name,
     slug: mock.slug,
+    publicId: `mock-${mock.slug}`,
     description: mock.description,
     isPublished: true,
     source: "mock",

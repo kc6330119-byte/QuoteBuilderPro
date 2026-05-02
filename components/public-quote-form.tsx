@@ -6,6 +6,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { createQuoteSubmissionAction } from "@/lib/actions";
 import type { QuoteCalculator } from "@/lib/calculator-data";
 import { estimateDisclaimer } from "@/lib/legal-content";
+import { buildPublicEmbedPath, buildPublicQuotePath } from "@/lib/public-calculator-paths";
 import { calculateQuote, getVisibleQuestions } from "@/lib/quote-engine";
 import { formatDollars } from "@/lib/utils";
 
@@ -40,7 +41,8 @@ export function PublicQuoteForm({
 
   const visibleQuestions = useMemo(() => getVisibleQuestions(calculator.questions, answers), [answers, calculator.questions]);
   const total = useMemo(() => calculateQuote(calculator.questions, calculator.rules, answers), [answers, calculator]);
-  const submitReturnPath = returnTo ?? (variant === "embed" ? `/embed/${calculator.slug}` : `/quote/${calculator.slug}`);
+  const submitReturnPath =
+    returnTo ?? (variant === "embed" ? buildPublicEmbedPath(calculator) : buildPublicQuotePath(calculator));
   const quoteTheme = { "--quote-brand": calculator.branding.primaryColor } as CSSProperties;
 
   if (submitted || mockSubmitted) {
@@ -78,6 +80,7 @@ export function PublicQuoteForm({
     >
       <input type="hidden" name="calculatorId" value={calculator.id} />
       <input type="hidden" name="calculatorSlug" value={calculator.slug} />
+      <input type="hidden" name="calculatorPublicId" value={calculator.publicId} />
       <input type="hidden" name="returnTo" value={submitReturnPath} />
       <section className="space-y-5">
         {!allowSubmission ? (

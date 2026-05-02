@@ -5,8 +5,10 @@ import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { getCurrentWorkspace } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getQuoteCalculatorBySlug, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
+import { getQuoteCalculatorByPublicId, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
 import { getBillingPlanByTier, isPaidSubscriptionStatus } from "@/lib/plans";
+import { buildPublicEmbedPath, buildPublicQuotePath } from "@/lib/public-calculator-paths";
+import { createUniquePublicCalculatorId } from "@/lib/public-calculator-id";
 import { calculateQuote, getVisibleQuestions, type QuoteAnswers } from "@/lib/quote-engine";
 
 const leadStatuses: LeadStatus[] = ["NEW", "CONTACTED", "WON", "LOST"];
@@ -23,7 +25,8 @@ type ParsedQuestion = {
 export async function createCalculatorAction(formData: FormData) {
   const workspace = await getCurrentWorkspace();
   const name = requiredString(formData, "name", "Untitled calculator");
-  const slug = await createUniqueSlug(requiredString(formData, "slug", name));
+  const slug = createSlug(requiredString(formData, "slug", name));
+  const publicId = await createUniquePublicCalculatorId();
   const description = optionalString(formData, "description");
   const businessType = optionalString(formData, "businessType");
   const basePrice = currencyString(formData.get("basePrice"));
@@ -37,6 +40,7 @@ export async function createCalculatorAction(formData: FormData) {
         companyId: workspace.companyId,
         name,
         slug,
+        publicId,
         description,
         businessType,
         isPublished
@@ -351,6 +355,7 @@ export async function updateCalculatorPublishStatusAction(formData: FormData) {
     },
     select: {
       id: true,
+      publicId: true,
       slug: true,
       isPublished: true,
       company: {
@@ -392,8 +397,8 @@ export async function updateCalculatorPublishStatusAction(formData: FormData) {
   });
 
   revalidateCalculator(calculator.id);
-  revalidatePath(`/quote/${calculator.slug}`);
-  revalidatePath(`/embed/${calculator.slug}`);
+  revalidatePath(buildPublicQuotePath(calculator));
+  revalidatePath(buildPublicEmbedPath(calculator));
   redirect(`/dashboard/calculators/${calculator.id}`);
 }
 
@@ -413,6 +418,7 @@ export async function updateCalculatorBrandingAction(formData: FormData) {
     },
     select: {
       id: true,
+      publicId: true,
       slug: true
     }
   });
@@ -433,16 +439,17 @@ export async function updateCalculatorBrandingAction(formData: FormData) {
   });
 
   revalidateCalculator(calculator.id);
-  revalidatePath(`/quote/${calculator.slug}`);
-  revalidatePath(`/embed/${calculator.slug}`);
+  revalidatePath(buildPublicQuotePath(calculator));
+  revalidatePath(buildPublicEmbedPath(calculator));
   redirect(`/dashboard/calculators/${calculator.id}`);
 }
 
 export async function createQuoteSubmissionAction(formData: FormData) {
   const calculatorId = requiredString(formData, "calculatorId", "");
   const calculatorSlug = requiredString(formData, "calculatorSlug", "");
-  const returnTo = normalizeQuoteReturnPath(optionalString(formData, "returnTo"), calculatorSlug);
-  const calculator = await getQuoteCalculatorBySlug(calculatorSlug);
+  const calculatorPublicId = requiredString(formData, "calculatorPublicId", "");
+  const returnTo = normalizeQuoteReturnPath(optionalString(formData, "returnTo"), calculatorPublicId, calculatorSlug);
+  const calculator = await getQuoteCalculatorByPublicId(calculatorPublicId, calculatorSlug);
 
   if (!calculator || calculator.source !== "database" || calculator.id !== calculatorId) {
     redirect(returnTo);
@@ -572,6 +579,7 @@ export async function archiveCalculatorAction(formData: FormData) {
     },
     select: {
       id: true,
+      publicId: true,
       slug: true
     }
   });
@@ -589,8 +597,8 @@ export async function archiveCalculatorAction(formData: FormData) {
   });
 
   revalidateCalculator(calculator.id);
-  revalidatePath(`/quote/${calculator.slug}`);
-  revalidatePath(`/embed/${calculator.slug}`);
+  revalidatePath(buildPublicQuotePath(calculator));
+  revalidatePath(buildPublicEmbedPath(calculator));
   redirect("/dashboard/calculators");
 }
 
@@ -609,6 +617,7 @@ export async function deleteCalculatorAction(formData: FormData) {
     },
     select: {
       id: true,
+      publicId: true,
       slug: true
     }
   });
@@ -626,8 +635,8 @@ export async function deleteCalculatorAction(formData: FormData) {
 
   revalidateCalculator(calculator.id);
   revalidatePath("/dashboard/leads");
-  revalidatePath(`/quote/${calculator.slug}`);
-  revalidatePath(`/embed/${calculator.slug}`);
+  revalidatePath(buildPublicQuotePath(calculator));
+  revalidatePath(buildPublicEmbedPath(calculator));
   redirect("/dashboard/calculators");
 }
 
@@ -653,19 +662,6 @@ function parseQuestions(formData: FormData): ParsedQuestion[] {
     .filter((question) => question.label.length > 0);
 }
 
-async function createUniqueSlug(value: string) {
-  const baseSlug = slugify(value);
-  let slug = baseSlug;
-  let suffix = 2;
-
-  while (await prisma.calculator.findUnique({ where: { slug }, select: { id: true } })) {
-    slug = `${baseSlug}-${suffix}`;
-    suffix += 1;
-  }
-
-  return slug;
-}
-
 async function getWorkspaceCalculator(calculatorId: string, companyId: string) {
   return prisma.calculator.findFirst({
     where: {
@@ -675,12 +671,13 @@ async function getWorkspaceCalculator(calculatorId: string, companyId: string) {
     },
     select: {
       id: true,
+      publicId: true,
       slug: true
     }
   });
 }
 
-function slugify(value: string) {
+function createSlug(value: string) {
   return (
     value
       .toLowerCase()
@@ -805,12 +802,15 @@ function normalizeLeadStatusInput(value: FormDataEntryValue | null): LeadStatus 
   return leadStatuses.includes(status as LeadStatus) ? (status as LeadStatus) : "NEW";
 }
 
-function normalizeQuoteReturnPath(value: string | null, slug: string) {
-  if (value === `/embed/${slug}` || value === `/quote/${slug}`) {
+function normalizeQuoteReturnPath(value: string | null, publicId: string, slug: string) {
+  const quotePath = buildPublicQuotePath({ publicId, slug });
+  const embedPath = buildPublicEmbedPath({ publicId, slug });
+
+  if (value === quotePath || value === embedPath) {
     return value;
   }
 
-  return `/quote/${slug}`;
+  return quotePath;
 }
 
 function revalidateCalculator(calculatorId: string) {
@@ -819,4 +819,6 @@ function revalidateCalculator(calculatorId: string) {
   revalidatePath(`/dashboard/calculators/${calculatorId}`);
   revalidatePath(`/preview/${calculatorId}`);
   revalidatePath("/quote/[slug]", "page");
+  revalidatePath("/quote/[publicId]/[slug]", "page");
+  revalidatePath("/embed/[publicId]/[slug]", "page");
 }

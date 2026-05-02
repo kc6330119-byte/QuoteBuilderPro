@@ -5,11 +5,13 @@ export function GET() {
   const currentScript = document.currentScript;
   if (!currentScript) return;
 
+  const publicId = currentScript.getAttribute("data-public-id");
   const slug = currentScript.getAttribute("data-slug") || currentScript.getAttribute("data-calculator");
   if (!slug) {
     console.warn("QuoteBuilder Pro embed: missing data-slug or data-calculator.");
     return;
   }
+  const frameKey = publicId ? publicId + "/" + slug : slug;
 
   const scriptUrl = new URL(currentScript.src);
   const baseUrl = scriptUrl.origin;
@@ -21,12 +23,14 @@ export function GET() {
     currentScript.insertAdjacentElement("afterend", container);
   }
 
-  container.setAttribute("data-quotebuilder-container", slug);
+  container.setAttribute("data-quotebuilder-container", frameKey);
   container.style.width = "100%";
   container.style.maxWidth = "100%";
 
   const iframe = document.createElement("iframe");
-  iframe.src = baseUrl + "/embed/" + encodeURIComponent(slug);
+  iframe.src = publicId
+    ? baseUrl + "/embed/" + encodeURIComponent(publicId) + "/" + encodeURIComponent(slug)
+    : baseUrl + "/embed/" + encodeURIComponent(slug);
   iframe.title = "Quote calculator";
   iframe.loading = "lazy";
   iframe.style.width = "100%";
@@ -36,7 +40,7 @@ export function GET() {
   iframe.style.display = "block";
   iframe.style.overflow = "hidden";
   iframe.setAttribute("scrolling", "no");
-  iframe.setAttribute("data-quotebuilder-frame", slug);
+  iframe.setAttribute("data-quotebuilder-frame", frameKey);
 
   container.innerHTML = "";
   container.appendChild(iframe);
@@ -44,7 +48,7 @@ export function GET() {
   function handleResize(event) {
     if (event.origin !== baseUrl) return;
     const data = event.data || {};
-    if (data.type !== "quotebuilder:resize" || data.slug !== slug || !data.height) return;
+    if (data.type !== "quotebuilder:resize" || (data.key || data.slug) !== frameKey || !data.height) return;
 
     iframe.style.height = Math.max(Number(data.height), 520) + "px";
   }
