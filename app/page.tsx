@@ -21,8 +21,6 @@ import {
 } from "lucide-react";
 import { ButtonLink } from "@/components/button";
 import { howToUseSteps, howToUseTips } from "@/lib/how-to-use";
-import { calculators } from "@/lib/mock-data";
-import { formatCurrency } from "@/lib/utils";
 import { quoteBuilderDemoOriginalUrl, quoteBuilderDemoVideoUrl } from "@/lib/video-assets";
 
 const softwareJsonLd = {
@@ -43,7 +41,6 @@ const softwareJsonLd = {
 };
 
 export default function LandingPage() {
-  const totalLeads = calculators.reduce((sum, calculator) => sum + calculator.leads, 0);
   const guideIcons = [BookOpenCheck, Route, CircleDollarSign, CheckCircle2, Workflow, Users];
 
   return (
@@ -108,21 +105,22 @@ export default function LandingPage() {
           <div className="animate-rise">
             <div className="inline-flex items-center gap-2 rounded-full border border-[#bfdbfe] bg-white px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-[#1d4ed8] shadow-crisp">
               <Sparkles className="h-3.5 w-3.5" />
-              Smarter quotes, more jobs
+              Pricing clarity, captured leads
             </div>
             <h1 className="mt-6 max-w-3xl font-display text-5xl font-black leading-[1.02] text-[#111827] sm:text-6xl lg:text-7xl">
-              Create. Embed. Get more jobs.
+              Turn pricing questions into quote requests.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[#475569]">
-              Build interactive quote calculators for service businesses, publish polished customer estimate pages, and
-              turn high-intent visitors into qualified leads.
+              Today&apos;s customers want a cost range before they call. QuoteBuilder Pro helps service businesses add
+              interactive calculators to their websites, give visitors a helpful estimate, and capture higher-intent
+              leads in one dashboard.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/dashboard/templates"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-5 text-base font-bold text-white shadow-crisp transition hover:-translate-y-0.5 hover:bg-[#1d4ed8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2563eb]"
               >
-                Start your free trial <ArrowRight className="h-4 w-4" />
+                Create your first calculator <ArrowRight className="h-4 w-4" />
               </Link>
               <ButtonLink href="#demo-video" variant="outline" size="lg">
                 <PlayCircle className="h-4 w-4" /> View demo
@@ -227,25 +225,92 @@ export default function LandingPage() {
       </section>
 
       <section className="border-b border-[#dbe5f4] bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="grid gap-5 lg:grid-cols-[0.78fr_1.22fr] lg:items-stretch">
+            <div className="rounded-xl border border-[#dbe5f4] bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.13),transparent_38%),#f8fbff] p-5 shadow-crisp">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#2563eb]">Why calculators help</p>
+              <h2 className="mt-3 font-display text-2xl font-black leading-tight text-[#111827]">
+                Buyers do not want a mystery price.
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-[#475569]">
+                A quote calculator gives visitors a useful estimate without locking your business into a final price.
+                They get clarity. You get a lead with project details attached.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {[
+                {
+                  value: "70%",
+                  label: "of homeowners surveyed said they are more likely to call an HVAC contractor that is transparent about pricing.",
+                  source: "ACHR News",
+                  href: "https://www.achrnews.com/articles/163836-hvac-customers-and-contractors-at-odds-with-online-pricing",
+                  icon: Users
+                },
+                {
+                  value: "14%",
+                  label: "of cart abandoners cite not being able to see or calculate total cost up front.",
+                  source: "Baymard Institute",
+                  href: "https://baymard.com/lists/cart-abandonment-rate",
+                  icon: BarChart3
+                },
+                {
+                  value: "19%",
+                  label: "of cart abandoners cite being forced to create an account before checkout.",
+                  source: "Baymard Institute",
+                  href: "https://baymard.com/lists/cart-abandonment-rate",
+                  icon: LockKeyhole
+                }
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.value}
+                    className="group flex h-full flex-col rounded-xl border border-[#dbe5f4] bg-white p-5 shadow-crisp transition duration-200 hover:-translate-y-0.5 hover:border-[#93c5fd]"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="rounded-lg bg-[#eff6ff] p-2 text-[#2563eb]">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs font-bold text-[#64748b] underline-offset-4 transition hover:text-[#1d4ed8] hover:underline"
+                      >
+                        {item.source}
+                      </a>
+                    </div>
+                    <p className="mt-5 font-display text-4xl font-black text-[#111827]">{item.value}</p>
+                    <p className="mt-2 flex-1 text-sm leading-6 text-[#475569]">{item.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <p className="mt-4 text-xs leading-5 text-[#64748b]">
+            These are third-party research signals about pricing transparency and checkout friction, not guaranteed
+            QuoteBuilder Pro performance claims.
+          </p>
+        </div>
+      </section>
+
+      <section className="border-b border-[#dbe5f4] bg-[#f8fbff]">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-3 lg:px-8">
           {[
-            { label: "Leads captured", value: totalLeads, icon: Users },
-            {
-              label: "Published calculators",
-              value: calculators.filter((item) => item.status === "PUBLISHED").length,
-              icon: ClipboardList
-            },
-            { label: "Average quote value", value: formatCurrency(581500), icon: BarChart3 }
+            { label: "Show helpful estimates", body: "Give visitors a realistic planning range before the first call.", icon: CircleDollarSign },
+            { label: "Avoid forced accounts", body: "Customers can submit quote requests without creating a login.", icon: CheckCircle2 },
+            { label: "Capture qualified leads", body: "Every submission includes answers, contact details, and estimate value.", icon: ClipboardList }
           ].map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.label} className="flex items-center gap-4 rounded-lg border border-[#dbe5f4] bg-[#f8fbff] p-4">
-                <span className="rounded-md bg-white p-2 text-[#2563eb]">
+              <div key={item.label} className="flex gap-4 rounded-lg border border-[#dbe5f4] bg-white p-4 shadow-crisp">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#eff6ff] text-[#2563eb]">
                   <Icon className="h-5 w-5" />
                 </span>
                 <div>
-                  <p className="text-sm text-[#64748b]">{item.label}</p>
-                  <p className="font-display text-2xl font-black text-[#111827]">{item.value}</p>
+                  <p className="font-display text-base font-black text-[#111827]">{item.label}</p>
+                  <p className="mt-1 text-sm leading-6 text-[#475569]">{item.body}</p>
                 </div>
               </div>
             );
