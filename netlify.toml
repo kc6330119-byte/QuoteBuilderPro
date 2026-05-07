@@ -5,5 +5,17 @@
 [build.environment]
   NODE_VERSION = "20"
 
+[[redirects]]
+  from = "https://quote-builder-pro.netlify.app/*"
+  to = "https://quote-builder-pro.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://quote-builder-pro.netlify.app/*"
+  to = "https://quote-builder-pro.com/:splat"
+  status = 301
+  force = true
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
