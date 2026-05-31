@@ -468,6 +468,35 @@
         background: var(--paper);
       }
 
+      .mobile-calculator-fallback {
+        display: none;
+        padding: 34px 24px;
+        background:
+          radial-gradient(circle at 18% 18%, rgba(120, 168, 63, 0.2), transparent 32%),
+          #fffdf7;
+        text-align: center;
+      }
+
+      .mobile-calculator-fallback h3 {
+        margin: 0 0 10px;
+        color: var(--ink);
+        font-size: clamp(1.7rem, 8vw, 2.4rem);
+        line-height: 0.95;
+      }
+
+      .mobile-calculator-fallback p {
+        margin: 0 auto 20px;
+        max-width: 31rem;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.55;
+      }
+
+      .mobile-calculator-fallback .button {
+        width: 100%;
+        justify-content: center;
+      }
+
       .embed-fallback {
         border-top: 1px solid var(--line);
         background: #fffdf7;
@@ -591,6 +620,24 @@
         .container-grid,
         .quick-facts {
           grid-template-columns: 1fr;
+        }
+
+        .embed-card {
+          border-radius: 18px;
+        }
+
+        .embed-top {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .quote-frame,
+        .embed-fallback {
+          display: none;
+        }
+
+        .mobile-calculator-fallback {
+          display: block;
         }
       }
     </style>
@@ -734,6 +781,21 @@
                   style="display:block;width:100%;min-height:980px;border:0;background:#f8f4ec"
                 ></iframe>
               </noscript>
+              <div class="mobile-calculator-fallback">
+                <h3>Open the live calculator on your phone.</h3>
+                <p>
+                  Some phone preview browsers block embedded calculators. This button opens the same Phillips quote
+                  calculator directly so the mobile demo still works cleanly.
+                </p>
+                <a
+                  class="button primary"
+                  href="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open calculator
+                </a>
+              </div>
               <div class="embed-fallback">
                 If the calculator does not appear,
                 <a href="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6" target="_blank" rel="noreferrer">
