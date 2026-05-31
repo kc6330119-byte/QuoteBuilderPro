@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Phillips Roll-Off Containers | QuoteBuilder Pro Embed Demo</title>
+    <meta
+      name="description"
+      content="A hosted demo showing how a QuoteBuilder Pro roll-off container quote calculator can be embedded on a customer website."
+    />
+    <style>
+      :root {
+        --red: #e8173f;
+        --red-dark: #ab1230;
+        --green: #78a83f;
+        --green-dark: #263f15;
+        --black: #151515;
+        --muted: #6e7169;
+        --paper: #f8f4ec;
+        --cream: #fffdf7;
+        --line: #e6ddcf;
+        --shadow: 0 24px 80px rgba(27, 37, 18, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(rgba(248, 244, 236, 0.94), rgba(248, 244, 236, 0.98)),
+          repeating-linear-gradient(90deg, rgba(49, 83, 25, 0.07) 0 1px, transparent 1px 76px),
+          repeating-linear-gradient(0deg, rgba(49, 83, 25, 0.05) 0 1px, transparent 1px 76px);
+        color: var(--black);
+        font-family: "Trebuchet MS", Verdana, sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .demo-banner {
+        background: #111;
+        color: #fff;
+        font-size: 0.76rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        padding: 10px 16px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .top-strip {
+        background: var(--red);
+        color: #fff;
+        font-size: 0.86rem;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .top-strip-inner,
+      .site-header,
+      .section,
+      .footer-inner {
+        width: min(1180px, calc(100% - 34px));
+        margin: 0 auto;
+      }
+
+      .top-strip-inner {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px 24px;
+        padding: 12px 0;
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 18px 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 250px;
+        text-decoration: none;
+      }
+
+      .brand-logo {
+        display: block;
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        box-shadow: 0 10px 30px rgba(232, 23, 63, 0.22);
+        clip-path: circle(49% at 50% 50%);
+        object-fit: cover;
+      }
+
+      .brand-copy strong {
+        display: block;
+        color: var(--red);
+        font-size: clamp(1.3rem, 3vw, 2rem);
+        font-weight: 1000;
+        letter-spacing: -0.04em;
+        line-height: 0.95;
+      }
+
+      .brand-copy span {
+        display: block;
+        margin-top: 4px;
+        color: var(--green-dark);
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .nav a {
+        border: 2px solid transparent;
+        border-radius: 999px;
+        padding: 10px 14px;
+        text-decoration: none;
+        transition: 160ms ease;
+      }
+
+      .nav a:hover {
+        border-color: var(--red);
+        color: var(--red-dark);
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        min-height: 650px;
+        background:
+          linear-gradient(90deg, rgba(12, 13, 10, 0.9) 0%, rgba(12, 13, 10, 0.68) 44%, rgba(12, 13, 10, 0.1) 100%),
+          url("https://images.squarespace-cdn.com/content/v1/68080f7450fc2f16c8ed8967/8e07eede-ee7c-4f4d-a922-d77bb0f25f72/IMG_1393.jpeg") center / cover;
+      }
+
+      .hero::after {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 74% 20%, rgba(120, 168, 63, 0.34), transparent 32%),
+          linear-gradient(135deg, rgba(232, 23, 63, 0.2), transparent 38%);
+        content: "";
+        pointer-events: none;
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(280px, 390px);
+        gap: clamp(28px, 5vw, 70px);
+        align-items: center;
+        min-height: 650px;
+        padding: 64px 0;
+      }
+
+      .eyebrow {
+        margin: 0 0 16px;
+        color: #ffe2e9;
+        font-size: 0.78rem;
+        font-weight: 1000;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 22px;
+        max-width: 760px;
+        color: #fff;
+        font-size: clamp(3.4rem, 8.4vw, 7.7rem);
+        font-weight: 1000;
+        letter-spacing: -0.08em;
+        line-height: 0.86;
+        text-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+      }
+
+      .lead {
+        max-width: 660px;
+        color: rgba(255, 255, 255, 0.84);
+        font-size: clamp(1.08rem, 2.2vw, 1.42rem);
+        line-height: 1.65;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 30px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 50px;
+        border: 2px solid var(--red);
+        border-radius: 999px;
+        padding: 0 21px;
+        background: var(--red);
+        color: #fff;
+        font-size: 0.84rem;
+        font-weight: 1000;
+        letter-spacing: 0.06em;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: 160ms ease;
+      }
+
+      .button.secondary {
+        border-color: rgba(255, 255, 255, 0.65);
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(10px);
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.25);
+      }
+
+      .hero-card {
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 22px;
+        background: rgba(255, 253, 247, 0.92);
+        padding: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card img {
+        display: block;
+        width: 108px;
+        height: 108px;
+        margin: -64px auto 18px;
+        border-radius: 50%;
+        clip-path: circle(49% at 50% 50%);
+        object-fit: cover;
+        box-shadow: 0 18px 40px rgba(232, 23, 63, 0.22);
+      }
+
+      .hero-card h2 {
+        color: var(--red);
+        font-size: 1.72rem;
+        font-weight: 1000;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        text-align: center;
+      }
+
+      .hero-card p {
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.65;
+        text-align: center;
+      }
+
+      .quick-facts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .fact {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+        padding: 14px;
+      }
+
+      .fact strong {
+        display: block;
+        color: var(--green-dark);
+        font-size: 1.35rem;
+        font-weight: 1000;
+      }
+
+      .fact span {
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .section {
+        padding: 72px 0;
+      }
+
+      .section-heading {
+        max-width: 760px;
+      }
+
+      .section-heading .eyebrow {
+        color: var(--red);
+      }
+
+      h2 {
+        margin-bottom: 18px;
+        color: var(--black);
+        font-size: clamp(2.35rem, 5vw, 4.8rem);
+        font-weight: 1000;
+        letter-spacing: -0.07em;
+        line-height: 0.94;
+      }
+
+      .body-copy {
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.78;
+      }
+
+      .container-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-top: 34px;
+      }
+
+      .container-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 205px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: var(--cream);
+        box-shadow: 0 16px 44px rgba(44, 53, 31, 0.08);
+      }
+
+      .container-card::before {
+        position: absolute;
+        inset: 0 0 auto;
+        height: 7px;
+        background: var(--green);
+        content: "";
+      }
+
+      .container-card strong {
+        display: block;
+        padding: 28px 22px 8px;
+        color: var(--red);
+        font-size: 2.1rem;
+        font-weight: 1000;
+        letter-spacing: -0.06em;
+      }
+
+      .container-card p {
+        margin: 0;
+        padding: 0 22px 24px;
+        color: var(--muted);
+        font-size: 0.98rem;
+        line-height: 1.62;
+      }
+
+      .estimate-section {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        background:
+          radial-gradient(circle at top right, rgba(232, 23, 63, 0.18), transparent 34%),
+          linear-gradient(135deg, #162112, #273f18 48%, #10120f);
+        color: #fff;
+      }
+
+      .estimate-grid {
+        display: grid;
+        grid-template-columns: 0.72fr 1.28fr;
+        gap: 34px;
+        align-items: start;
+      }
+
+      .estimate-section .eyebrow,
+      .estimate-section h2 {
+        color: #fff;
+      }
+
+      .estimate-section .body-copy {
+        color: rgba(255, 255, 255, 0.76);
+      }
+
+      .note-list {
+        display: grid;
+        gap: 12px;
+        margin: 24px 0 0;
+        padding: 0;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.95rem;
+        line-height: 1.55;
+        list-style: none;
+      }
+
+      .note-list li {
+        border-left: 4px solid var(--red);
+        padding-left: 14px;
+      }
+
+      .embed-card {
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 22px;
+        background: var(--paper);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+      }
+
+      .embed-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+        padding: 16px 18px;
+        background: #fffdf7;
+        color: var(--red);
+        font-size: 0.78rem;
+        font-weight: 1000;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .embed-pill {
+        border-radius: 999px;
+        background: rgba(120, 168, 63, 0.14);
+        color: var(--green-dark);
+        padding: 7px 10px;
+      }
+
+      .embed-inner {
+        padding: 0;
+      }
+
+      .embed-fallback {
+        border-top: 1px solid var(--line);
+        background: #fffdf7;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.55;
+        padding: 16px 18px 18px;
+      }
+
+      .embed-fallback a {
+        color: var(--red);
+        font-weight: 1000;
+      }
+
+      .service-area {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(280px, 0.78fr);
+        gap: 32px;
+        align-items: stretch;
+      }
+
+      .photo-panel {
+        min-height: 430px;
+        border-radius: 24px;
+        background:
+          linear-gradient(rgba(13, 19, 10, 0.15), rgba(13, 19, 10, 0.15)),
+          url("https://images.squarespace-cdn.com/content/v1/68080f7450fc2f16c8ed8967/23eddeb8-7212-460c-a7aa-9e0c9fe86280/IMG_1118.jpeg") center / cover;
+        box-shadow: var(--shadow);
+      }
+
+      .service-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: #fffdf7;
+        padding: clamp(26px, 5vw, 46px);
+      }
+
+      .footer {
+        border-top: 1px solid var(--line);
+        background: #111;
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .footer-inner {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 30px 0;
+        font-size: 0.9rem;
+      }
+
+      .footer strong {
+        color: #fff;
+      }
+
+      .footer .demo-note {
+        max-width: 440px;
+        color: rgba(255, 255, 255, 0.58);
+        font-size: 0.8rem;
+        line-height: 1.55;
+      }
+
+      @media (max-width: 960px) {
+        .site-header,
+        .hero-inner,
+        .estimate-grid,
+        .service-area {
+          grid-template-columns: 1fr;
+        }
+
+        .site-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .nav {
+          justify-content: flex-start;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+
+        .hero-inner {
+          min-height: auto;
+          padding-top: 92px;
+        }
+
+        .hero-card img {
+          margin-top: 0;
+        }
+
+        .container-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 620px) {
+        .top-strip-inner {
+          justify-content: flex-start;
+        }
+
+        .brand-logo {
+          width: 62px;
+          height: 62px;
+        }
+
+        .hero-inner {
+          padding: 54px 0;
+        }
+
+        h1 {
+          font-size: clamp(3rem, 18vw, 4.9rem);
+        }
+
+        .container-grid,
+        .quick-facts {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-banner">
+      Demo preview only: this page shows how the QuoteBuilder Pro calculator could be embedded on the Phillips website.
+    </div>
+
+    <div class="top-strip">
+      <div class="top-strip-inner">
+        <span>904-246-1500</span>
+        <span>Roll-off container rentals</span>
+        <span>Atlantic Beach, FL</span>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="#">
+        <img
+          class="brand-logo"
+          src="https://images.squarespace-cdn.com/content/v1/68080f7450fc2f16c8ed8967/583707b6-93b5-4879-9946-de040a57ea60/IMG_8583.jpeg"
+          alt="Phillips Containers logo"
+        />
+        <span class="brand-copy">
+          <strong>Phillips Roll-Off Containers</strong>
+          <span>Your local dumpster company</span>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#containers">Containers</a>
+        <a href="#estimate">Get estimate</a>
+        <a href="#service-area">Service area</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="section hero-inner">
+          <div>
+            <p class="eyebrow">Local roll-off container rentals</p>
+            <h1>Rent the right container faster.</h1>
+            <p class="lead">
+              A cleaner Phillips Roll-Off Containers homepage with a simple embedded estimate calculator. Customers can
+              choose their container size, debris type, timing, and delivery needs before they call.
+            </p>
+            <div class="hero-actions">
+              <a class="button" href="#estimate">Start an estimate</a>
+              <a class="button secondary" href="tel:19042461500">Call 904-246-1500</a>
+            </div>
+          </div>
+
+          <aside class="hero-card">
+            <img
+              src="https://images.squarespace-cdn.com/content/v1/68080f7450fc2f16c8ed8967/583707b6-93b5-4879-9946-de040a57ea60/IMG_8583.jpeg"
+              alt="Phillips Containers logo"
+            />
+            <h2>Clean logo, no white square.</h2>
+            <p>
+              The original square logo image is clipped into a circle here, so it keeps the Phillips mark without the
+              white box around it.
+            </p>
+            <div class="quick-facts">
+              <div class="fact">
+                <strong>4</strong>
+                <span>Container options</span>
+              </div>
+              <div class="fact">
+                <strong>24/7</strong>
+                <span>Online estimate</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="containers" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Container sizes</p>
+          <h2>Simple choices for remodels, roofing, cleanouts, and construction debris.</h2>
+          <p class="body-copy">
+            The current site lists several container sizes. This demo keeps that information easy to scan and then sends
+            visitors straight into the quote calculator when they are ready.
+          </p>
+        </div>
+
+        <div class="container-grid" aria-label="Container options">
+          <article class="container-card">
+            <strong>11 yard</strong>
+            <p>Compact option for smaller cleanouts, tight spaces, and lighter project debris.</p>
+          </article>
+          <article class="container-card">
+            <strong>16 yard</strong>
+            <p>Useful for mid-size remodels, roofing projects, and garage or household cleanouts.</p>
+          </article>
+          <article class="container-card">
+            <strong>20 long</strong>
+            <p>A longer container layout for projects that need more room and easier loading access.</p>
+          </article>
+          <article class="container-card">
+            <strong>20 tall</strong>
+            <p>Higher capacity for larger jobs, construction debris, and bulkier materials.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="estimate" class="estimate-section">
+        <div class="section estimate-grid">
+          <div>
+            <p class="eyebrow">Embedded estimate calculator</p>
+            <h2>Turn website visitors into container rental leads.</h2>
+            <p class="body-copy">
+              The calculator below is embedded from QuoteBuilder Pro. If Mike and Caroline submit a test quote, it will
+              land in the QuoteBuilder Pro lead dashboard with the customer details, selected options, and estimated
+              price.
+            </p>
+            <ul class="note-list">
+              <li>Customers get a planning estimate without creating an account.</li>
+              <li>Phillips can review the submission before confirming the final price.</li>
+              <li>The calculator can be customized if they decide to create their own account.</li>
+            </ul>
+          </div>
+
+          <div class="embed-card">
+            <div class="embed-top">
+              <span>Phillips quote calculator</span>
+              <span class="embed-pill">Powered by QuoteBuilder Pro</span>
+            </div>
+            <div class="embed-inner">
+              <script
+                src="https://quote-builder-pro.com/embed.js"
+                data-public-id="qb-815005d7840d"
+                data-slug="rolloff-container-rental-6"
+              ></script>
+              <noscript>
+                <iframe
+                  src="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6"
+                  title="Phillips Roll-Off Containers quote calculator"
+                  style="display:block;width:100%;min-height:980px;border:0;background:#f8f4ec"
+                ></iframe>
+              </noscript>
+              <div class="embed-fallback">
+                If the calculator does not appear,
+                <a href="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6" target="_blank" rel="noreferrer">
+                  open it directly
+                </a>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="service-area" class="section service-area">
+        <div class="photo-panel" aria-label="Green Phillips roll-off container at a job site"></div>
+        <article class="service-card">
+          <p class="eyebrow">Job-site ready</p>
+          <h2>Keep the familiar local feel, but make the next step obvious.</h2>
+          <p class="body-copy">
+            This page keeps the practical, local-business tone of the current website while making the quote request
+            process easier. The visitor sees the service, understands the container options, and can request an estimate
+            without hunting for the next step.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#estimate">Try the calculator</a>
+            <a class="button secondary" style="color: var(--green-dark); border-color: var(--green-dark)" href="https://www.phillipsrolloffcontainers.com/">
+              View current site
+            </a>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer id="contact" class="footer">
+      <div class="footer-inner">
+        <div>
+          <strong>Phillips Roll-Off Containers</strong>
+          <div>Call 904-246-1500 for availability, delivery questions, and final pricing.</div>
+        </div>
+        <div class="demo-note">
+          This is a hosted preview page for Mike and Caroline. The page design is a mockup, and the embedded calculator
+          is connected to Kevin’s test QuoteBuilder Pro account for demonstration.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

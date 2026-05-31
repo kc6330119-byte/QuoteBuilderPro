@@ -30,7 +30,7 @@ export function PublicQuoteForm({
   const [answers, setAnswers] = useState<Answers>(() =>
     Object.fromEntries(
       calculator.questions.map((question) => {
-        if (question.questionType === "NUMBER") return [question.id, 1];
+        if (question.questionType === "NUMBER") return [question.id, 0];
         if (question.questionType === "BOOLEAN") return [question.id, false];
         if (question.questionType === "SELECT") return [question.id, question.options[0] ?? ""];
         return [question.id, ""];
