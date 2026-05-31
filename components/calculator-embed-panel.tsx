@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Code2, Copy, Eye } from "lucide-react";
 import { Button, ButtonLink } from "@/components/button";
 import { buildPublicCalculatorFrameKey, buildPublicEmbedPath, buildPublicQuotePath } from "@/lib/public-calculator-paths";
@@ -19,6 +19,7 @@ export function CalculatorEmbedPanel({
   appUrl: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const [frameHeight, setFrameHeight] = useState(720);
   const baseUrl = appUrl.replace(/\/$/, "");
   const publicUrl = `${baseUrl}${buildPublicQuotePath({ publicId, slug })}`;
   const previewUrl = `/preview/${id}`;
@@ -34,6 +35,21 @@ export function CalculatorEmbedPanel({
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   }
+
+  useEffect(() => {
+    function handleResize(event: MessageEvent) {
+      const data = event.data as { height?: number; key?: string; slug?: string; type?: string } | null;
+
+      if (event.origin !== window.location.origin) return;
+      if (data?.type !== "quotebuilder:resize" || (data.key || data.slug) !== frameKey || !data.height) return;
+
+      setFrameHeight(Math.max(Number(data.height), 520));
+    }
+
+    window.addEventListener("message", handleResize);
+
+    return () => window.removeEventListener("message", handleResize);
+  }, [frameKey]);
 
   return (
     <section className="rounded-lg border border-[#dbe5f4] bg-white p-5 shadow-crisp">
@@ -88,7 +104,9 @@ export function CalculatorEmbedPanel({
           src={isPublished ? embedPath : previewUrl}
           title="Embedded quote calculator preview"
           data-quotebuilder-frame={frameKey}
-          className="block h-[720px] w-full border-0 bg-white"
+          className="block w-full border-0 bg-white"
+          scrolling="no"
+          style={{ height: frameHeight }}
         />
       </div>
     </section>

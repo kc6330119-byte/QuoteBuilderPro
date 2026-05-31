@@ -457,7 +457,7 @@ export async function createQuoteSubmissionAction(formData: FormData) {
 
   const acceptedLegalAcknowledgement = formData.get("acceptedLegalAcknowledgement") === "on";
   if (!acceptedLegalAcknowledgement) {
-    redirect(`${returnTo}?legal=required`);
+    redirect(addQuoteReturnParam(returnTo, "legal", "required"));
   }
 
   const rawAnswers: QuoteAnswers = Object.fromEntries(
@@ -497,7 +497,7 @@ export async function createQuoteSubmissionAction(formData: FormData) {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/leads");
   revalidatePath("/dashboard/calculators");
-  redirect(`${returnTo}?submitted=1`);
+  redirect(addQuoteReturnParam(returnTo, "submitted", "1"));
 }
 
 export async function updateLeadStatusAction(formData: FormData) {
@@ -806,11 +806,55 @@ function normalizeQuoteReturnPath(value: string | null, publicId: string, slug: 
   const quotePath = buildPublicQuotePath({ publicId, slug });
   const embedPath = buildPublicEmbedPath({ publicId, slug });
 
-  if (value === quotePath || value === embedPath) {
-    return value;
+  if (!value) return quotePath;
+
+  try {
+    const url = new URL(value, "https://quotebuilder.local");
+
+    if (url.origin !== "https://quotebuilder.local") return quotePath;
+
+    if (url.pathname === quotePath || url.pathname === embedPath) {
+      const params = new URLSearchParams();
+      const returnUrl = normalizeExternalReturnUrl(url.searchParams.get("returnUrl"));
+      const returnLabel = normalizeReturnLabel(url.searchParams.get("returnLabel"));
+
+      if (returnUrl) params.set("returnUrl", returnUrl);
+      if (returnLabel) params.set("returnLabel", returnLabel);
+
+      const query = params.toString();
+
+      return query ? `${url.pathname}?${query}` : url.pathname;
+    }
+  } catch {
+    return quotePath;
   }
 
   return quotePath;
+}
+
+function addQuoteReturnParam(path: string, key: "legal" | "submitted", value: string) {
+  const url = new URL(path, "https://quotebuilder.local");
+  url.searchParams.set(key, value);
+
+  return `${url.pathname}?${url.searchParams.toString()}`;
+}
+
+function normalizeExternalReturnUrl(value: string | null) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeReturnLabel(value: string | null) {
+  return String(value ?? "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .slice(0, 90);
 }
 
 function revalidateCalculator(calculatorId: string) {

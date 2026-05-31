@@ -23,6 +23,9 @@ export function GET() {
 
   const scriptUrl = new URL(currentScript.src);
   const baseUrl = scriptUrl.origin;
+  const returnUrl = currentScript.getAttribute("data-return-url") || window.location.href;
+  const returnLabel =
+    currentScript.getAttribute("data-return-label") || document.title || window.location.hostname || "website";
   const targetSelector = currentScript.getAttribute("data-target");
   let container = targetSelector ? document.querySelector(targetSelector) : null;
 
@@ -36,7 +39,18 @@ export function GET() {
   container.style.maxWidth = "100%";
 
   const iframe = document.createElement("iframe");
-  iframe.src = baseUrl + "/embed/" + encodeURIComponent(publicId) + "/" + encodeURIComponent(slug);
+  const iframeParams = new URLSearchParams();
+  iframeParams.set("returnUrl", returnUrl);
+  iframeParams.set("returnLabel", returnLabel.slice(0, 90));
+
+  iframe.src =
+    baseUrl +
+    "/embed/" +
+    encodeURIComponent(publicId) +
+    "/" +
+    encodeURIComponent(slug) +
+    "?" +
+    iframeParams.toString();
   iframe.title = "Quote calculator";
   iframe.loading = "lazy";
   iframe.style.width = "100%";

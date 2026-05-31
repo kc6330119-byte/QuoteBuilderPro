@@ -3,7 +3,7 @@ import { EmbedResizeReporter } from "@/components/embed-resize-reporter";
 import { PublicQuoteForm } from "@/components/public-quote-form";
 import { QuoteBrandMark } from "@/components/quote-brand-mark";
 import { getQuoteCalculatorByPublicId } from "@/lib/calculator-data";
-import { buildPublicCalculatorFrameKey } from "@/lib/public-calculator-paths";
+import { buildPublicCalculatorFrameKey, buildPublicEmbedPath } from "@/lib/public-calculator-paths";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -19,12 +19,14 @@ export default async function SecureEmbedQuotePage({
   searchParams
 }: {
   params: Promise<{ publicId: string; slug: string }>;
-  searchParams: Promise<{ legal?: string; submitted?: string }>;
+  searchParams: Promise<{ legal?: string; returnLabel?: string; returnUrl?: string; submitted?: string }>;
 }) {
   const { publicId, slug } = await params;
-  const { legal, submitted } = await searchParams;
+  const { legal, returnLabel, returnUrl, submitted } = await searchParams;
   const frameKey = buildPublicCalculatorFrameKey({ publicId, slug });
   const calculator = await getQuoteCalculatorByPublicId(publicId, slug);
+  const safeReturnUrl = getSafeReturnUrl(returnUrl);
+  const safeReturnLabel = getSafeReturnLabel(returnLabel, safeReturnUrl);
 
   if (!calculator || !calculator.isPublished) {
     return (
@@ -57,12 +59,50 @@ export default async function SecureEmbedQuotePage({
         </div>
         <PublicQuoteForm
           calculator={calculator}
+          hostReturnLabel={safeReturnLabel}
+          hostReturnUrl={safeReturnUrl}
           submitted={submitted === "1"}
           variant="embed"
           legalRequired={legal === "required"}
+          returnTo={buildEmbedReturnPath(buildPublicEmbedPath(calculator), safeReturnUrl, safeReturnLabel)}
         />
         <p className="mt-4 text-center text-xs font-semibold text-coal/45">Powered by QuoteBuilder Pro</p>
       </section>
     </main>
   );
+}
+
+function buildEmbedReturnPath(basePath: string, returnUrl: string | null, returnLabel: string | null) {
+  const params = new URLSearchParams();
+
+  if (returnUrl) params.set("returnUrl", returnUrl);
+  if (returnLabel) params.set("returnLabel", returnLabel);
+
+  const query = params.toString();
+
+  return query ? `${basePath}?${query}` : basePath;
+}
+
+function getSafeReturnUrl(value: string | undefined) {
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function getSafeReturnLabel(value: string | undefined, returnUrl: string | null) {
+  const label = value?.trim().replace(/\s+/g, " ").slice(0, 90);
+
+  if (label) return label;
+  if (!returnUrl) return null;
+
+  try {
+    return new URL(returnUrl).hostname.replace(/^www\./, "");
+  } catch {
+    return "website";
+  }
 }

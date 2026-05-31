@@ -770,13 +770,15 @@
             <div class="embed-inner">
               <iframe
                 class="quote-frame"
-                src="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6"
+                src="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6?returnUrl=https%3A%2F%2Fwww.phillipsrolloffcontainers.com%2F&returnLabel=Phillips%20Roll-Off%20Containers%20website"
                 title="Phillips Roll-Off Containers quote calculator"
                 loading="eager"
+                scrolling="no"
+                data-quotebuilder-demo-frame="qb-815005d7840d/rolloff-container-rental-6"
               ></iframe>
               <noscript>
                 <iframe
-                  src="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6"
+                  src="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6?returnUrl=https%3A%2F%2Fwww.phillipsrolloffcontainers.com%2F&returnLabel=Phillips%20Roll-Off%20Containers%20website"
                   title="Phillips Roll-Off Containers quote calculator"
                   style="display:block;width:100%;min-height:980px;border:0;background:#f8f4ec"
                 ></iframe>
@@ -789,7 +791,7 @@
                 </p>
                 <a
                   class="button primary"
-                  href="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6"
+                  href="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6?returnUrl=https%3A%2F%2Fwww.phillipsrolloffcontainers.com%2F&returnLabel=Phillips%20Roll-Off%20Containers%20website"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -798,7 +800,7 @@
               </div>
               <div class="embed-fallback">
                 If the calculator does not appear,
-                <a href="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6" target="_blank" rel="noreferrer">
+                <a href="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6?returnUrl=https%3A%2F%2Fwww.phillipsrolloffcontainers.com%2F&returnLabel=Phillips%20Roll-Off%20Containers%20website" target="_blank" rel="noreferrer">
                   open it directly
                 </a>.
               </div>
@@ -839,5 +841,23 @@
         </div>
       </div>
     </footer>
+    <script>
+      (() => {
+        const frameKey = "qb-815005d7840d/rolloff-container-rental-6";
+        const iframe = document.querySelector("[data-quotebuilder-demo-frame='" + frameKey + "']");
+        const quoteBuilderOrigin = "https://quote-builder-pro.com";
+
+        if (!iframe) return;
+
+        window.addEventListener("message", (event) => {
+          const data = event.data || {};
+
+          if (event.origin !== quoteBuilderOrigin) return;
+          if (data.type !== "quotebuilder:resize" || (data.key || data.slug) !== frameKey || !data.height) return;
+
+          iframe.style.height = Math.max(Number(data.height), 620) + "px";
+        });
+      })();
+    </script>
   </body>
 </html>

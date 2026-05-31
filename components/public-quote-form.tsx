@@ -18,6 +18,8 @@ export function PublicQuoteForm({
   variant = "page",
   legalRequired = false,
   allowSubmission = true,
+  hostReturnLabel,
+  hostReturnUrl,
   returnTo
 }: {
   calculator: QuoteCalculator;
@@ -25,6 +27,8 @@ export function PublicQuoteForm({
   variant?: "page" | "embed";
   legalRequired?: boolean;
   allowSubmission?: boolean;
+  hostReturnLabel?: string | null;
+  hostReturnUrl?: string | null;
   returnTo?: string;
 }) {
   const [answers, setAnswers] = useState<Answers>(() =>
@@ -57,6 +61,15 @@ export function PublicQuoteForm({
         </p>
         <p className="mt-4 text-sm font-semibold text-teal-700">Estimated Price: {formatDollars(total)}</p>
         <p className="mt-3 text-xs leading-5 text-coal/60">{estimateDisclaimer}</p>
+        {variant === "embed" && hostReturnUrl ? (
+          <a
+            href={hostReturnUrl}
+            target="_top"
+            className="mt-5 inline-flex items-center gap-2 rounded-md bg-[var(--quote-brand)] px-4 py-3 text-sm font-bold text-white shadow-crisp transition hover:opacity-90"
+          >
+            Return to {hostReturnLabel ?? "website"} <ArrowRight className="h-4 w-4" />
+          </a>
+        ) : null}
       </div>
     );
   }
