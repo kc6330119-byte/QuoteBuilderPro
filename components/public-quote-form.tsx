@@ -34,7 +34,7 @@ export function PublicQuoteForm({
   const [answers, setAnswers] = useState<Answers>(() =>
     Object.fromEntries(
       calculator.questions.map((question) => {
-        if (question.questionType === "NUMBER") return [question.id, 0];
+        if (question.questionType === "NUMBER") return [question.id, "0"];
         if (question.questionType === "BOOLEAN") return [question.id, false];
         if (question.questionType === "SELECT") return [question.id, question.options[0] ?? ""];
         return [question.id, ""];
@@ -62,12 +62,27 @@ export function PublicQuoteForm({
         <p className="mt-4 text-sm font-semibold text-teal-700">Estimated Price: {formatDollars(total)}</p>
         <p className="mt-3 text-xs leading-5 text-coal/60">{estimateDisclaimer}</p>
         {variant === "embed" && hostReturnUrl ? (
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+            <a
+              href={hostReturnUrl}
+              target="_top"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-[var(--quote-brand)] px-4 py-3 text-sm font-bold text-white shadow-crisp transition hover:opacity-90"
+            >
+              Return to {hostReturnLabel ?? "website"} <ArrowRight className="h-4 w-4" />
+            </a>
+            <a
+              href={submitReturnPath}
+              className="inline-flex items-center justify-center rounded-md border border-teal-200 bg-white px-4 py-3 text-sm font-bold text-teal-800 transition hover:bg-teal-50"
+            >
+              Start another estimate
+            </a>
+          </div>
+        ) : variant === "embed" ? (
           <a
-            href={hostReturnUrl}
-            target="_top"
-            className="mt-5 inline-flex items-center gap-2 rounded-md bg-[var(--quote-brand)] px-4 py-3 text-sm font-bold text-white shadow-crisp transition hover:opacity-90"
+            href={submitReturnPath}
+            className="mt-5 inline-flex items-center justify-center gap-2 rounded-md bg-[var(--quote-brand)] px-4 py-3 text-sm font-bold text-white shadow-crisp transition hover:opacity-90"
           >
-            Return to {hostReturnLabel ?? "website"} <ArrowRight className="h-4 w-4" />
+            Start another estimate <ArrowRight className="h-4 w-4" />
           </a>
         ) : null}
       </div>
@@ -124,10 +139,25 @@ export function PublicQuoteForm({
                 name={`answer_${question.id}`}
                 type="number"
                 min={0}
-                value={Number(answers[question.id])}
+                inputMode="decimal"
+                value={String(answers[question.id] ?? "")}
+                onBlur={(event) => {
+                  const rawValue = event.target.value.trim();
+
+                  if (!rawValue) return;
+
+                  const numberValue = Number(rawValue);
+
+                  if (Number.isFinite(numberValue)) {
+                    setAnswers((current) => ({ ...current, [question.id]: String(numberValue) }));
+                  }
+                }}
                 onChange={(event) =>
-                  setAnswers((current) => ({ ...current, [question.id]: Number(event.target.value) }))
+                  setAnswers((current) => ({ ...current, [question.id]: event.target.value }))
                 }
+                onFocus={(event) => {
+                  if (event.currentTarget.value === "0") event.currentTarget.select();
+                }}
                 required={question.isRequired}
                 className="mt-3 h-12 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
               />

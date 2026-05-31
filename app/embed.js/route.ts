@@ -40,6 +40,7 @@ export function GET() {
 
   const iframe = document.createElement("iframe");
   const iframeParams = new URLSearchParams();
+  iframeParams.set("embedded", "1");
   iframeParams.set("returnUrl", returnUrl);
   iframeParams.set("returnLabel", returnLabel.slice(0, 90));
 

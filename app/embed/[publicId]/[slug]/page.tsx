@@ -19,12 +19,13 @@ export default async function SecureEmbedQuotePage({
   searchParams
 }: {
   params: Promise<{ publicId: string; slug: string }>;
-  searchParams: Promise<{ legal?: string; returnLabel?: string; returnUrl?: string; submitted?: string }>;
+  searchParams: Promise<{ embedded?: string; legal?: string; returnLabel?: string; returnUrl?: string; submitted?: string }>;
 }) {
   const { publicId, slug } = await params;
-  const { legal, returnLabel, returnUrl, submitted } = await searchParams;
+  const { embedded, legal, returnLabel, returnUrl, submitted } = await searchParams;
   const frameKey = buildPublicCalculatorFrameKey({ publicId, slug });
   const calculator = await getQuoteCalculatorByPublicId(publicId, slug);
+  const isEmbeddedInHostPage = embedded === "1";
   const safeReturnUrl = getSafeReturnUrl(returnUrl);
   const safeReturnLabel = getSafeReturnLabel(returnLabel, safeReturnUrl);
 
@@ -59,12 +60,16 @@ export default async function SecureEmbedQuotePage({
         </div>
         <PublicQuoteForm
           calculator={calculator}
-          hostReturnLabel={safeReturnLabel}
-          hostReturnUrl={safeReturnUrl}
+          hostReturnLabel={isEmbeddedInHostPage ? null : safeReturnLabel}
+          hostReturnUrl={isEmbeddedInHostPage ? null : safeReturnUrl}
           submitted={submitted === "1"}
           variant="embed"
           legalRequired={legal === "required"}
-          returnTo={buildEmbedReturnPath(buildPublicEmbedPath(calculator), safeReturnUrl, safeReturnLabel)}
+          returnTo={buildEmbedReturnPath(buildPublicEmbedPath(calculator), {
+            isEmbeddedInHostPage,
+            returnLabel: safeReturnLabel,
+            returnUrl: safeReturnUrl
+          })}
         />
         <p className="mt-4 text-center text-xs font-semibold text-coal/45">Powered by QuoteBuilder Pro</p>
       </section>
@@ -72,9 +77,21 @@ export default async function SecureEmbedQuotePage({
   );
 }
 
-function buildEmbedReturnPath(basePath: string, returnUrl: string | null, returnLabel: string | null) {
+function buildEmbedReturnPath(
+  basePath: string,
+  {
+    isEmbeddedInHostPage,
+    returnLabel,
+    returnUrl
+  }: {
+    isEmbeddedInHostPage: boolean;
+    returnLabel: string | null;
+    returnUrl: string | null;
+  }
+) {
   const params = new URLSearchParams();
 
+  if (isEmbeddedInHostPage) params.set("embedded", "1");
   if (returnUrl) params.set("returnUrl", returnUrl);
   if (returnLabel) params.set("returnLabel", returnLabel);
 

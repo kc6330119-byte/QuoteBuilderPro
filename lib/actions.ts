@@ -815,9 +815,11 @@ function normalizeQuoteReturnPath(value: string | null, publicId: string, slug: 
 
     if (url.pathname === quotePath || url.pathname === embedPath) {
       const params = new URLSearchParams();
+      const embedded = url.searchParams.get("embedded") === "1";
       const returnUrl = normalizeExternalReturnUrl(url.searchParams.get("returnUrl"));
       const returnLabel = normalizeReturnLabel(url.searchParams.get("returnLabel"));
 
+      if (embedded) params.set("embedded", "1");
       if (returnUrl) params.set("returnUrl", returnUrl);
       if (returnLabel) params.set("returnLabel", returnLabel);
 
