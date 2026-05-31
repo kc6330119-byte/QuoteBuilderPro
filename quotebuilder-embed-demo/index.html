@@ -641,6 +641,26 @@
           display: block;
         }
       }
+
+      @media (pointer: coarse) and (max-width: 1100px), (pointer: coarse) and (max-height: 560px) {
+        .embed-card {
+          border-radius: 18px;
+        }
+
+        .embed-top {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .quote-frame,
+        .embed-fallback {
+          display: none;
+        }
+
+        .mobile-calculator-fallback {
+          display: block;
+        }
+      }
     </style>
   </head>
   <body>
