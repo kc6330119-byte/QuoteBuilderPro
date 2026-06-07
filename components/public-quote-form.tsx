@@ -41,15 +41,13 @@ export function PublicQuoteForm({
       })
     )
   );
-  const [mockSubmitted, setMockSubmitted] = useState(false);
-
   const visibleQuestions = useMemo(() => getVisibleQuestions(calculator.questions, answers), [answers, calculator.questions]);
   const total = useMemo(() => calculateQuote(calculator.questions, calculator.rules, answers), [answers, calculator]);
   const submitReturnPath =
     returnTo ?? (variant === "embed" ? buildPublicEmbedPath(calculator) : buildPublicQuotePath(calculator));
   const quoteTheme = { "--quote-brand": calculator.branding.primaryColor } as CSSProperties;
 
-  if (submitted || mockSubmitted) {
+  if (submitted) {
     return (
       <div className="rounded-lg border border-teal-100 bg-teal-50 p-6" style={quoteTheme}>
         <CheckCircle2 className="h-10 w-10" style={{ color: calculator.branding.primaryColor }} />
@@ -66,6 +64,7 @@ export function PublicQuoteForm({
             <a
               href={hostReturnUrl}
               target="_top"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-md bg-[var(--quote-brand)] px-4 py-3 text-sm font-bold text-white shadow-crisp transition hover:opacity-90"
             >
               Return to {hostReturnLabel ?? "website"} <ArrowRight className="h-4 w-4" />
@@ -91,18 +90,12 @@ export function PublicQuoteForm({
 
   return (
     <form
-      action={calculator.source === "database" && allowSubmission ? createQuoteSubmissionAction : undefined}
+      action={allowSubmission ? createQuoteSubmissionAction : undefined}
       className={variant === "embed" ? "grid gap-5 lg:grid-cols-[1fr_300px]" : "grid gap-6 lg:grid-cols-[1fr_340px]"}
       style={quoteTheme}
       onSubmit={(event) => {
         if (!allowSubmission) {
           event.preventDefault();
-          return;
-        }
-
-        if (calculator.source === "mock") {
-          event.preventDefault();
-          setMockSubmitted(true);
         }
       }}
     >
@@ -110,6 +103,10 @@ export function PublicQuoteForm({
       <input type="hidden" name="calculatorSlug" value={calculator.slug} />
       <input type="hidden" name="calculatorPublicId" value={calculator.publicId} />
       <input type="hidden" name="returnTo" value={submitReturnPath} />
+      {/* Honeypot: hidden from humans; bots that fill it are silently dropped server-side. */}
+      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", height: 0, width: 0, overflow: "hidden" }}>
+        <input type="text" name="companyWebsite" tabIndex={-1} autoComplete="off" />
+      </div>
       <section className="space-y-5">
         {!allowSubmission ? (
           <div className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold leading-6 text-sky-900">

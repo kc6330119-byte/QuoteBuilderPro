@@ -1,7 +1,10 @@
+import { revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
+import { Prisma } from "@prisma/client";
 import type Stripe from "stripe";
-import { getBillingPlanByPriceId, getBillingPlanByTier } from "@/lib/plans";
+import { getBillingPlanByPriceId, getBillingPlanByTier, isPaidSubscriptionStatus } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
 
@@ -35,6 +38,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
+  // Idempotency: atomically claim this event id. A unique-constraint violation means we already processed
+  // it (Stripe redelivery/replay) — skip. The claim is rolled back below if processing fails, so retries work.
+  try {
+    await prisma.webhookEvent.create({ data: { id: event.id } });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+    throw error;
+  }
+
   try {
     switch (event.type) {
       case "checkout.session.completed":
@@ -52,7 +66,10 @@ export async function POST(request: Request) {
         break;
     }
   } catch (error) {
+    Sentry.captureException(error);
     console.error("Stripe webhook handling failed", error);
+    // Release the idempotency claim so Stripe's retry can reprocess this event.
+    await prisma.webhookEvent.delete({ where: { id: event.id } }).catch(() => {});
     return NextResponse.json({ error: "Webhook handler failed." }, { status: 500 });
   }
 
@@ -123,6 +140,44 @@ async function syncSubscription(subscription: Stripe.Subscription, fallback: Syn
         : null
     }
   });
+
+  // Reconcile published calculators with the new plan so cancellations/downgrades stop serving paid
+  // functionality. Terminal states drop to 0; active/trialing enforce the plan's limit; grace states
+  // (past_due, incomplete) keep calculators live (effectiveLimit stays null and we skip enforcement).
+  const isTerminal = subscription.status === "canceled" || subscription.status === "unpaid";
+  const effectiveLimit = isTerminal
+    ? 0
+    : isPaidSubscriptionStatus(subscription.status)
+      ? plan?.calculatorLimit ?? 0
+      : null;
+
+  if (effectiveLimit !== null) {
+    await enforcePublishedCalculatorLimit(company.id, effectiveLimit);
+  }
+}
+
+// Keeps at most `limit` published calculators (most-recently-updated first), unpublishing the rest and
+// busting their cached public pages. limit = 0 unpublishes everything (cancel/unpaid).
+async function enforcePublishedCalculatorLimit(companyId: string, limit: number) {
+  const published = await prisma.calculator.findMany({
+    where: { companyId, isPublished: true, isArchived: false },
+    orderBy: { updatedAt: "desc" },
+    select: { id: true, publicId: true }
+  });
+
+  if (published.length <= limit) {
+    return;
+  }
+
+  const toUnpublish = published.slice(limit);
+  await prisma.calculator.updateMany({
+    where: { id: { in: toUnpublish.map((calculator) => calculator.id) } },
+    data: { isPublished: false }
+  });
+
+  for (const calculator of toUnpublish) {
+    revalidateTag(`calculator:${calculator.publicId}`, "max");
+  }
 }
 
 async function findSubscriptionCompany({
@@ -137,11 +192,13 @@ async function findSubscriptionCompany({
   if (companyId) {
     const company = await prisma.company.findUnique({
       where: { id: companyId },
-      select: { id: true }
+      select: { id: true, stripeCustomerId: true }
     });
 
-    if (company) {
-      return company;
+    // Trust the metadata companyId only when it's consistent with the event's customer (no customer set
+    // yet on first checkout, or it matches) — prevents applying a subscription to the wrong tenant.
+    if (company && (!company.stripeCustomerId || !customerId || company.stripeCustomerId === customerId)) {
+      return { id: company.id };
     }
   }
 

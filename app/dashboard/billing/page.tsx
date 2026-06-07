@@ -1,11 +1,13 @@
 import { ArrowUpRight, CheckCircle2, CreditCard, GaugeCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { Badge } from "@/components/badge";
 import { Button, ButtonLink } from "@/components/button";
+import { LeadLimitNotice } from "@/components/lead-limit-notice";
 import { PageHeader } from "@/components/page-header";
 import { SubmitButton } from "@/components/submit-button";
 import { createBillingPortalSessionAction, createCheckoutSessionAction } from "@/lib/billing-actions";
+import { getWorkspaceLeadUsage } from "@/lib/calculator-data";
 import { getBillingDashboardData } from "@/lib/billing";
-import { isPaidSubscriptionStatus, type BillingPlan } from "@/lib/plans";
+import { formatSubscriptionStatus, isPaidSubscriptionStatus, type BillingPlan } from "@/lib/plans";
 import { cn, formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +17,9 @@ export default async function BillingPage({
 }: {
   searchParams?: Promise<{ checkout?: string }>;
 }) {
-  const [data, params] = await Promise.all([
+  const [data, leadUsage, params] = await Promise.all([
     getBillingDashboardData(),
+    getWorkspaceLeadUsage(),
     searchParams ? searchParams : Promise.resolve({} as { checkout?: string })
   ]);
   const hasActiveSubscription = isPaidSubscriptionStatus(data.company.subscriptionStatus);
@@ -43,6 +46,7 @@ export default async function BillingPage({
       />
 
       <BillingNotice state={params.checkout} currentPlan={data.currentPlan} />
+      <LeadLimitNotice usage={leadUsage} />
 
       <section className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
         <div className="overflow-hidden rounded-xl border border-[#dbe5f4] bg-white shadow-crisp">
@@ -55,7 +59,7 @@ export default async function BillingPage({
                 </h2>
               </div>
               <Badge tone={getStatusTone(data.company.subscriptionStatus)}>
-                {formatSubscriptionStatus(data.company.subscriptionStatus)}
+                {formatSubscriptionStatus(data.company.subscriptionStatus, "No active plan")}
               </Badge>
             </div>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-coal/70">
@@ -242,6 +246,10 @@ function BillingNotice({ state, currentPlan }: { state?: string; currentPlan: Bi
       tone: "border-amber-200 bg-amber-50 text-amber-800",
       message: "Choose a plan before publishing calculators to customers."
     },
+    "calculator-create-limit": {
+      tone: "border-amber-200 bg-amber-50 text-amber-800",
+      message: "You've reached the number of calculators your plan can hold. Upgrade for more room, or archive a calculator you no longer need."
+    },
     "calculator-limit": {
       tone: "border-amber-200 bg-amber-50 text-amber-800",
       message: currentPlan
@@ -263,13 +271,4 @@ function getStatusTone(status: string | null | undefined): "neutral" | "success"
   if (status === "past_due" || status === "unpaid" || status === "incomplete") return "warning";
   if (status === "canceled") return "danger";
   return "neutral";
-}
-
-function formatSubscriptionStatus(status: string | null | undefined) {
-  if (!status || status === "NONE") return "No active plan";
-
-  return status
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
 }

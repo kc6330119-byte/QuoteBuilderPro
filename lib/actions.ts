@@ -1,15 +1,20 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { getCurrentWorkspace } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getQuoteCalculatorByPublicId, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
-import { getBillingPlanByTier, isPaidSubscriptionStatus } from "@/lib/plans";
+import { checkCanCreateCalculator, checkCanPublish } from "@/lib/entitlements";
+import { legalLastUpdated } from "@/lib/legal-content";
 import { buildPublicEmbedPath, buildPublicQuotePath } from "@/lib/public-calculator-paths";
 import { createUniquePublicCalculatorId } from "@/lib/public-calculator-id";
 import { calculateQuote, getVisibleQuestions, type QuoteAnswers } from "@/lib/quote-engine";
+import { checkRateLimit, hashIdentifier } from "@/lib/rate-limit";
+import { getAppUrl } from "@/lib/stripe";
+import { slugify } from "@/lib/utils";
 
 const leadStatuses: LeadStatus[] = ["NEW", "CONTACTED", "WON", "LOST"];
 
@@ -25,13 +30,34 @@ type ParsedQuestion = {
 export async function createCalculatorAction(formData: FormData) {
   const workspace = await getCurrentWorkspace();
   const name = requiredString(formData, "name", "Untitled calculator");
-  const slug = createSlug(requiredString(formData, "slug", name));
+  const slug = slugify(requiredString(formData, "slug", name), "calculator");
   const publicId = await createUniquePublicCalculatorId();
   const description = optionalString(formData, "description");
   const businessType = optionalString(formData, "businessType");
   const basePrice = currencyString(formData.get("basePrice"));
-  const isPublished = formData.get("isPublished") === "on";
   const questions = parseQuestions(formData);
+
+  const [company, totalCalculatorCount, publishedCalculatorCount] = await Promise.all([
+    prisma.company.findUnique({
+      where: { id: workspace.companyId },
+      select: { planTier: true, subscriptionStatus: true }
+    }),
+    prisma.calculator.count({ where: { companyId: workspace.companyId, isArchived: false } }),
+    prisma.calculator.count({ where: { companyId: workspace.companyId, isArchived: false, isPublished: true } })
+  ]);
+
+  if (!checkCanCreateCalculator({ planTier: company?.planTier, totalCalculatorCount }).allowed) {
+    redirect("/dashboard/billing?checkout=calculator-create-limit");
+  }
+
+  // Honor the publish checkbox only when the plan allows publishing; otherwise the calculator is created as a draft.
+  const isPublished =
+    formData.get("isPublished") === "on" &&
+    checkCanPublish({
+      planTier: company?.planTier,
+      subscriptionStatus: company?.subscriptionStatus,
+      otherPublishedCount: publishedCalculatorCount
+    }).allowed;
 
   const calculator = await prisma.$transaction(async (tx) => {
     const createdCalculator = await tx.calculator.create({
@@ -129,7 +155,7 @@ export async function addQuestionAction(formData: FormData) {
     }
   });
 
-  revalidateCalculator(calculatorId);
+  revalidateCalculator(calculator.id, calculator.publicId);
   redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
@@ -161,7 +187,7 @@ export async function updateQuestionAction(formData: FormData) {
         isArchived: false
       }
     },
-    select: { id: true }
+    select: { id: true, calculator: { select: { publicId: true } } }
   });
 
   if (!question) {
@@ -180,7 +206,7 @@ export async function updateQuestionAction(formData: FormData) {
     }
   });
 
-  revalidateCalculator(calculatorId);
+  revalidateCalculator(calculatorId, question.calculator.publicId);
   redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
@@ -202,7 +228,7 @@ export async function deleteQuestionAction(formData: FormData) {
         isArchived: false
       }
     },
-    select: { id: true }
+    select: { id: true, calculator: { select: { publicId: true } } }
   });
 
   if (!question) {
@@ -226,7 +252,7 @@ export async function deleteQuestionAction(formData: FormData) {
     prisma.question.delete({ where: { id: question.id } })
   ]);
 
-  revalidateCalculator(calculatorId);
+  revalidateCalculator(calculatorId, question.calculator.publicId);
   redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
@@ -258,7 +284,7 @@ export async function addPricingRuleAction(formData: FormData) {
     }
   });
 
-  revalidateCalculator(calculator.id);
+  revalidateCalculator(calculator.id, calculator.publicId);
   redirect(`/dashboard/calculators/${calculator.id}`);
 }
 
@@ -285,7 +311,7 @@ export async function updatePricingRuleAction(formData: FormData) {
         isArchived: false
       }
     },
-    select: { id: true }
+    select: { id: true, calculator: { select: { publicId: true } } }
   });
 
   if (!rule) {
@@ -303,7 +329,7 @@ export async function updatePricingRuleAction(formData: FormData) {
     }
   });
 
-  revalidateCalculator(calculatorId);
+  revalidateCalculator(calculatorId, rule.calculator.publicId);
   redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
@@ -325,7 +351,7 @@ export async function deletePricingRuleAction(formData: FormData) {
         isArchived: false
       }
     },
-    select: { id: true }
+    select: { id: true, calculator: { select: { publicId: true } } }
   });
 
   if (!rule) {
@@ -334,7 +360,7 @@ export async function deletePricingRuleAction(formData: FormData) {
 
   await prisma.pricingRule.delete({ where: { id: rule.id } });
 
-  revalidateCalculator(calculatorId);
+  revalidateCalculator(calculatorId, rule.calculator.publicId);
   redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
@@ -380,14 +406,15 @@ export async function updateCalculatorPublishStatusAction(formData: FormData) {
 
   if (isPublished) {
     const company = calculator.company;
-    const plan = getBillingPlanByTier(company?.planTier);
-    if (!company || !plan || !isPaidSubscriptionStatus(company.subscriptionStatus)) {
-      redirect("/dashboard/billing?checkout=plan-required");
-    }
+    const otherPublishedCount = company?.calculators.filter((item) => item.id !== calculator.id).length ?? 0;
+    const gate = checkCanPublish({
+      planTier: company?.planTier,
+      subscriptionStatus: company?.subscriptionStatus,
+      otherPublishedCount
+    });
 
-    const publishedCalculatorCount = company.calculators.filter((item) => item.id !== calculator.id).length;
-    if (!calculator.isPublished && publishedCalculatorCount >= plan.calculatorLimit) {
-      redirect("/dashboard/billing?checkout=calculator-limit");
+    if (!gate.allowed) {
+      redirect(`/dashboard/billing?checkout=${gate.reason}`);
     }
   }
 
@@ -396,7 +423,7 @@ export async function updateCalculatorPublishStatusAction(formData: FormData) {
     data: { isPublished }
   });
 
-  revalidateCalculator(calculator.id);
+  revalidateCalculator(calculator.id, calculator.publicId);
   revalidatePath(buildPublicQuotePath(calculator));
   revalidatePath(buildPublicEmbedPath(calculator));
   redirect(`/dashboard/calculators/${calculator.id}`);
@@ -438,7 +465,7 @@ export async function updateCalculatorBrandingAction(formData: FormData) {
     }
   });
 
-  revalidateCalculator(calculator.id);
+  revalidateCalculator(calculator.id, calculator.publicId);
   revalidatePath(buildPublicQuotePath(calculator));
   revalidatePath(buildPublicEmbedPath(calculator));
   redirect(`/dashboard/calculators/${calculator.id}`);
@@ -449,9 +476,21 @@ export async function createQuoteSubmissionAction(formData: FormData) {
   const calculatorSlug = requiredString(formData, "calculatorSlug", "");
   const calculatorPublicId = requiredString(formData, "calculatorPublicId", "");
   const returnTo = normalizeQuoteReturnPath(optionalString(formData, "returnTo"), calculatorPublicId, calculatorSlug);
+
+  // Honeypot: real users never fill this hidden field. Pretend success so bots receive no signal.
+  if (optionalString(formData, "companyWebsite")) {
+    redirect(addQuoteReturnParam(returnTo, "submitted", "1"));
+  }
+
+  // Best-effort burst throttle keyed by calculator + hashed client IP (see lib/rate-limit.ts).
+  const clientIpHash = hashIdentifier(getClientIp(await headers()));
+  if (!checkRateLimit(`lead:${calculatorPublicId}:${clientIpHash}`, 5, 60_000)) {
+    redirect(addQuoteReturnParam(returnTo, "submitted", "1"));
+  }
+
   const calculator = await getQuoteCalculatorByPublicId(calculatorPublicId, calculatorSlug);
 
-  if (!calculator || calculator.source !== "database" || calculator.id !== calculatorId) {
+  if (!calculator || calculator.id !== calculatorId) {
     redirect(returnTo);
   }
 
@@ -460,10 +499,20 @@ export async function createQuoteSubmissionAction(formData: FormData) {
     redirect(addQuoteReturnParam(returnTo, "legal", "required"));
   }
 
+  // Server-side validation defends the direct-POST surface; the client form validates these too.
+  const customerName = cleanText(formData.get("customerName"), 120);
+  const customerEmail = cleanText(formData.get("customerEmail"), 254);
+  const customerPhone = cleanText(formData.get("customerPhone"), 40) || null;
+  const customerNotes = cleanText(formData.get("customerNotes"), 2000) || null;
+
+  if (!customerName || !isValidEmail(customerEmail)) {
+    redirect(returnTo);
+  }
+
   const rawAnswers: QuoteAnswers = Object.fromEntries(
     calculator.questions.map((question) => {
       const rawValue = formData.get(`answer_${question.id}`);
-      return [question.id, question.questionType === "BOOLEAN" ? rawValue === "true" : String(rawValue ?? "")];
+      return [question.id, question.questionType === "BOOLEAN" ? rawValue === "true" : cleanText(rawValue, 1000)];
     })
   );
   const answers = Object.fromEntries(
@@ -482,16 +531,29 @@ export async function createQuoteSubmissionAction(formData: FormData) {
   await prisma.quoteSubmission.create({
     data: {
       calculatorId,
-      customerName: requiredString(formData, "customerName", "Unknown customer"),
-      customerEmail: requiredString(formData, "customerEmail", "unknown@example.com"),
-      customerPhone: optionalString(formData, "customerPhone"),
-      customerNotes: optionalString(formData, "customerNotes"),
+      customerName,
+      customerEmail,
+      customerPhone,
+      customerNotes,
       answers,
       estimatedPrice: estimatedPrice.toFixed(2),
-      acceptedEstimateDisclaimer: true,
-      acceptedLegalTerms: true,
-      acceptedAt: new Date()
+      // Record the actual posted consent (not a constant) plus which terms version was shown, so the
+      // stored value is real evidence of what the customer agreed to.
+      acceptedEstimateDisclaimer: acceptedLegalAcknowledgement,
+      acceptedLegalTerms: acceptedLegalAcknowledgement,
+      acceptedLegalVersion: acceptedLegalAcknowledgement ? legalLastUpdated : null,
+      acceptedAt: acceptedLegalAcknowledgement ? new Date() : null
     }
+  });
+
+  // Mirror to Netlify Forms so the operator is notified of the new lead (best-effort; never blocks capture).
+  await mirrorLeadToNetlify({
+    calculator: calculator.name,
+    customerName,
+    customerEmail,
+    customerPhone: customerPhone ?? "",
+    estimate: estimatedPrice.toFixed(2),
+    notes: customerNotes ?? ""
   });
 
   revalidatePath("/dashboard");
@@ -596,7 +658,7 @@ export async function archiveCalculatorAction(formData: FormData) {
     }
   });
 
-  revalidateCalculator(calculator.id);
+  revalidateCalculator(calculator.id, calculator.publicId);
   revalidatePath(buildPublicQuotePath(calculator));
   revalidatePath(buildPublicEmbedPath(calculator));
   redirect("/dashboard/calculators");
@@ -633,7 +695,7 @@ export async function deleteCalculatorAction(formData: FormData) {
     prisma.calculator.delete({ where: { id: calculator.id } })
   ]);
 
-  revalidateCalculator(calculator.id);
+  revalidateCalculator(calculator.id, calculator.publicId);
   revalidatePath("/dashboard/leads");
   revalidatePath(buildPublicQuotePath(calculator));
   revalidatePath(buildPublicEmbedPath(calculator));
@@ -675,16 +737,6 @@ async function getWorkspaceCalculator(calculatorId: string, companyId: string) {
       slug: true
     }
   });
-}
-
-function createSlug(value: string) {
-  return (
-    value
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "") || "calculator"
-  );
 }
 
 function requiredString(formData: FormData, key: string, fallback: string) {
@@ -859,11 +911,51 @@ function normalizeReturnLabel(value: string | null) {
     .slice(0, 90);
 }
 
-function revalidateCalculator(calculatorId: string) {
+function revalidateCalculator(calculatorId: string, publicId?: string) {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/calculators");
   revalidatePath(`/dashboard/calculators/${calculatorId}`);
   revalidatePath(`/preview/${calculatorId}`);
-  revalidatePath("/quote/[publicId]/[slug]", "page");
-  revalidatePath("/embed/[publicId]/[slug]", "page");
+
+  // Invalidate the cached public calculator read (lib/calculator-data.ts) for just this calculator,
+  // rather than busting every published quote/embed page on any single edit.
+  if (publicId) {
+    revalidateTag(`calculator:${publicId}`, "max");
+  }
+}
+
+function isValidEmail(value: string) {
+  return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function cleanText(value: FormDataEntryValue | null, maxLength: number) {
+  return String(value ?? "")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function getClientIp(headerList: Headers) {
+  return (
+    headerList.get("x-nf-client-connection-ip") ??
+    headerList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown"
+  );
+}
+
+async function mirrorLeadToNetlify(fields: Record<string, string>) {
+  // Best-effort POST to the Netlify-registered form (public/__forms.html) so the operator gets a lead
+  // notification. Wrapped so an unreachable/slow Netlify never blocks or fails lead capture.
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2500);
+
+    await fetch(`${getAppUrl()}/__forms.html`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ "form-name": "new-lead-notification", ...fields }).toString(),
+      signal: controller.signal
+    }).finally(() => clearTimeout(timeout));
+  } catch {
+    // Intentionally ignored — notification is non-critical.
+  }
 }

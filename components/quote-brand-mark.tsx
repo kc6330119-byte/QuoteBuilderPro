@@ -1,5 +1,5 @@
 import type { CalculatorBranding } from "@/lib/calculator-data";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 
 export function QuoteBrandMark({
   branding,
@@ -27,7 +27,7 @@ export function QuoteBrandMark({
           className={cn(markSize, "flex shrink-0 items-center justify-center rounded-xl text-sm font-black text-white shadow-crisp")}
           style={{ backgroundColor: branding.primaryColor }}
         >
-          {getInitials(branding.displayName)}
+          {getInitials(branding.displayName, "Q")}
         </div>
       )}
       <div className="min-w-0">
@@ -36,13 +36,4 @@ export function QuoteBrandMark({
       </div>
     </div>
   );
-}
-
-function getInitials(value: string) {
-  const words = value
-    .replace(/[^a-zA-Z0-9\s]/g, " ")
-    .split(/\s+/)
-    .filter(Boolean);
-
-  return `${words[0]?.[0] ?? "Q"}${words[1]?.[0] ?? ""}`.toUpperCase();
 }

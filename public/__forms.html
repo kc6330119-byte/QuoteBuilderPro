@@ -5,8 +5,9 @@
     <title>QuoteBuilder Pro Forms</title>
   </head>
   <body>
-    <form name="quote-builder-contact" method="POST" data-netlify="true" hidden>
+    <form name="quote-builder-contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
       <input type="hidden" name="form-name" value="quote-builder-contact" />
+      <input type="text" name="bot-field" />
       <input type="text" name="name" />
       <input type="email" name="email" />
       <input type="text" name="company" />
@@ -18,6 +19,21 @@
         <option value="Other">Other</option>
       </select>
       <textarea name="message"></textarea>
+    </form>
+
+    <!--
+      Internal lead-notification mirror. createQuoteSubmissionAction (lib/actions.ts) POSTs each new
+      quote lead here so the operator gets a Netlify Forms email notification. The lead system of record
+      stays in Postgres; this is notification only. Keep these field names in sync with mirrorLeadToNetlify.
+    -->
+    <form name="new-lead-notification" method="POST" data-netlify="true" hidden>
+      <input type="hidden" name="form-name" value="new-lead-notification" />
+      <input type="text" name="calculator" />
+      <input type="text" name="customerName" />
+      <input type="email" name="customerEmail" />
+      <input type="text" name="customerPhone" />
+      <input type="text" name="estimate" />
+      <textarea name="notes"></textarea>
     </form>
   </body>
 </html>

@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 export function GET() {
   const script = `(() => {
   const currentScript = document.currentScript;
@@ -87,7 +85,9 @@ export function GET() {
   return new Response(script, {
     headers: {
       "Content-Type": "application/javascript; charset=utf-8",
-      "Cache-Control": "public, max-age=300"
+      // Static loader script: cache hard at the CDN and for an hour in the browser to avoid a function
+      // invocation on every host-page impression.
+      "Cache-Control": "public, max-age=3600, s-maxage=86400"
     }
   });
 }

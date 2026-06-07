@@ -7,6 +7,7 @@ import { getCurrentWorkspace } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createUniquePublicCalculatorId } from "@/lib/public-calculator-id";
 import { getCalculatorTemplateById, type TemplatePricingRule, type TemplateQuestion } from "@/lib/templates";
+import { slugify } from "@/lib/utils";
 
 export async function useTemplateAction(formData: FormData) {
   const templateId = String(formData.get("templateId") ?? "");
@@ -17,7 +18,7 @@ export async function useTemplateAction(formData: FormData) {
   }
 
   const workspace = await getCurrentWorkspace();
-  const slug = createSlug(template.name);
+  const slug = slugify(template.name, "calculator-template");
   const publicId = await createUniquePublicCalculatorId();
 
   let calculatorId: string;
@@ -121,12 +122,3 @@ function buildTemplateRuleConfig(rule: TemplatePricingRule) {
   };
 }
 
-function createSlug(value: string) {
-  return (
-    value
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "") || "calculator-template"
-  );
-}

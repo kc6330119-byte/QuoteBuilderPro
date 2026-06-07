@@ -48,7 +48,7 @@ cp .env.example .env
 
 3. Add your Neon connection string, Clerk keys, and Stripe keys to `.env`.
 
-Use the direct Neon connection string for local Prisma migration commands. If you later add pooled runtime connections, update `prisma/schema.prisma` with a `directUrl` setting before splitting pooled and direct URLs.
+The Prisma datasource uses two connection strings: `DATABASE_URL` for runtime queries and `DIRECT_URL` for migrations (`prisma/schema.prisma` declares `directUrl`). Point `DATABASE_URL` at Neon's **pooled** endpoint (host contains `-pooler`, with `pgbouncer=true&connection_limit=1`) so serverless functions don't exhaust Neon's connection limit, and point `DIRECT_URL` at the **direct** unpooled endpoint for `prisma migrate`/`db push`. If you are not using pooling yet, set `DIRECT_URL` to the same value as `DATABASE_URL`.
 
 Google Analytics is optional and only tracks public marketing pages when configured:
 
@@ -116,12 +116,13 @@ The Prisma schema is in `prisma/schema.prisma` and includes:
 - `Question`
 - `PricingRule`
 - `QuoteSubmission`
-- `Plan`
-- `UserPlan`
+- `WebhookEvent` (Stripe webhook idempotency ledger)
 
-The main calculator and lead workflow now reads and writes through Prisma using `lib/calculator-data.ts` and `lib/actions.ts`. `lib/mock-data.ts` remains only as a lightweight demo fallback for the original sample quote page.
+The main calculator and lead workflow reads and writes through Prisma using `lib/calculator-data.ts` and `lib/actions.ts`.
 
 Quote pricing is handled by `lib/quote-engine.ts`. It supports `base_price`, `quantity_multiplier`, `option_price`, and `checkbox_addon` rules stored in the `PricingRule` table.
+
+**Backups:** enable Neon Point-in-Time Restore (PITR) so the lead/calculator data can be recovered. Lead deletion is currently a hard delete, so PITR is the recovery path until soft-delete lands.
 
 ## Authentication and workspaces
 
@@ -133,7 +134,8 @@ This project includes `netlify.toml` with the Next.js plugin enabled.
 
 Set these environment variables in Netlify:
 
-- `DATABASE_URL`
+- `DATABASE_URL` (Neon pooled endpoint)
+- `DIRECT_URL` (Neon direct endpoint, for migrations)
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`

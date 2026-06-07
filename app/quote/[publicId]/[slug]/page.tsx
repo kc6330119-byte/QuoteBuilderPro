@@ -1,10 +1,11 @@
+import { after } from "next/server";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import { PublicQuoteForm } from "@/components/public-quote-form";
 import { QuoteBrandMark } from "@/components/quote-brand-mark";
 import { QuoteUnavailable } from "@/components/quote-unavailable";
-import { getQuoteCalculatorByPublicId } from "@/lib/calculator-data";
+import { getQuoteCalculatorByPublicId, recordCalculatorView } from "@/lib/calculator-data";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -28,6 +29,11 @@ export default async function SecureQuotePage({
 
   if (!calculator || !calculator.isPublished) {
     return <QuoteUnavailable />;
+  }
+
+  // Count the visit for conversion reporting after the response is sent; skip post-submit reloads.
+  if (submitted !== "1") {
+    after(() => recordCalculatorView(publicId));
   }
 
   const brand = calculator.branding;

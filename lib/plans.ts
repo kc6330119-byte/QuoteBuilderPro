@@ -1,4 +1,4 @@
-export type BillingTier = "STARTER" | "PRO" | "AGENCY";
+export type BillingTier = "FREE" | "STARTER" | "PRO" | "AGENCY";
 
 export type BillingPlan = {
   tier: BillingTier;
@@ -11,6 +11,21 @@ export type BillingPlan = {
   description: string;
   features: string[];
   highlighted?: boolean;
+};
+
+// The implicit tier for every company until they subscribe (Company.planTier defaults to "FREE").
+// It is intentionally NOT part of `billingPlans` so the billing page only renders purchasable plans,
+// but entitlement gates resolve to it so unsubscribed companies are still limited. See lib/entitlements.ts.
+export const freePlan: BillingPlan = {
+  tier: "FREE",
+  name: "Free",
+  price: 0,
+  priceLabel: "$0",
+  calculatorLimit: 0,
+  leadLimit: 0,
+  stripePriceId: undefined,
+  description: "Build calculators as drafts. Subscribe to publish them and capture leads.",
+  features: ["Draft calculators", "Templates and guided builder", "Publish on a paid plan"]
 };
 
 export const billingPlans: BillingPlan[] = [
@@ -66,4 +81,16 @@ export function getBillingPlanLabel(tier: string | null | undefined) {
 
 export function isPaidSubscriptionStatus(status: string | null | undefined) {
   return status === "active" || status === "trialing";
+}
+
+// Turns a Stripe status (e.g. "past_due") into a human label. `emptyLabel` covers the no-subscription case.
+export function formatSubscriptionStatus(status: string | null | undefined, emptyLabel = "Not subscribed") {
+  if (!status || status === "NONE") {
+    return emptyLabel;
+  }
+
+  return status
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }

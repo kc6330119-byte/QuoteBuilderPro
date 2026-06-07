@@ -37,6 +37,13 @@ export function ContactForm() {
   return (
     <form name="quote-builder-contact" onSubmit={handleSubmit} className="space-y-5">
       <input type="hidden" name="form-name" value="quote-builder-contact" />
+      {/* Netlify honeypot. Field names here must stay in sync with public/__forms.html (which carries
+          data-netlify-honeypot="bot-field"); a filled bot-field makes Netlify drop the submission. */}
+      <p className="hidden">
+        <label>
+          Do not fill this out if you are human: <input name="bot-field" tabIndex={-1} autoComplete="off" />
+        </label>
+      </p>
 
       {status === "error" ? (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">

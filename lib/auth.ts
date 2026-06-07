@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getInitials, slugify } from "@/lib/utils";
 
 export type WorkspaceUser = {
   id: string;
@@ -78,7 +79,6 @@ export const getCurrentWorkspace = cache(async (): Promise<WorkspaceUser> => {
         });
       }
 
-      const companyCount = await tx.company.count();
       const company = await tx.company.create({
         data: {
           name: companyName,
@@ -107,7 +107,7 @@ export const getCurrentWorkspace = cache(async (): Promise<WorkspaceUser> => {
             include: { company: true }
           });
 
-      await adoptLegacyCalculators(tx, workspaceUser.id, company.id, companyCount === 0);
+      await adoptLegacyCalculators(tx, workspaceUser.id, company.id);
 
       return workspaceUser;
     });
@@ -165,14 +165,11 @@ function toWorkspaceUser(user: UserWithCompany, clerkUserId: string): WorkspaceU
   };
 }
 
-async function adoptLegacyCalculators(
-  client: Prisma.TransactionClient,
-  userId: string,
-  companyId: string,
-  adoptAllUnassigned: boolean
-) {
+// Only adopts calculators that already belong to this user (companyId was null). Never claims another
+// user's unassigned rows — the previous "first company adopts everything" branch was a tenant-isolation hazard.
+async function adoptLegacyCalculators(client: Prisma.TransactionClient, userId: string, companyId: string) {
   await client.calculator.updateMany({
-    where: adoptAllUnassigned ? { companyId: null } : { companyId: null, userId },
+    where: { companyId: null, userId },
     data: {
       companyId,
       userId
@@ -181,7 +178,7 @@ async function adoptLegacyCalculators(
 }
 
 async function createUniqueCompanySlug(value: string, client: Prisma.TransactionClient | typeof prisma = prisma) {
-  const baseSlug = slugify(value);
+  const baseSlug = slugify(value, "workspace");
   let slug = baseSlug;
   let suffix = 2;
 
@@ -191,23 +188,4 @@ async function createUniqueCompanySlug(value: string, client: Prisma.Transaction
   }
 
   return slug;
-}
-
-function slugify(value: string) {
-  return (
-    value
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "") || "workspace"
-  );
-}
-
-function getInitials(value: string) {
-  const words = value
-    .replace(/@.*/, "")
-    .split(/\s+|[._-]+/)
-    .filter(Boolean);
-
-  return (words[0]?.[0] ?? "U").toUpperCase() + (words[1]?.[0] ?? "").toUpperCase();
 }

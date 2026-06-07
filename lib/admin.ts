@@ -1,6 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { getBillingPlanLabel } from "@/lib/plans";
+import { formatSubscriptionStatus, getBillingPlanLabel } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
 
 export type AdminUser = {
@@ -43,17 +43,11 @@ export async function getAdminDashboardData() {
       },
       include: {
         users: {
-          orderBy: { createdAt: "asc" }
+          orderBy: { createdAt: "asc" },
+          select: { name: true, email: true }
         },
         calculators: {
-          include: {
-            submissions: {
-              select: {
-                createdAt: true,
-                estimatedPrice: true
-              }
-            }
-          }
+          select: { id: true, isPublished: true, isArchived: true, updatedAt: true }
         }
       },
       orderBy: { createdAt: "desc" }
@@ -69,15 +63,39 @@ export async function getAdminDashboardData() {
     })
   ]);
 
+  // Aggregate submissions in SQL (grouped by calculator) rather than loading every row into memory.
+  const activeCalculatorIds = companies.flatMap((company) =>
+    company.calculators.filter((calculator) => !calculator.isArchived).map((calculator) => calculator.id)
+  );
+  const submissionStats = activeCalculatorIds.length
+    ? await prisma.quoteSubmission.groupBy({
+        by: ["calculatorId"],
+        where: { calculatorId: { in: activeCalculatorIds } },
+        _count: { _all: true },
+        _sum: { estimatedPrice: true },
+        _max: { createdAt: true }
+      })
+    : [];
+  const statsByCalculatorId = new Map(submissionStats.map((stat) => [stat.calculatorId, stat]));
+
   const accounts = companies.map((company) => {
     const owner = company.users[0] ?? null;
     const calculators = company.calculators.filter((calculator) => !calculator.isArchived);
     const publishedCount = calculators.filter((calculator) => calculator.isPublished).length;
-    const submissions = calculators.flatMap((calculator) => calculator.submissions);
-    const latestLeadAt = submissions.reduce<Date | null>((latest, submission) => {
-      if (!latest || submission.createdAt > latest) return submission.createdAt;
-      return latest;
-    }, null);
+
+    let leadCount = 0;
+    let pipelineValue = 0;
+    let latestLeadAt: Date | null = null;
+    for (const calculator of calculators) {
+      const stat = statsByCalculatorId.get(calculator.id);
+      if (!stat) continue;
+      leadCount += stat._count._all;
+      pipelineValue += Number(stat._sum.estimatedPrice ?? 0);
+      if (stat._max.createdAt && (!latestLeadAt || stat._max.createdAt > latestLeadAt)) {
+        latestLeadAt = stat._max.createdAt;
+      }
+    }
+
     const latestCalculatorAt = calculators.reduce<Date | null>((latest, calculator) => {
       if (!latest || calculator.updatedAt > latest) return calculator.updatedAt;
       return latest;
@@ -94,8 +112,8 @@ export async function getAdminDashboardData() {
       userCount: company.users.length,
       calculatorCount: calculators.length,
       publishedCount,
-      leadCount: submissions.length,
-      pipelineValue: submissions.reduce((sum, submission) => sum + Number(submission.estimatedPrice), 0),
+      leadCount,
+      pipelineValue,
       createdAt: company.createdAt,
       latestActivityAt
     };
@@ -119,17 +137,6 @@ function getAdminEmails() {
     .split(",")
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
-}
-
-function formatSubscriptionStatus(status: string | null | undefined) {
-  if (!status || status === "NONE") {
-    return "Not subscribed";
-  }
-
-  return status
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
 }
 
 function getPrimaryEmail(clerkUser: Awaited<ReturnType<typeof currentUser>>) {

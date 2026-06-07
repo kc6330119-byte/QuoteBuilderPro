@@ -26,9 +26,11 @@ export function CalculatorCard({ calculator }: { calculator: CalculatorListItem 
           <p className="text-coal/60">Avg quote</p>
           <p className="mt-1 font-semibold text-ink">{formatDollars(calculator.avgQuote)}</p>
         </div>
-        <div>
+        <div title="Leads divided by public views">
           <p className="text-coal/60">Convert</p>
-          <p className="mt-1 font-semibold text-ink">{calculator.conversionRate}%</p>
+          <p className="mt-1 font-semibold text-ink">
+            {calculator.conversionRate === null ? <>&mdash;</> : `${calculator.conversionRate}%`}
+          </p>
         </div>
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">

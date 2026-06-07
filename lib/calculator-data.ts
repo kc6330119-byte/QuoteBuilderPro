@@ -1,6 +1,7 @@
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentWorkspace } from "@/lib/auth";
-import { calculators as mockCalculators, leads as mockLeads } from "@/lib/mock-data";
+import { getCurrentPeriodStart, getLeadUsage, type LeadUsage } from "@/lib/entitlements";
 import {
   getConfigString,
   normalizeRuleType,
@@ -18,7 +19,7 @@ export type CalculatorListItem = {
   description: string;
   status: "DRAFT" | "PUBLISHED";
   leads: number;
-  conversionRate: number;
+  conversionRate: number | null;
   avgQuote: number;
   updatedAt: Date | string;
   questionCount: number;
@@ -72,7 +73,6 @@ export type QuoteCalculator = {
   publicId: string;
   description: string;
   isPublished: boolean;
-  source: "database" | "mock";
   branding: CalculatorBranding;
   questions: QuoteQuestion[];
   rules: QuotePricingRule[];
@@ -133,12 +133,27 @@ export async function getCalculatorListItems(): Promise<CalculatorListItem[]> {
       description: calculator.description ?? "No description yet.",
       status: calculator.isPublished ? "PUBLISHED" : "DRAFT",
       leads: calculator._count.submissions,
-      conversionRate: 0,
+      // Lifetime conversion = leads / public views; null until the calculator has been viewed.
+      conversionRate:
+        calculator.viewCount > 0 ? Math.round((calculator._count.submissions / calculator.viewCount) * 100) : null,
       avgQuote: avgQuoteByCalculatorId.get(calculator.id) ?? 0,
       updatedAt: calculator.updatedAt,
       questionCount: calculator._count.questions
     };
   });
+}
+
+// Increments the public view counter that drives conversion reporting. Best-effort and called via
+// `after()` from the public pages so it never blocks render or affects the cached calculator read.
+export async function recordCalculatorView(publicId: string) {
+  try {
+    await prisma.calculator.update({
+      where: { publicId },
+      data: { viewCount: { increment: 1 } }
+    });
+  } catch {
+    // View counting is non-critical analytics; never surface a failure to the visitor.
+  }
 }
 
 export async function getDashboardStats() {
@@ -265,7 +280,6 @@ export async function getQuoteCalculatorPreviewById(id: string): Promise<QuoteCa
     publicId: calculator.publicId,
     description: calculator.description || "Answer a few questions and receive a working estimate.",
     isPublished: calculator.isPublished,
-    source: "database",
     branding: calculator.branding,
     questions: calculator.questions,
     rules: calculator.rules.map(({ id: ruleId, questionId, ruleType, ruleConfig, amount }) => ({
@@ -279,126 +293,79 @@ export async function getQuoteCalculatorPreviewById(id: string): Promise<QuoteCa
 }
 
 export async function getQuoteCalculatorByPublicId(publicId: string, slug: string): Promise<QuoteCalculator | null> {
+  // Cache the calculator read so embedded calculators don't query Postgres on every host-page impression.
+  // Primary invalidation is the per-calculator tag (`revalidateTag("calculator:<publicId>")` from the
+  // mutation actions / Stripe webhook). The short `revalidate` is a safety net: even if a tag bust is
+  // missed, a publish/unpublish/branding change still propagates within a few minutes.
+  const loadCached = unstable_cache(
+    () => loadQuoteCalculatorByPublicId(publicId, slug),
+    ["quote-calculator", publicId, slug],
+    { tags: [`calculator:${publicId}`], revalidate: 300 }
+  );
+
+  return loadCached();
+}
+
+async function loadQuoteCalculatorByPublicId(publicId: string, slug: string): Promise<QuoteCalculator | null> {
   const calculator = await prisma.calculator.findUnique({
     where: { publicId },
     include: {
       questions: {
-        include: {
-          pricingRules: true
-        },
         orderBy: { sortOrder: "asc" }
       },
       pricingRules: true
     }
   });
 
-  if (calculator) {
-    if (calculator.slug !== slug || calculator.isArchived || !calculator.isPublished) {
-      return null;
-    }
-
-    const questions = calculator.questions.map((question) => ({
-      id: question.id,
-      label: question.label,
-      questionType: normalizeQuestionType(question.questionType),
-      options: normalizeOptions(question.options),
-      isRequired: question.isRequired,
-      visibilityCondition: normalizeVisibilityCondition(question.visibilityCondition),
-      sortOrder: question.sortOrder
-    }));
-    const questionMap = new Map(questions.map((question) => [question.id, question]));
-
-    return {
-      id: calculator.id,
-      name: calculator.name,
-      slug: calculator.slug,
-      publicId: calculator.publicId,
-      description: calculator.description ?? "Answer a few questions and receive a working estimate.",
-      isPublished: calculator.isPublished,
-      source: "database",
-      branding: normalizeBranding(calculator),
-      questions,
-      rules: calculator.pricingRules.map((rule) => ({
-        id: rule.id,
-        questionId: rule.questionId,
-        ruleType: getDisplayRuleType(rule.ruleType, questionMap.get(rule.questionId ?? "")?.questionType),
-        ruleConfig: rule.ruleConfig,
-        amount: Number(rule.amount)
-      }))
-    };
-  }
-
-  return null;
-}
-
-export async function getMockQuoteCalculatorBySlug(slug: string): Promise<QuoteCalculator | null> {
-  const mock = mockCalculators.find((item) => item.slug === slug && item.status === "PUBLISHED");
-  if (!mock) {
+  if (!calculator || calculator.slug !== slug || calculator.isArchived || !calculator.isPublished) {
     return null;
   }
 
+  const questions = calculator.questions.map((question) => ({
+    id: question.id,
+    label: question.label,
+    questionType: normalizeQuestionType(question.questionType),
+    options: normalizeOptions(question.options),
+    isRequired: question.isRequired,
+    visibilityCondition: normalizeVisibilityCondition(question.visibilityCondition),
+    sortOrder: question.sortOrder
+  }));
+  const questionMap = new Map(questions.map((question) => [question.id, question]));
+
   return {
-    id: mock.id,
-    name: mock.name,
-    slug: mock.slug,
-    publicId: `mock-${mock.slug}`,
-    description: mock.description,
-    isPublished: true,
-    source: "mock",
-    branding: {
-      displayName: mock.name,
-      logoUrl: null,
-      primaryColor: defaultBrandColor,
-      introText: mock.description,
-      footerText: null
-    },
-    questions: mock.fields.map((field, index) => ({
-      id: field.id,
-      label: field.label,
-      questionType:
-        field.type === "NUMBER" ? "NUMBER" : field.type === "BOOLEAN" ? "BOOLEAN" : field.type === "SELECT" ? "SELECT" : "TEXT",
-      options: field.options?.map((option) => option.label) ?? [],
-      isRequired: field.required ?? true,
-      visibilityCondition: null,
-      sortOrder: index
-    })),
-    rules: [
-      { ruleType: "base_price", amount: mock.basePrice / 100 },
-      ...mock.fields.flatMap((field) => {
-        if (field.type === "NUMBER") {
-          return [{ questionId: field.id, ruleType: "quantity_multiplier", amount: (field.pricePerUnit ?? 0) / 100 }];
-        }
-
-        if (field.type === "BOOLEAN") {
-          return [{ questionId: field.id, ruleType: "checkbox_addon", amount: (field.priceDelta ?? 0) / 100 }];
-        }
-
-        if (field.type === "SELECT") {
-          return (
-            field.options?.map((option) => ({
-              questionId: field.id,
-              ruleType: "option_price",
-              ruleConfig: { option: option.label },
-              amount: option.priceDelta / 100
-            })) ?? []
-          );
-        }
-
-        return [];
-      })
-    ]
+    id: calculator.id,
+    name: calculator.name,
+    slug: calculator.slug,
+    publicId: calculator.publicId,
+    description: calculator.description ?? "Answer a few questions and receive a working estimate.",
+    isPublished: calculator.isPublished,
+    branding: normalizeBranding(calculator),
+    questions,
+    rules: calculator.pricingRules.map((rule) => ({
+      id: rule.id,
+      questionId: rule.questionId,
+      ruleType: getDisplayRuleType(rule.ruleType, questionMap.get(rule.questionId ?? "")?.questionType),
+      ruleConfig: rule.ruleConfig,
+      amount: Number(rule.amount)
+    }))
   };
 }
 
-export function getMockDashboardFallback() {
-  const pipeline = mockLeads.reduce((sum, lead) => sum + lead.totalCents, 0);
+// Monthly lead usage for the current workspace, used to surface the over-limit upgrade nudge on the
+// dashboard. Leads are always stored (store + nudge); this only drives the banner.
+export async function getWorkspaceLeadUsage(): Promise<LeadUsage> {
+  const workspace = await getCurrentWorkspace();
+  const [company, usedThisPeriod] = await Promise.all([
+    prisma.company.findUnique({ where: { id: workspace.companyId }, select: { planTier: true } }),
+    prisma.quoteSubmission.count({
+      where: {
+        calculator: { companyId: workspace.companyId },
+        createdAt: { gte: getCurrentPeriodStart() }
+      }
+    })
+  ]);
 
-  return {
-    calculatorCount: mockCalculators.length,
-    publishedCount: mockCalculators.filter((calculator) => calculator.status === "PUBLISHED").length,
-    leadCount: mockLeads.length,
-    pipeline: pipeline / 100
-  };
+  return getLeadUsage({ planTier: company?.planTier, usedThisPeriod });
 }
 
 function normalizeQuestionType(questionType: string): EngineQuestionType {

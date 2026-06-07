@@ -1,5 +1,8 @@
 [build]
-  command = "npm run build"
+  # Apply pending Prisma migrations before building. Requires DIRECT_URL in the Netlify env. If migrations
+  # fail, the build fails and the previous (working) deploy stays live — so a deploy never ships code that
+  # is ahead of the database schema.
+  command = "npx prisma migrate deploy && npm run build"
   publish = ".next"
 
 [build.environment]
