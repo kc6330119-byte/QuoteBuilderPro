@@ -101,6 +101,30 @@ export type CalculatorEditor = {
   rules: Array<QuotePricingRule & { label: string; configLabel: string; option: string }>;
 };
 
+// Payload the live editor workspace sends to saveCalculatorWorkspaceAction. `savedId` is the DB id for
+// existing questions (null for new ones); `clientId` is stable within the session and is how questions
+// reference each other for visibility before new ones have real ids.
+export type WorkspaceSaveQuestion = {
+  clientId: string;
+  savedId: string | null;
+  label: string;
+  questionType: EngineQuestionType;
+  isRequired: boolean;
+  options: { label: string; price: number }[];
+  unitPrice: number;
+  addonPrice: number;
+  visibility: { questionClientId: string; value: string } | null;
+};
+
+export type WorkspaceSaveInput = {
+  calculatorId: string;
+  basePrice: number;
+  deletedIds: string[];
+  questions: WorkspaceSaveQuestion[];
+};
+
+export type WorkspaceSaveResult = { ok: false } | { ok: true; basePrice: number; questions: EditorQuestion[] };
+
 const defaultBrandColor = "#2563eb";
 
 export async function getCalculatorListItems(): Promise<CalculatorListItem[]> {

@@ -6,7 +6,15 @@ import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { getCurrentWorkspace } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getQuoteCalculatorByPublicId, type LeadStatus, type QuoteQuestion } from "@/lib/calculator-data";
+import {
+  getCalculatorEditorById,
+  getQuoteCalculatorByPublicId,
+  type LeadStatus,
+  type QuoteQuestion,
+  type WorkspaceSaveInput,
+  type WorkspaceSaveQuestion,
+  type WorkspaceSaveResult
+} from "@/lib/calculator-data";
 import { checkCanCreateCalculator, checkCanPublish } from "@/lib/entitlements";
 import { legalLastUpdated } from "@/lib/legal-content";
 import { buildPublicEmbedPath, buildPublicQuotePath } from "@/lib/public-calculator-paths";
@@ -500,6 +508,88 @@ export async function saveCalculatorQuestionAction(formData: FormData) {
   redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
+// Save-all for the live editor workspace: reconciles base price + the entire question set (create new,
+// update existing, delete removed, set order, rebuild each question's pricing rows) in one transaction,
+// resolving client ids -> real ids so visibility conditions can reference brand-new questions. Returns the
+// fresh editor model so the client can resync (real ids, normalized pricing). Public rendering is unchanged.
+export async function saveCalculatorWorkspaceAction(input: WorkspaceSaveInput): Promise<WorkspaceSaveResult> {
+  const workspace = await getCurrentWorkspace();
+  const calculator = await getWorkspaceCalculator(input.calculatorId, workspace.companyId);
+
+  if (!calculator) {
+    return { ok: false };
+  }
+
+  const idByClientId = new Map<string, string>();
+
+  await prisma.$transaction(async (tx) => {
+    // Remove explicitly-deleted questions (rules first for the FK), scoped to this calculator.
+    if (input.deletedIds.length > 0) {
+      await tx.pricingRule.deleteMany({ where: { calculatorId: calculator.id, questionId: { in: input.deletedIds } } });
+      await tx.question.deleteMany({ where: { calculatorId: calculator.id, id: { in: input.deletedIds } } });
+    }
+
+    // Ensure every question exists and map clientId -> real id (so visibility can reference new questions).
+    for (const question of input.questions) {
+      if (question.savedId) {
+        idByClientId.set(question.clientId, question.savedId);
+      } else {
+        const created = await tx.question.create({
+          data: {
+            calculatorId: calculator.id,
+            label: question.label || "Untitled question",
+            questionType: question.questionType,
+            options: question.questionType === "SELECT" ? optionLabelsFrom(question) : Prisma.DbNull,
+            isRequired: question.isRequired,
+            sortOrder: 0,
+            visibilityCondition: Prisma.DbNull
+          }
+        });
+        idByClientId.set(question.clientId, created.id);
+      }
+    }
+
+    // Write final fields + order + translated visibility, and rebuild pricing for each question.
+    for (let index = 0; index < input.questions.length; index += 1) {
+      const question = input.questions[index];
+      const questionId = idByClientId.get(question.clientId);
+      if (!questionId) continue;
+
+      const parentId = question.visibility ? idByClientId.get(question.visibility.questionClientId) ?? null : null;
+      const visibilityCondition = parentId ? buildVisibilityCondition(parentId, question.visibility?.value ?? null, questionId) : null;
+
+      await tx.question.update({
+        where: { id: questionId },
+        data: {
+          label: question.label || "Untitled question",
+          questionType: question.questionType,
+          options: question.questionType === "SELECT" ? optionLabelsFrom(question) : Prisma.DbNull,
+          isRequired: question.isRequired,
+          sortOrder: index,
+          visibilityCondition: visibilityCondition ?? Prisma.DbNull
+        }
+      });
+
+      await tx.pricingRule.deleteMany({ where: { calculatorId: calculator.id, questionId } });
+      const rules = buildPricingRulesFromQuestion(calculator.id, questionId, question);
+      if (rules.length > 0) {
+        await tx.pricingRule.createMany({ data: rules });
+      }
+    }
+
+    // Exactly one base-price rule (questionId null).
+    await tx.pricingRule.deleteMany({ where: { calculatorId: calculator.id, questionId: null } });
+    await tx.pricingRule.create({
+      data: { calculatorId: calculator.id, ruleType: "base_price", amount: input.basePrice.toFixed(2), sortOrder: 0 }
+    });
+  });
+
+  revalidateCalculator(calculator.id, calculator.publicId);
+
+  const fresh = await getCalculatorEditorById(calculator.id);
+  return { ok: true, basePrice: fresh?.basePrice ?? 0, questions: fresh?.questions ?? [] };
+}
+
 export async function updateCalculatorPublishStatusAction(formData: FormData) {
   const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
@@ -919,6 +1009,47 @@ function parseOptionLabels(formData: FormData) {
     .getAll("optionLabel")
     .map((value) => String(value).trim())
     .filter(Boolean);
+}
+
+function optionLabelsFrom(question: WorkspaceSaveQuestion) {
+  return question.options.map((option) => option.label.trim()).filter(Boolean);
+}
+
+// Pricing rows for a workspace question (object form, as opposed to buildQuestionPricingRules' FormData form).
+function buildPricingRulesFromQuestion(
+  calculatorId: string,
+  questionId: string,
+  question: WorkspaceSaveQuestion
+): Prisma.PricingRuleCreateManyInput[] {
+  if (question.questionType === "SELECT") {
+    return question.options
+      .map((option, index) => ({ label: option.label.trim(), price: Number(option.price) || 0, index }))
+      .filter((option) => option.label && option.price > 0)
+      .map((option) => ({
+        calculatorId,
+        questionId,
+        ruleType: "option_price",
+        ruleConfig: { questionId, option: option.label },
+        amount: option.price.toFixed(2),
+        sortOrder: option.index
+      }));
+  }
+
+  if (question.questionType === "NUMBER") {
+    const amount = Number(question.unitPrice) || 0;
+    return amount > 0
+      ? [{ calculatorId, questionId, ruleType: "quantity_multiplier", ruleConfig: { questionId }, amount: amount.toFixed(2), sortOrder: 0 }]
+      : [];
+  }
+
+  if (question.questionType === "BOOLEAN") {
+    const amount = Number(question.addonPrice) || 0;
+    return amount > 0
+      ? [{ calculatorId, questionId, ruleType: "checkbox_addon", ruleConfig: { questionId }, amount: amount.toFixed(2), sortOrder: 0 }]
+      : [];
+  }
+
+  return [];
 }
 
 // Turns a question's inline pricing inputs into the PricingRule rows that back it. Option/unit/add-on
