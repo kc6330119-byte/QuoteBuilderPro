@@ -16,7 +16,7 @@ export default async function TemplatesPage({
     <div className="space-y-8">
       <PageHeader
         title="Templates"
-        description="Pick a starter calculator, then customize questions and pricing rules in the editor before publishing."
+        description="Pick a starter calculator, then customize the questions and pricing in the editor before publishing."
         actions={
           <ButtonLink href="/dashboard/calculators/new" variant="outline">
             <FilePlus2 className="h-4 w-4" /> Build from scratch
@@ -37,8 +37,8 @@ export default async function TemplatesPage({
             <h2 className="mt-2 font-display text-2xl font-bold text-ink">Fast starts, not locked-in presets.</h2>
           </div>
           <p className="text-sm leading-6 text-coal/70">
-            These templates intentionally start light. Each one creates a draft calculator with a base pricing rule, so
-            you can shape the actual questions and quote math around the customer’s business.
+            These templates intentionally start light. Each one creates a draft calculator with a starting price, so
+            you can shape the actual questions and pricing around the customer’s business.
           </p>
         </div>
       </section>

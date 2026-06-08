@@ -13,9 +13,9 @@ export const howToUseSteps = [
   },
   {
     step: "03",
-    title: "Add pricing rules in layers",
-    body: "Begin with a base price, then add quantity multipliers, selected-option prices, and checkbox add-ons. This makes estimates easier to audit when a lead comes in.",
-    tip: "Keep rule names and option labels consistent so lead answers are easy to read later."
+    title: "Set prices right on each question",
+    body: "Set one starting price, then price each answer inline: a price beside each choice, a price per unit for Number questions, and an add-on amount for Yes / No questions. The live preview shows the running total as you go.",
+    tip: "Anything in green sets a price. Leave a price blank when an answer shouldn't change the estimate."
   },
   {
     step: "04",
@@ -40,8 +40,9 @@ export const howToUseSteps = [
 export const howToUseTips = [
   "Use estimates as a qualification range, not a final contract price.",
   "Make only the most important fields required so customers finish the form.",
-  "Put high-impact add-ons in checkbox fields so customers can self-select upgrades.",
+  "Put high-impact upgrades in Yes / No questions so customers can self-select add-ons.",
+  "Drag a question by its handle to reorder it — customers see questions in that order.",
   "Create template calculators for repeatable service lines before building edge cases.",
   "Review submitted answers weekly to discover which questions confuse customers.",
-  "For early customer tests, keep pricing simple enough that the business owner can explain every rule."
+  "For early customer tests, keep pricing simple enough that the business owner can explain every price."
 ];

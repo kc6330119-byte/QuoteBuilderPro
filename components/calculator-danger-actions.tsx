@@ -42,7 +42,7 @@ export function CalculatorDangerActions({
           onSubmit={(event) => {
             if (
               !window.confirm(
-                `Permanently delete "${calculatorName}"? This also deletes its questions, pricing rules, and submitted leads.`
+                `Permanently delete "${calculatorName}"? This also deletes its questions, pricing, and submitted leads.`
               )
             ) {
               event.preventDefault();

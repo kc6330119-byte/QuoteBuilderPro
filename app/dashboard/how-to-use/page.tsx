@@ -86,7 +86,7 @@ export default function DashboardHowToUsePage() {
             <h2 className="mt-3 font-display text-3xl font-bold leading-tight">Build the first version like a sales conversation.</h2>
             <p className="mt-4 text-sm leading-6 text-white/70">
               Start with the question a real customer would answer first, branch into the details only when needed, and
-              use pricing rules to create a helpful estimate range.
+              price each answer to create a helpful estimate range.
             </p>
             <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.08] p-4">
               <div className="flex items-start gap-3">
@@ -140,7 +140,7 @@ export default function DashboardHowToUsePage() {
           <div className="mt-4 space-y-3 text-sm leading-6 text-coal/70">
             <p>Create one home remodeling calculator and one rolloff rental calculator from templates.</p>
             <p>Ask him to create a real quote from each and point out where the questions feel unclear.</p>
-            <p>Use those notes to decide whether branching, pricing rules, or templates need the next improvement.</p>
+            <p>Use those notes to decide whether branching, pricing, or templates need the next improvement.</p>
           </div>
         </aside>
       </section>

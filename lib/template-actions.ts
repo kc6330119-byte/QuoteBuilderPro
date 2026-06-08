@@ -33,7 +33,7 @@ export async function useTemplateAction(formData: FormData) {
           slug,
           publicId,
           businessType: template.businessType,
-          description: `${template.description} Customize questions and pricing rules before publishing.`,
+          description: `${template.description} Customize the questions and pricing before publishing.`,
           isPublished: false
         }
       });

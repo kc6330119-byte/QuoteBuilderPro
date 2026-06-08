@@ -26,8 +26,8 @@ export function CalculatorBuilderGuide({ calculator }: { calculator: CalculatorE
             </div>
             <h2 className="mt-3 font-display text-2xl font-black text-ink">Build the customer path first</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-coal/70">
-              Start with the customer&apos;s first decision, add follow-up questions only when they matter, then attach
-              pricing rules to the answers that change the estimate.
+              Start with the customer&apos;s first decision, add follow-up questions only when they matter, then set a
+              price on the answers that change the estimate. The live preview updates as you build.
             </p>
           </div>
           <ButtonLink href={`/preview/${calculator.id}`} variant="outline">
@@ -79,13 +79,13 @@ export function CalculatorBuilderGuide({ calculator }: { calculator: CalculatorE
               Questions: <strong>{calculator.questions.length}</strong>
             </p>
             <p>
-              Branch questions: <strong>{branchCount}</strong>
+              Conditional questions: <strong>{branchCount}</strong>
             </p>
             <p>
-              Base price rules: <strong>{baseRules.length}</strong>
+              Starting price: <strong>{baseRules.length > 0 ? formatDollars(calculator.basePrice) : "Not set"}</strong>
             </p>
             <p>
-              Answer-based rules: <strong>{pricedRules.length}</strong>
+              Priced answers: <strong>{pricedRules.length}</strong>
             </p>
           </div>
         </aside>
@@ -96,17 +96,17 @@ export function CalculatorBuilderGuide({ calculator }: { calculator: CalculatorE
           <GuideRecipe
             icon={<ClipboardList className="h-4 w-4" />}
             title="1. Ask"
-            body="Use Select for choices, Number for quantities, and Checkbox for yes/no add-ons."
+            body="Use Choice for a list of options, Number for quantities, and Yes / No for add-ons."
           />
           <GuideRecipe
             icon={<GitBranch className="h-4 w-4" />}
             title="2. Branch"
-            body="Show kitchen details only when the customer picked Kitchen. Same idea for bathroom, garage, or dumpsters."
+            body="Use &ldquo;Only show when&rdquo; so kitchen details appear only when the customer picks Kitchen — same for bath, garage, or dumpsters."
           />
           <GuideRecipe
             icon={<ListChecks className="h-4 w-4" />}
             title="3. Price"
-            body={`Base price starts the quote. Option and checkbox rules add fixed amounts. Quantity rules multiply, like days x ${formatDollars(125)}.`}
+            body={`Set a starting price, then price each choice and add-on inline. Number questions charge per unit, like days × ${formatDollars(125)}.`}
           />
         </div>
       </div>
@@ -140,12 +140,12 @@ function getChecklist(calculator: CalculatorEditorData, baseRuleCount: number, p
     },
     {
       label: "Starting price set",
-      detail: "Use a base price when every quote should start with a minimum.",
+      detail: "Set a starting price when every quote should begin with a minimum.",
       complete: baseRuleCount > 0
     },
     {
       label: "Answers affect price",
-      detail: "Add option, checkbox, or quantity rules for the answers that change cost.",
+      detail: "Give each choice, add-on, or quantity its own price so answers change the estimate.",
       complete: pricedRuleCount > 0
     },
     {
@@ -158,15 +158,15 @@ function getChecklist(calculator: CalculatorEditorData, baseRuleCount: number, p
 
 function getNextStep(calculator: CalculatorEditorData, baseRuleCount: number, pricedRuleCount: number) {
   if (calculator.questions.length === 0) {
-    return 'Add a first Select question such as "What service do you need?"';
+    return 'Add a first Choice question such as "What service do you need?"';
   }
 
   if (baseRuleCount === 0) {
-    return "Add a Base price rule if every estimate should start with a minimum charge.";
+    return "Set a Starting price if every estimate should begin with a minimum charge.";
   }
 
   if (pricedRuleCount === 0) {
-    return "Add pricing rules for the answers that should increase the estimate.";
+    return "Set a price on the answers that should increase the estimate.";
   }
 
   if (!calculator.isPublished) {

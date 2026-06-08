@@ -490,7 +490,7 @@ export default function LandingPage() {
           {[
             {
               title: "Create in minutes",
-              body: "Start from a service template, tune questions, and set pricing rules.",
+              body: "Start from a service template, tune the questions, and price each answer.",
               icon: Clock3
             },
             {
@@ -527,7 +527,7 @@ export default function LandingPage() {
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#bfdbfe]">Ready to capture better leads?</p>
               <h2 className="mt-2 font-display text-3xl font-black">Start with a template, then publish your quote flow.</h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-white/70">
-                Choose a starter calculator, customize the questions and pricing rules, preview the customer experience,
+                Choose a starter calculator, customize the questions and pricing, preview the customer experience,
                 then share the quote page or embed it on your website.
               </p>
             </div>

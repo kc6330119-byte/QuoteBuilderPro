@@ -18,7 +18,7 @@ export default async function CalculatorDetailPage({ params }: { params: Promise
     <div className="space-y-8">
       <PageHeader
         title="Calculator editor"
-        description="Add questions and pricing rules that power the public quote calculation engine."
+        description="Build the questions and set the prices that power your customer's instant estimate."
         actions={
           <ButtonLink href="/dashboard/calculators" variant="outline">
             Back to calculators
