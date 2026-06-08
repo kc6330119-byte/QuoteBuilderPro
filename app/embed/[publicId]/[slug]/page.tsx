@@ -77,7 +77,17 @@ export default async function SecureEmbedQuotePage({
             returnUrl: safeReturnUrl
           })}
         />
-        <p className="mt-4 text-center text-xs font-semibold text-coal/45">Powered by QuoteBuilder Pro</p>
+        <p className="mt-4 text-center text-xs font-semibold text-coal/45">
+          Powered by{" "}
+          <a
+            href="/?utm_source=embed&utm_medium=powered_by"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-coal/60 underline-offset-2 transition hover:text-teal-700 hover:underline"
+          >
+            QuoteBuilder Pro
+          </a>
+        </p>
       </section>
     </main>
   );
