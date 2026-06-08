@@ -11,6 +11,9 @@ export type BillingPlan = {
   description: string;
   features: string[];
   highlighted?: boolean;
+  // When true (and the subscription is active), the customer-facing "Powered by QuoteBuilder Pro" branding
+  // is hidden on the quote/embed pages. Keep this on the top tier so lower tiers keep the growth-loop link.
+  whiteLabel?: boolean;
 };
 
 // The implicit tier for every company until they subscribe (Company.planTier defaults to "FREE").
@@ -61,7 +64,13 @@ export const billingPlans: BillingPlan[] = [
     leadLimit: 2000,
     stripePriceId: process.env.STRIPE_AGENCY_PRICE_ID,
     description: "For agencies, multi-location teams, or higher-volume operators.",
-    features: ["20 published calculators", "2,000 leads per month", "Client-ready embed workflows", "Priority setup support"]
+    whiteLabel: true,
+    features: [
+      "20 published calculators",
+      "2,000 leads per month",
+      "White-label (remove QuoteBuilder branding)",
+      "Priority setup support"
+    ]
   }
 ];
 
@@ -81,6 +90,11 @@ export function getBillingPlanLabel(tier: string | null | undefined) {
 
 export function isPaidSubscriptionStatus(status: string | null | undefined) {
   return status === "active" || status === "trialing";
+}
+
+// Whether a company may hide the "Powered by QuoteBuilder Pro" branding (white-label plan + active sub).
+export function planAllowsWhiteLabel(tier: string | null | undefined, status: string | null | undefined) {
+  return getBillingPlanByTier(tier)?.whiteLabel === true && isPaidSubscriptionStatus(status);
 }
 
 // Turns a Stripe status (e.g. "past_due") into a human label. `emptyLabel` covers the no-subscription case.

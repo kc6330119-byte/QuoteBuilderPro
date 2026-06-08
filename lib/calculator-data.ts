@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getCurrentWorkspace } from "@/lib/auth";
 import { getCurrentPeriodStart, getLeadUsage, type LeadUsage } from "@/lib/entitlements";
+import { planAllowsWhiteLabel } from "@/lib/plans";
 import {
   getConfigString,
   normalizeRuleType,
@@ -73,6 +74,7 @@ export type QuoteCalculator = {
   publicId: string;
   description: string;
   isPublished: boolean;
+  hideBranding: boolean;
   branding: CalculatorBranding;
   questions: QuoteQuestion[];
   rules: QuotePricingRule[];
@@ -343,6 +345,7 @@ export async function getQuoteCalculatorPreviewById(id: string): Promise<QuoteCa
     publicId: calculator.publicId,
     description: calculator.description || "Answer a few questions and receive a working estimate.",
     isPublished: calculator.isPublished,
+    hideBranding: false,
     branding: calculator.branding,
     questions: calculator.questions,
     rules: calculator.rules.map(({ id: ruleId, questionId, ruleType, ruleConfig, amount }) => ({
@@ -376,7 +379,8 @@ async function loadQuoteCalculatorByPublicId(publicId: string, slug: string): Pr
       questions: {
         orderBy: { sortOrder: "asc" }
       },
-      pricingRules: true
+      pricingRules: true,
+      company: { select: { planTier: true, subscriptionStatus: true } }
     }
   });
 
@@ -402,6 +406,7 @@ async function loadQuoteCalculatorByPublicId(publicId: string, slug: string): Pr
     publicId: calculator.publicId,
     description: calculator.description ?? "Answer a few questions and receive a working estimate.",
     isPublished: calculator.isPublished,
+    hideBranding: planAllowsWhiteLabel(calculator.company?.planTier, calculator.company?.subscriptionStatus),
     branding: normalizeBranding(calculator),
     questions,
     rules: calculator.pricingRules.map((rule) => ({

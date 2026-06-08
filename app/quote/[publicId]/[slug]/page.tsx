@@ -43,9 +43,14 @@ export default async function SecureQuotePage({
       <header className="border-b border-line bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
           <QuoteBrandMark branding={brand} />
-          <Link href="/" className="hidden items-center gap-2 text-sm font-semibold text-coal/55 transition hover:text-ink sm:flex">
-            <ArrowLeft className="h-4 w-4" /> Powered by QuoteBuilder Pro
-          </Link>
+          {calculator.hideBranding ? null : (
+            <Link
+              href="/?utm_source=quote&utm_medium=powered_by"
+              className="hidden items-center gap-2 text-sm font-semibold text-coal/55 transition hover:text-ink sm:flex"
+            >
+              <ArrowLeft className="h-4 w-4" /> Powered by QuoteBuilder Pro
+            </Link>
+          )}
         </div>
       </header>
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
