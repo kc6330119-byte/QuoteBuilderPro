@@ -364,6 +364,142 @@ export async function deletePricingRuleAction(formData: FormData) {
   redirect(`/dashboard/calculators/${calculatorId}`);
 }
 
+// ---------------------------------------------------------------------------
+// Inline-pricing editor actions. Pricing now lives on each question card, so these reconcile the
+// underlying PricingRule rows (delete + recreate per question) from the inline form inputs. The public/
+// preview engine still reads those rows, so its behavior is unchanged.
+// ---------------------------------------------------------------------------
+
+export async function updateCalculatorBasePriceAction(formData: FormData) {
+  const workspace = await getCurrentWorkspace();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const basePrice = currencyString(formData.get("basePrice"));
+
+  if (!calculatorId) {
+    redirect("/dashboard/calculators");
+  }
+
+  const calculator = await getWorkspaceCalculator(calculatorId, workspace.companyId);
+  if (!calculator) {
+    redirect("/dashboard/calculators");
+  }
+
+  // Exactly one base-price rule (questionId null) per calculator.
+  await prisma.$transaction([
+    prisma.pricingRule.deleteMany({ where: { calculatorId: calculator.id, questionId: null } }),
+    prisma.pricingRule.create({
+      data: { calculatorId: calculator.id, ruleType: "base_price", amount: basePrice, sortOrder: 0 }
+    })
+  ]);
+
+  revalidateCalculator(calculator.id, calculator.publicId);
+  redirect(`/dashboard/calculators/${calculator.id}`);
+}
+
+export async function addCalculatorQuestionAction(formData: FormData) {
+  const workspace = await getCurrentWorkspace();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const label = requiredString(formData, "label", "");
+  const questionType = normalizeQuestionType(requiredString(formData, "questionType", "SELECT"));
+  const isRequired = formData.get("isRequired") === "on";
+  const visibilityCondition = buildVisibilityCondition(
+    optionalString(formData, "visibilityQuestionId"),
+    optionalString(formData, "visibilityValue")
+  );
+  const optionLabels = parseOptionLabels(formData);
+
+  if (!calculatorId || !label) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  const calculator = await getWorkspaceCalculator(calculatorId, workspace.companyId);
+  if (!calculator) {
+    redirect("/dashboard/calculators");
+  }
+
+  const sortOrder = await prisma.question.count({ where: { calculatorId: calculator.id } });
+
+  await prisma.$transaction(async (tx) => {
+    const question = await tx.question.create({
+      data: {
+        calculatorId: calculator.id,
+        label,
+        questionType,
+        options: questionType === "SELECT" ? optionLabels : Prisma.DbNull,
+        visibilityCondition: visibilityCondition ?? Prisma.DbNull,
+        isRequired,
+        sortOrder
+      }
+    });
+
+    const pricingRules = buildQuestionPricingRules(calculator.id, question.id, questionType, formData);
+    if (pricingRules.length > 0) {
+      await tx.pricingRule.createMany({ data: pricingRules });
+    }
+  });
+
+  revalidateCalculator(calculator.id, calculator.publicId);
+  redirect(`/dashboard/calculators/${calculatorId}`);
+}
+
+export async function saveCalculatorQuestionAction(formData: FormData) {
+  const workspace = await getCurrentWorkspace();
+  const calculatorId = requiredString(formData, "calculatorId", "");
+  const questionId = requiredString(formData, "questionId", "");
+  const label = requiredString(formData, "label", "");
+  const questionType = normalizeQuestionType(requiredString(formData, "questionType", "SELECT"));
+  const isRequired = formData.get("isRequired") === "on";
+  const visibilityCondition = buildVisibilityCondition(
+    optionalString(formData, "visibilityQuestionId"),
+    optionalString(formData, "visibilityValue"),
+    questionId
+  );
+  const optionLabels = parseOptionLabels(formData);
+
+  if (!calculatorId || !questionId || !label) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  const question = await prisma.question.findFirst({
+    where: {
+      id: questionId,
+      calculatorId,
+      calculator: {
+        companyId: workspace.companyId,
+        isArchived: false
+      }
+    },
+    select: { id: true, calculator: { select: { publicId: true } } }
+  });
+
+  if (!question) {
+    redirect(`/dashboard/calculators/${calculatorId}`);
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.question.update({
+      where: { id: question.id },
+      data: {
+        label,
+        questionType,
+        options: questionType === "SELECT" ? optionLabels : Prisma.DbNull,
+        visibilityCondition: visibilityCondition ?? Prisma.DbNull,
+        isRequired
+      }
+    });
+
+    // Rebuild this question's pricing rows from the inline inputs (base-price row, questionId null, untouched).
+    await tx.pricingRule.deleteMany({ where: { calculatorId, questionId: question.id } });
+    const pricingRules = buildQuestionPricingRules(calculatorId, question.id, questionType, formData);
+    if (pricingRules.length > 0) {
+      await tx.pricingRule.createMany({ data: pricingRules });
+    }
+  });
+
+  revalidateCalculator(calculatorId, question.calculator.publicId);
+  redirect(`/dashboard/calculators/${calculatorId}`);
+}
+
 export async function updateCalculatorPublishStatusAction(formData: FormData) {
   const workspace = await getCurrentWorkspace();
   const calculatorId = requiredString(formData, "calculatorId", "");
@@ -776,6 +912,61 @@ function parseOptionList(value: FormDataEntryValue | null) {
 function currencyString(value: FormDataEntryValue | null) {
   const numberValue = Number(String(value ?? "0").replace(/[^0-9.-]/g, ""));
   return Number.isFinite(numberValue) ? numberValue.toFixed(2) : "0.00";
+}
+
+function parseOptionLabels(formData: FormData) {
+  return formData
+    .getAll("optionLabel")
+    .map((value) => String(value).trim())
+    .filter(Boolean);
+}
+
+// Turns a question's inline pricing inputs into the PricingRule rows that back it. Option/unit/add-on
+// prices of 0 produce no rule (no effect on the quote). Index alignment between optionLabel/optionPrice
+// is preserved because the editor renders each pair together in DOM order.
+function buildQuestionPricingRules(
+  calculatorId: string,
+  questionId: string,
+  questionType: QuoteQuestion["questionType"],
+  formData: FormData
+): Prisma.PricingRuleCreateManyInput[] {
+  if (questionType === "SELECT") {
+    const labels = formData.getAll("optionLabel").map((value) => String(value).trim());
+    const prices = formData.getAll("optionPrice");
+    const rules: Prisma.PricingRuleCreateManyInput[] = [];
+
+    labels.forEach((label, index) => {
+      const amount = currencyString(prices[index] ?? null);
+      if (label && Number(amount) > 0) {
+        rules.push({
+          calculatorId,
+          questionId,
+          ruleType: "option_price",
+          ruleConfig: { questionId, option: label },
+          amount,
+          sortOrder: index
+        });
+      }
+    });
+
+    return rules;
+  }
+
+  if (questionType === "NUMBER") {
+    const amount = currencyString(formData.get("unitPrice"));
+    return Number(amount) > 0
+      ? [{ calculatorId, questionId, ruleType: "quantity_multiplier", ruleConfig: { questionId }, amount, sortOrder: 0 }]
+      : [];
+  }
+
+  if (questionType === "BOOLEAN") {
+    const amount = currencyString(formData.get("addonPrice"));
+    return Number(amount) > 0
+      ? [{ calculatorId, questionId, ruleType: "checkbox_addon", ruleConfig: { questionId }, amount, sortOrder: 0 }]
+      : [];
+  }
+
+  return [];
 }
 
 function integerValue(value: FormDataEntryValue | null) {

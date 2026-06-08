@@ -78,6 +78,16 @@ export type QuoteCalculator = {
   rules: QuotePricingRule[];
 };
 
+export type EditorPricedOption = { label: string; price: number };
+
+// A question plus the pricing that lives inline with it (the redesigned editor merges pricing into
+// questions). The flat `rules` array on CalculatorEditor remains the source the preview/public engine reads.
+export type EditorQuestion = QuoteQuestion & {
+  pricedOptions: EditorPricedOption[]; // SELECT: each choice and what it adds
+  unitPrice: number; // NUMBER: amount per unit the customer enters
+  addonPrice: number; // BOOLEAN: amount added when checked
+};
+
 export type CalculatorEditor = {
   id: string;
   name: string;
@@ -85,8 +95,9 @@ export type CalculatorEditor = {
   publicId: string;
   description: string;
   isPublished: boolean;
+  basePrice: number;
   branding: CalculatorBranding;
-  questions: QuoteQuestion[];
+  questions: EditorQuestion[];
   rules: Array<QuotePricingRule & { label: string; configLabel: string; option: string }>;
 };
 
@@ -228,7 +239,7 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
     return null;
   }
 
-  const questions = calculator.questions.map((question) => ({
+  const baseQuestions = calculator.questions.map((question) => ({
     id: question.id,
     label: question.label,
     questionType: normalizeQuestionType(question.questionType),
@@ -237,7 +248,48 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
     visibilityCondition: normalizeVisibilityCondition(question.visibilityCondition),
     sortOrder: question.sortOrder
   }));
-  const questionMap = new Map(questions.map((question) => [question.id, question]));
+  const questionMap = new Map(baseQuestions.map((question) => [question.id, question]));
+
+  const rules = calculator.pricingRules.map((rule) => {
+    const ruleType = getDisplayRuleType(rule.ruleType, questionMap.get(rule.questionId ?? "")?.questionType);
+    const option = getConfigString(rule.ruleConfig, "option");
+
+    return {
+      id: rule.id,
+      questionId: rule.questionId,
+      ruleType,
+      ruleConfig: rule.ruleConfig,
+      amount: Number(rule.amount),
+      label: getRuleLabel(ruleType),
+      option: option ?? "",
+      configLabel: option ? `Option: ${option}` : questionMap.get(rule.questionId ?? "")?.label ?? "No question"
+    };
+  });
+
+  // Derive the inline pricing each question card shows, from the flat rule rows.
+  const basePrice = rules.find((rule) => rule.ruleType === "base_price")?.amount ?? 0;
+  const questions: EditorQuestion[] = baseQuestions.map((question) => {
+    const questionRules = rules.filter((rule) => rule.questionId === question.id);
+
+    return {
+      ...question,
+      pricedOptions:
+        question.questionType === "SELECT"
+          ? question.options.map((label) => ({
+              label,
+              price: questionRules.find((rule) => rule.ruleType === "option_price" && rule.option === label)?.amount ?? 0
+            }))
+          : [],
+      unitPrice:
+        question.questionType === "NUMBER"
+          ? questionRules.find((rule) => rule.ruleType === "quantity_multiplier")?.amount ?? 0
+          : 0,
+      addonPrice:
+        question.questionType === "BOOLEAN"
+          ? questionRules.find((rule) => rule.ruleType === "checkbox_addon")?.amount ?? 0
+          : 0
+    };
+  });
 
   return {
     id: calculator.id,
@@ -246,23 +298,10 @@ export async function getCalculatorEditorById(id: string): Promise<CalculatorEdi
     publicId: calculator.publicId,
     description: calculator.description ?? "",
     isPublished: calculator.isPublished,
+    basePrice,
     branding: normalizeBranding(calculator),
     questions,
-    rules: calculator.pricingRules.map((rule) => {
-      const ruleType = getDisplayRuleType(rule.ruleType, questionMap.get(rule.questionId ?? "")?.questionType);
-      const option = getConfigString(rule.ruleConfig, "option");
-
-      return {
-        id: rule.id,
-        questionId: rule.questionId,
-        ruleType,
-        ruleConfig: rule.ruleConfig,
-        amount: Number(rule.amount),
-        label: getRuleLabel(ruleType),
-        option: option ?? "",
-        configLabel: option ? `Option: ${option}` : questionMap.get(rule.questionId ?? "")?.label ?? "No question"
-      };
-    })
+    rules
   };
 }
 
