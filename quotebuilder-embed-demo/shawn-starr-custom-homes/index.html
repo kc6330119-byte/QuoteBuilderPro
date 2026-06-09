@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Shawn Starr Custom Homes | Instant Kitchen Remodel Estimate (Demo)</title>
+    <meta
+      name="description"
+      content="A sample page prepared for Shawn Starr Custom Homes showing how a QuoteBuilder Pro kitchen-remodel estimator could be embedded on their website."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Montserrat:wght@500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --navy: #23408f;
+        --navy-dark: #1c2758;
+        --navy-deep: #141d40;
+        --gold: #c8a24a;
+        --gold-soft: #f3ead4;
+        --ink: #171b24;
+        --muted: #5d6675;
+        --paper: #f6f8fc;
+        --cream: #ffffff;
+        --line: #e2e7f1;
+        --shadow: 0 24px 80px rgba(20, 29, 64, 0.22);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(rgba(246, 248, 252, 0.94), rgba(246, 248, 252, 0.98)),
+          repeating-linear-gradient(90deg, rgba(35, 64, 143, 0.05) 0 1px, transparent 1px 78px),
+          repeating-linear-gradient(0deg, rgba(35, 64, 143, 0.04) 0 1px, transparent 1px 78px);
+        color: var(--ink);
+        font-family: "Lato", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+        margin-top: 0;
+      }
+
+      p {
+        margin-top: 0;
+      }
+
+      .demo-banner {
+        background: var(--navy-deep);
+        color: #fff;
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        padding: 10px 16px;
+        text-align: center;
+        text-transform: uppercase;
+      }
+      .demo-banner a {
+        color: var(--gold);
+        margin-left: 8px;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        white-space: nowrap;
+      }
+      .demo-banner a:hover {
+        color: #e3c879;
+      }
+
+      .top-strip {
+        background: var(--navy);
+        color: #fff;
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .top-strip-inner,
+      .site-header,
+      .section,
+      .footer-inner {
+        width: min(1180px, calc(100% - 34px));
+        margin: 0 auto;
+      }
+
+      .top-strip-inner {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px 26px;
+        padding: 11px 0;
+      }
+
+      .site-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 22px;
+        padding: 18px 0;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        text-decoration: none;
+      }
+
+      .brand-logo {
+        display: block;
+        width: auto;
+        height: 56px;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 6px;
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .nav a {
+        border: 2px solid transparent;
+        border-radius: 999px;
+        padding: 10px 14px;
+        text-decoration: none;
+        transition: 160ms ease;
+      }
+
+      .nav a:hover {
+        border-color: var(--navy);
+        color: var(--navy);
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid var(--line);
+        color: #fff;
+        background:
+          radial-gradient(circle at 80% 12%, rgba(200, 162, 74, 0.22), transparent 36%),
+          linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 52%, var(--navy-deep) 100%);
+      }
+
+      .hero::after {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 30px 30px;
+        content: "";
+        pointer-events: none;
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+        gap: clamp(28px, 5vw, 64px);
+        align-items: center;
+        padding: 74px 0;
+      }
+
+      .eyebrow {
+        margin: 0 0 16px;
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+
+      h1 {
+        margin-bottom: 20px;
+        max-width: 720px;
+        font-size: clamp(2.7rem, 6vw, 4.6rem);
+        font-weight: 900;
+        letter-spacing: -0.035em;
+        line-height: 0.98;
+        text-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      h1 .accent {
+        color: var(--gold);
+      }
+
+      .lead {
+        max-width: 620px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: clamp(1.05rem, 2.1vw, 1.32rem);
+        line-height: 1.62;
+        font-weight: 300;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 30px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 52px;
+        border: 2px solid var(--gold);
+        border-radius: 6px;
+        padding: 0 24px;
+        background: var(--gold);
+        color: var(--navy-deep);
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: 160ms ease;
+      }
+
+      .button.secondary {
+        border-color: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        backdrop-filter: blur(8px);
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.28);
+      }
+
+      .hero-card {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.96);
+        color: var(--ink);
+        padding: 26px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card h2 {
+        color: var(--navy);
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+      }
+
+      .hero-card p {
+        color: var(--muted);
+        font-size: 0.98rem;
+        line-height: 1.6;
+      }
+
+      .quick-facts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .fact {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--paper);
+        padding: 14px;
+      }
+
+      .fact strong {
+        display: block;
+        color: var(--navy);
+        font-family: "Montserrat", sans-serif;
+        font-size: 1.3rem;
+        font-weight: 900;
+      }
+
+      .fact span {
+        color: var(--muted);
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .section {
+        padding: 72px 0;
+      }
+
+      .section-heading {
+        max-width: 760px;
+      }
+
+      .section-heading .eyebrow {
+        color: var(--navy);
+      }
+
+      h2 {
+        margin-bottom: 16px;
+        color: var(--ink);
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.02;
+      }
+
+      .body-copy {
+        color: var(--muted);
+        font-size: 1.06rem;
+        line-height: 1.74;
+      }
+
+      .service-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-top: 34px;
+      }
+
+      .service-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 188px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--cream);
+        padding: 26px 22px;
+        box-shadow: 0 16px 44px rgba(20, 29, 64, 0.06);
+      }
+
+      .service-card::before {
+        position: absolute;
+        inset: 0 0 auto;
+        height: 5px;
+        background: var(--gold);
+        content: "";
+      }
+
+      .service-card strong {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--navy);
+        font-family: "Montserrat", sans-serif;
+        font-size: 1.22rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+      }
+
+      .service-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.96rem;
+        line-height: 1.6;
+      }
+
+      .estimate-section {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        background:
+          radial-gradient(circle at top right, rgba(200, 162, 74, 0.18), transparent 32%),
+          linear-gradient(135deg, var(--navy-dark), var(--navy-deep) 60%, #0f1530);
+        color: #fff;
+      }
+
+      .estimate-grid {
+        display: grid;
+        grid-template-columns: 0.78fr 1.22fr;
+        gap: 34px;
+        align-items: start;
+      }
+
+      .estimate-section .eyebrow {
+        color: var(--gold);
+      }
+
+      .estimate-section h2 {
+        color: #fff;
+      }
+
+      .estimate-section .body-copy {
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .note-list {
+        display: grid;
+        gap: 12px;
+        margin: 24px 0 0;
+        padding: 0;
+        color: rgba(255, 255, 255, 0.84);
+        font-size: 0.95rem;
+        line-height: 1.55;
+        list-style: none;
+      }
+
+      .note-list li {
+        border-left: 3px solid var(--gold);
+        padding-left: 14px;
+      }
+
+      .embed-card {
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 18px;
+        background: var(--paper);
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.36);
+      }
+
+      .embed-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+        padding: 16px 18px;
+        background: #fff;
+        color: var(--navy);
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .embed-pill {
+        border-radius: 999px;
+        background: var(--gold-soft);
+        color: #8a6d22;
+        padding: 7px 11px;
+      }
+
+      .embed-inner {
+        padding: 0;
+      }
+
+      .quote-frame {
+        display: block;
+        width: 100%;
+        height: 720px;
+        border: 0;
+        background: var(--paper);
+      }
+
+      .mobile-calculator-fallback {
+        display: none;
+        padding: 34px 24px;
+        background:
+          radial-gradient(circle at 18% 18%, rgba(35, 64, 143, 0.12), transparent 32%),
+          #fff;
+        text-align: center;
+      }
+
+      .mobile-calculator-fallback h3 {
+        margin: 0 0 10px;
+        color: var(--navy);
+        font-size: clamp(1.6rem, 7vw, 2.2rem);
+        line-height: 1;
+      }
+
+      .mobile-calculator-fallback p {
+        margin: 0 auto 20px;
+        max-width: 31rem;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.55;
+      }
+
+      .mobile-calculator-fallback .button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .embed-fallback {
+        border-top: 1px solid var(--line);
+        background: #fff;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.55;
+        padding: 16px 18px 18px;
+      }
+
+      .embed-fallback a {
+        color: var(--navy);
+        font-weight: 700;
+      }
+
+      .trust {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+        gap: 32px;
+        align-items: stretch;
+      }
+
+      .trust-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+        padding: clamp(26px, 5vw, 42px);
+      }
+
+      .award-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--paper);
+        padding: 8px 13px;
+        font-family: "Montserrat", sans-serif;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--navy-dark);
+      }
+
+      .area-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-radius: 18px;
+        background: linear-gradient(150deg, var(--navy), var(--navy-deep));
+        color: #fff;
+        padding: clamp(26px, 5vw, 40px);
+        box-shadow: var(--shadow);
+      }
+
+      .area-card h3 {
+        color: #fff;
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+      }
+
+      .area-card ul {
+        margin: 14px 0 0;
+        padding: 0 0 0 18px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 0.96rem;
+        line-height: 1.85;
+      }
+
+      .footer {
+        border-top: 1px solid var(--line);
+        background: var(--navy-deep);
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .footer-inner {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 30px 0;
+        font-size: 0.9rem;
+      }
+
+      .footer strong {
+        font-family: "Montserrat", sans-serif;
+        color: #fff;
+      }
+
+      .footer .demo-note {
+        max-width: 460px;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 0.8rem;
+        line-height: 1.55;
+      }
+
+      @media (max-width: 960px) {
+        .hero-inner,
+        .estimate-grid,
+        .trust {
+          grid-template-columns: 1fr;
+        }
+
+        .site-header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .nav {
+          justify-content: flex-start;
+        }
+
+        .service-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 620px) {
+        .top-strip-inner {
+          justify-content: flex-start;
+        }
+
+        .hero-inner {
+          padding: 52px 0;
+        }
+
+        .service-grid,
+        .quick-facts {
+          grid-template-columns: 1fr;
+        }
+
+        .embed-top {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .quote-frame,
+        .embed-fallback {
+          display: none;
+        }
+
+        .mobile-calculator-fallback {
+          display: block;
+        }
+      }
+
+      @media (pointer: coarse) and (max-width: 1100px), (pointer: coarse) and (max-height: 560px) {
+        .embed-top {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .quote-frame,
+        .embed-fallback {
+          display: none;
+        }
+
+        .mobile-calculator-fallback {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-banner">
+      Sample prepared for Shawn Starr Custom Homes — a demonstration of a QuoteBuilder Pro kitchen-remodel estimator.
+      <a href="https://quote-builder-pro.com/?utm_source=demo&amp;utm_medium=starr_banner" target="_blank" rel="noopener">Build your own &rarr;</a>
+    </div>
+
+    <div class="top-strip">
+      <div class="top-strip-inner">
+        <span>(904) 612-6946</span>
+        <span>Custom homes &amp; remodeling</span>
+        <span>Jacksonville, FL</span>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <a class="brand" href="#">
+        <img
+          class="brand-logo"
+          src="https://shawnstarrcustomhomes.com/wp-content/uploads/2018/01/starr-logo-250px2.png"
+          alt="Shawn Starr Custom Homes logo"
+        />
+      </a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="#services">What we build</a>
+        <a href="#estimate">Kitchen estimate</a>
+        <a href="#area">Service area</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="section hero-inner">
+          <div>
+            <p class="eyebrow">Custom kitchen remodels · Jacksonville</p>
+            <h1>Your dream kitchen, <span class="accent">priced in a minute.</span></h1>
+            <p class="lead">
+              You&rsquo;ve dreamed it &mdash; now see what it takes to live it. Choose your finishes, cabinets, and layout
+              and get an instant ballpark estimate for your Starr Custom Homes kitchen, before you ever pick up the phone.
+            </p>
+            <div class="hero-actions">
+              <a class="button" href="#estimate">Start your estimate</a>
+              <a class="button secondary" href="tel:19046126946">Call (904) 612-6946</a>
+            </div>
+          </div>
+
+          <aside class="hero-card">
+            <h2>You've dreamed it. Now live it.&reg;</h2>
+            <p>
+              The same personal, design-first experience Starr Custom Homes is known for &mdash; now starting the moment a
+              homeowner lands on your site.
+            </p>
+            <div class="quick-facts">
+              <div class="fact">
+                <strong>24/7</strong>
+                <span>Instant estimate</span>
+              </div>
+              <div class="fact">
+                <strong>Houzz</strong>
+                <span>Award winner</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="services" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">What we build</p>
+          <h2>From first sketch to the kitchen you cook in.</h2>
+          <p class="body-copy">
+            Shawn Starr Custom Homes designs and builds across Jacksonville and St. Johns County. The estimator below is set
+            up for kitchen remodels &mdash; the same approach works for any project you offer.
+          </p>
+        </div>
+
+        <div class="service-grid" aria-label="Services">
+          <article class="service-card">
+            <strong>Custom homes</strong>
+            <p>One-of-a-kind homes designed around how you live, built on your lot or ours.</p>
+          </article>
+          <article class="service-card">
+            <strong>Kitchen remodels</strong>
+            <p>Finishes, cabinetry, islands, and layouts tailored to your space and budget.</p>
+          </article>
+          <article class="service-card">
+            <strong>DreamDesign&reg;</strong>
+            <p>A guided design process that turns inspiration into a buildable plan.</p>
+          </article>
+          <article class="service-card">
+            <strong>Whole-home renovation</strong>
+            <p>Thoughtful, high-craft renovations that respect the home and elevate it.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="estimate" class="estimate-section">
+        <div class="section estimate-grid">
+          <div>
+            <p class="eyebrow">Instant kitchen estimate</p>
+            <h2>Turn website visitors into design consultations.</h2>
+            <p class="body-copy">
+              The calculator is embedded from QuoteBuilder Pro. When a homeowner submits, the lead lands in your dashboard
+              and inbox with their contact details, selections, and estimated investment &mdash; ready for a design call.
+            </p>
+            <ul class="note-list">
+              <li>Homeowners get a planning estimate without creating an account.</li>
+              <li>You review every submission before confirming a detailed proposal.</li>
+              <li>Branding, questions, and pricing are fully customizable to Starr Custom Homes.</li>
+            </ul>
+          </div>
+
+          <div class="embed-card">
+            <div class="embed-top">
+              <span>Kitchen remodel estimate</span>
+              <span class="embed-pill">Powered by QuoteBuilder Pro</span>
+            </div>
+            <div class="embed-inner">
+              <!--
+                PLACEHOLDER EMBED: this points at the shared "kitchen-remodel" sample calculator.
+                After you clone & brand it in the editor, replace the publicId/slug in BOTH iframes
+                and the two fallback links below with your new embed code (e.g. qb-xxxxxxxx/shawn-starr-kitchen-remodel).
+              -->
+              <iframe
+                class="quote-frame"
+                src="https://quote-builder-pro.com/embed/qb-6cb9d3d4d9dc/kitchen-remodel?embedded=1&returnUrl=https%3A%2F%2Fquotebuilder-embed-demo.netlify.app%2Fshawn-starr-custom-homes%2F%23estimate&returnLabel=Starr%20demo%20website"
+                title="Shawn Starr Custom Homes kitchen remodel estimate"
+                loading="eager"
+                scrolling="no"
+                data-quotebuilder-demo-frame="qb-6cb9d3d4d9dc/kitchen-remodel"
+              ></iframe>
+              <noscript>
+                <iframe
+                  src="https://quote-builder-pro.com/embed/qb-6cb9d3d4d9dc/kitchen-remodel?embedded=1&returnUrl=https%3A%2F%2Fquotebuilder-embed-demo.netlify.app%2Fshawn-starr-custom-homes%2F%23estimate&returnLabel=Starr%20demo%20website"
+                  title="Shawn Starr Custom Homes kitchen remodel estimate"
+                  style="display:block;width:100%;height:720px;border:0;background:#f6f8fc"
+                ></iframe>
+              </noscript>
+              <div class="mobile-calculator-fallback">
+                <h3>Open the live estimator on your phone.</h3>
+                <p>
+                  Some phone preview browsers block embedded calculators. This button opens the same kitchen-remodel
+                  estimator directly so the mobile demo still works cleanly.
+                </p>
+                <a
+                  class="button"
+                  href="https://quote-builder-pro.com/embed/qb-6cb9d3d4d9dc/kitchen-remodel?returnUrl=https%3A%2F%2Fquotebuilder-embed-demo.netlify.app%2Fshawn-starr-custom-homes%2F%23estimate&returnLabel=Starr%20demo%20website"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open estimator
+                </a>
+              </div>
+              <div class="embed-fallback">
+                If the estimator does not appear,
+                <a href="https://quote-builder-pro.com/embed/qb-6cb9d3d4d9dc/kitchen-remodel?returnUrl=https%3A%2F%2Fquotebuilder-embed-demo.netlify.app%2Fshawn-starr-custom-homes%2F%23estimate&returnLabel=Starr%20demo%20website" target="_blank" rel="noreferrer">
+                  open it directly
+                </a>.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="area" class="section trust">
+        <article class="trust-card">
+          <p class="eyebrow" style="color: var(--navy)">Trusted &amp; credentialed</p>
+          <h2>A builder homeowners already know.</h2>
+          <p class="body-copy">
+            An instant estimator works hardest for builders with a reputation to match. Starr Custom Homes pairs award-winning
+            design with a licensed, members-of-the-industry team &mdash; so the estimate feels like the natural first step.
+          </p>
+          <div class="award-row">
+            <span class="chip">Houzz Awards 2014&ndash;2019</span>
+            <span class="chip">NAHB member</span>
+            <span class="chip">FHBA member</span>
+            <span class="chip">AIA</span>
+            <span class="chip">License CBC1255550</span>
+          </div>
+        </article>
+        <aside class="area-card">
+          <h3>Serving Jacksonville &amp; the Beaches</h3>
+          <ul>
+            <li>Oceanfront &amp; Intracoastal</li>
+            <li>Pablo Creek Reserve</li>
+            <li>Queens Harbour</li>
+            <li>St. Johns County</li>
+            <li>Ortega &amp; Avalon</li>
+            <li>Build on your lot</li>
+          </ul>
+        </aside>
+      </section>
+    </main>
+
+    <footer id="contact" class="footer">
+      <div class="footer-inner">
+        <div>
+          <strong>Shawn Starr Custom Homes</strong>
+          <div>(904) 612-6946 · info@starrcustom.com · 4330 Springmoor Dr E, Jacksonville, FL 32225</div>
+        </div>
+        <div class="demo-note">
+          Demonstration page prepared to show how a QuoteBuilder Pro estimator could look in the Starr Custom Homes brand.
+          Not an official Shawn Starr Custom Homes page. The embedded estimator is a live QuoteBuilder Pro calculator.
+        </div>
+      </div>
+    </footer>
+    <!--
+      The calculator is a fixed-height, self-contained widget (see .quote-frame { height }) that scrolls
+      internally with the Estimated Price + Submit pinned to the bottom. No auto-grow / resize listener.
+    -->
+  </body>
+</html>

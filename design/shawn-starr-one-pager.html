@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Shawn Starr Custom Homes — Instant Kitchen Estimator (One-Pager)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Montserrat:wght@500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f6f8fc;
+        --card: #ffffff;
+        --ink: #14171c;
+        --ink-2: #3a424e;
+        --muted: #66707f;
+        --line: #e2e7f1;
+        --line-2: #d2d9e8;
+        --navy: #23408f;
+        --navy-2: #1c2758;
+        --navy-deep: #141d40;
+        --navy-soft: #eaf0fb;
+        --gold: #c8a24a;
+        --gold-2: #a8842f;
+        --gold-soft: #f3ead4;
+        --ink-block: #141d40;
+        --display: "Montserrat", system-ui, sans-serif;
+        --body: "Lato", system-ui, sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: #3a4258;
+        font-family: var(--body);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 28px 16px 60px;
+      }
+
+      .toolbar {
+        width: 8.5in;
+        max-width: 100%;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: #e7e9ee;
+        font-size: 13px;
+      }
+      .toolbar b { color: #fff; }
+      .toolbar button {
+        font-family: var(--body);
+        font-weight: 700;
+        font-size: 13px;
+        color: #15181d;
+        background: #fff;
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 14px;
+        cursor: pointer;
+      }
+
+      /* ---------- SHEET (US Letter) ---------- */
+      .sheet {
+        width: 8.5in;
+        height: 11in;
+        background:
+          radial-gradient(120% 80% at 100% 0, rgba(35, 64, 143, 0.06), transparent 42%),
+          radial-gradient(90% 60% at -8% 4%, rgba(200, 162, 74, 0.07), transparent 38%),
+          var(--paper);
+        color: var(--ink);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        padding: 0.5in 0.56in 0.42in;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        position: relative;
+      }
+      .sheet::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(20, 29, 64, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(20, 29, 64, 0.03) 1px, transparent 1px);
+        background-size: 22px 22px;
+        opacity: 0.6;
+        pointer-events: none;
+      }
+      .sheet > * { position: relative; }
+
+      /* ---------- header ---------- */
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--navy);
+      }
+      .brand-logo { height: 38px; width: auto; display: block; }
+      .top-tag {
+        font-family: var(--display);
+        font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--navy);
+        text-align: right;
+        line-height: 1.5;
+      }
+      .top-tag span { color: var(--gold-2); }
+
+      /* ---------- hero ---------- */
+      .hero { padding: 16px 0 14px; }
+      .eyebrow {
+        font-family: var(--display);
+        font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+        color: var(--gold-2);
+        margin: 0 0 9px;
+      }
+      h1 {
+        font-family: var(--display);
+        font-weight: 900;
+        font-size: 33px;
+        line-height: 1.04;
+        letter-spacing: -0.02em;
+        margin: 0;
+        color: var(--navy-2);
+      }
+      h1 .hl {
+        background: linear-gradient(180deg, transparent 62%, rgba(200, 162, 74, 0.32) 62%);
+        padding: 0 2px;
+      }
+      .sub {
+        margin: 12px 0 0;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--ink-2);
+        max-width: 6.7in;
+      }
+
+      /* ---------- estimate ticket ---------- */
+      .demo {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: 1fr 38px 1.02fr;
+        align-items: center;
+        gap: 0;
+      }
+      .calc {
+        border: 1px solid var(--line-2);
+        border-radius: 12px;
+        background: var(--card);
+        box-shadow: 0 8px 22px rgba(20, 29, 64, 0.08);
+        overflow: hidden;
+      }
+      .calc-top {
+        display: flex; align-items: center; gap: 7px;
+        padding: 8px 12px;
+        background: var(--navy-soft);
+        border-bottom: 1px solid var(--line);
+        font-size: 10px; font-weight: 700; color: var(--navy);
+        font-family: var(--display); letter-spacing: 0.04em;
+      }
+      .calc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+      .calc-body { padding: 11px 12px 12px; }
+      .q { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; }
+      .q + .q { border-top: 1px dashed var(--line); }
+      .q-label { font-size: 11.5px; font-weight: 700; color: var(--ink-2); }
+      .q-val {
+        font-size: 11px; font-weight: 700; color: var(--navy-2);
+        background: var(--navy-soft); border: 1px solid #cfdcf3; border-radius: 6px; padding: 3px 9px;
+      }
+      .q-val.check { color: var(--gold-2); background: var(--gold-soft); border-color: #e6d3a4; }
+      .estimate {
+        margin-top: 9px;
+        border-radius: 10px;
+        padding: 11px 13px;
+        background: linear-gradient(150deg, var(--navy), var(--navy-deep));
+        color: #fff;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .estimate .cap { font-size: 8.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #b9cdf2; font-family: var(--display); }
+      .estimate .amt { font-family: var(--display); font-weight: 800; font-size: 25px; letter-spacing: -0.02em; line-height: 1; }
+
+      .flow-arrow {
+        display: grid; place-items: center;
+        color: var(--gold-2);
+      }
+      .flow-arrow svg { width: 26px; height: 26px; }
+
+      .lead {
+        border: 1.5px solid var(--gold);
+        border-radius: 12px;
+        background: var(--card);
+        box-shadow: 0 8px 22px rgba(200, 162, 74, 0.16);
+        padding: 12px 13px;
+      }
+      .lead-tag {
+        display: inline-flex; align-items: center; gap: 5px;
+        font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+        color: var(--gold-2); background: var(--gold-soft); border-radius: 999px; padding: 3px 8px;
+      }
+      .lead-name { font-family: var(--display); font-weight: 800; font-size: 15px; margin: 8px 0 2px; letter-spacing: -0.01em; color: var(--navy-2); }
+      .lead-row { font-size: 10.5px; color: var(--ink-2); font-weight: 400; line-height: 1.55; }
+      .lead-row .mono { font-weight: 700; }
+      .lead-foot {
+        margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--line);
+        font-size: 9.5px; font-weight: 700; color: var(--gold-2); display: flex; align-items: center; gap: 5px;
+      }
+
+      /* ---------- benefits ---------- */
+      .benefits {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 11px;
+      }
+      .benefit {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: var(--card);
+        padding: 12px 13px;
+      }
+      .benefit-ico {
+        width: 28px; height: 28px; border-radius: 8px;
+        display: grid; place-items: center; margin-bottom: 8px;
+        background: var(--navy-soft); color: var(--navy);
+      }
+      .benefit-ico.gold { background: var(--gold-soft); color: var(--gold-2); }
+      .benefit-ico svg { width: 16px; height: 16px; }
+      .benefit h3 { font-family: var(--display); font-weight: 800; font-size: 13.5px; margin: 0 0 3px; letter-spacing: -0.01em; color: var(--navy-2); }
+      .benefit p { margin: 0; font-size: 10.8px; line-height: 1.45; color: var(--muted); }
+
+      /* ---------- how it works ---------- */
+      .how {
+        margin-top: 16px;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: 12px 0;
+        display: grid;
+        grid-template-columns: auto 1fr 1fr 1fr;
+        gap: 14px;
+        align-items: center;
+      }
+      .how-title { font-family: var(--display); font-weight: 800; font-size: 12px; line-height: 1.1; max-width: 82px; letter-spacing: -0.01em; color: var(--navy-2); }
+      .how-title span { color: var(--gold-2); }
+      .step { display: flex; gap: 8px; align-items: flex-start; }
+      .step-n {
+        font-family: var(--display); font-weight: 700; font-size: 11px; color: #fff;
+        background: var(--navy); width: 19px; height: 19px; border-radius: 50%;
+        display: grid; place-items: center; flex-shrink: 0; margin-top: 1px;
+      }
+      .step p { margin: 0; font-size: 11px; line-height: 1.38; color: var(--ink-2); }
+      .step b { color: var(--ink); font-weight: 700; }
+
+      /* ---------- value + CTA ---------- */
+      .bottom {
+        margin-top: auto;
+        display: grid;
+        grid-template-columns: 1fr 2.25in;
+        gap: 16px;
+        align-items: stretch;
+      }
+      .price-cta {
+        background: var(--ink-block);
+        color: #fff;
+        border-radius: 14px;
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .price-cta .pc-eyebrow { font-family: var(--display); font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+      .price-cta h2 { font-family: var(--display); font-weight: 900; font-size: 22px; line-height: 1.08; letter-spacing: -0.02em; margin: 7px 0 0; color: #fff; }
+      .price-cta .roi { margin: 9px 0 0; font-size: 11.5px; line-height: 1.5; color: #c7d0e2; }
+      .price-cta .roi b { color: #fff; }
+      .tiers { margin-top: 11px; display: flex; gap: 8px; }
+      .tier { flex: 1; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 9px; padding: 8px 9px; }
+      .tier .t-name { font-family: var(--display); font-size: 9px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #aeb8c8; }
+      .tier .t-price { font-family: var(--display); font-weight: 700; font-size: 15px; margin-top: 2px; }
+      .tier .t-price span { font-size: 9px; color: #9aa5b6; }
+      .tier .t-note { font-size: 8.6px; color: #9aa5b6; margin-top: 2px; line-height: 1.3; }
+      .tier.feat { border-color: var(--gold); background: rgba(200, 162, 74, 0.16); }
+      .price-fine { margin-top: 9px; font-size: 9.5px; color: #9aa5b6; }
+
+      .qr-card {
+        border: 2px solid var(--navy);
+        border-radius: 14px;
+        background: var(--card);
+        padding: 13px 13px 12px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .qr-card .qr-cap { font-family: var(--display); font-weight: 800; font-size: 12.5px; line-height: 1.12; letter-spacing: -0.01em; color: var(--navy-2); }
+      .qr-card .qr-cap span { color: var(--gold-2); }
+      .qr-box {
+        width: 1.32in; height: 1.32in;
+        margin: 9px 0 8px;
+        border-radius: 9px;
+        border: 1px solid var(--line-2);
+        background: #fff;
+        display: grid; place-items: center;
+        overflow: hidden;
+      }
+      .qr-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+      .qr-url {
+        font-family: var(--display); font-size: 8.8px; font-weight: 700; color: var(--ink);
+        word-break: break-all; line-height: 1.3;
+      }
+      .qr-then { margin-top: 7px; font-size: 9px; color: var(--muted); font-weight: 700; line-height: 1.35; }
+      .qr-then b { color: var(--navy); }
+
+      .foot {
+        margin-top: 11px;
+        display: flex; align-items: center; justify-content: space-between;
+        font-size: 9px; color: var(--muted); font-weight: 700;
+        font-family: var(--display); letter-spacing: 0.03em;
+      }
+
+      /* ---------- print ---------- */
+      @page { size: 8.5in 11in; margin: 0; }
+      @media print {
+        body { background: #fff; padding: 0; display: block; }
+        .toolbar { display: none; }
+        .sheet { box-shadow: none; width: 8.5in; height: 11in; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <span>Shawn Starr · one-pager — <b>Cmd/Ctrl + P → Save as PDF</b> (US Letter, margins: None)</span>
+      <button onclick="window.print()">Print / Save PDF</button>
+    </div>
+
+    <div class="sheet">
+      <!-- header -->
+      <div class="top">
+        <img
+          class="brand-logo"
+          src="https://shawnstarrcustomhomes.com/wp-content/uploads/2018/01/starr-logo-250px2.png"
+          alt="Shawn Starr Custom Homes logo"
+        />
+        <div class="top-tag">Prepared for Shawn Starr Custom Homes<br /><span>An instant kitchen estimator for your site</span></div>
+      </div>
+
+      <!-- hero -->
+      <div class="hero">
+        <p class="eyebrow">You've dreamed it. Now live it.&reg;</p>
+        <h1>Turn kitchen browsers into <span class="hl">booked design consultations.</span></h1>
+        <p class="sub">
+          Homeowners planning a high-end kitchen want a ballpark <em>before</em> they reach out. Put an instant estimator on
+          the Starr Custom Homes site &mdash; in your colors &mdash; and every estimate becomes a qualified lead with name,
+          phone, email, and exactly what they want to build.
+        </p>
+      </div>
+
+      <!-- estimate ticket -->
+      <div class="demo">
+        <div class="calc">
+          <div class="calc-top"><span class="calc-dot"></span> Kitchen Remodel · Starr Custom Homes</div>
+          <div class="calc-body">
+            <div class="q"><span class="q-label">Finish level</span><span class="q-val">Premium</span></div>
+            <div class="q"><span class="q-label">Cabinet package</span><span class="q-val">Upgraded</span></div>
+            <div class="q"><span class="q-label">Island</span><span class="q-val">Large w/ seating</span></div>
+            <div class="q"><span class="q-label">Layout change</span><span class="q-val check">✓ Yes</span></div>
+            <div class="estimate">
+              <span class="cap">Estimated investment</span>
+              <span class="amt">$78,500</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12h15M13 6l6 6-6 6" />
+          </svg>
+        </div>
+
+        <div class="lead">
+          <span class="lead-tag">● New lead captured</span>
+          <p class="lead-name">Karen M.</p>
+          <div class="lead-row"><span class="mono">(904) 555-0147</span> · karen.m@email.com</div>
+          <div class="lead-row">Premium finish · upgraded cabinets · large island · <strong>est. $78,500</strong></div>
+          <div class="lead-foot">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            Lands in your dashboard &amp; inbox instantly
+          </div>
+        </div>
+      </div>
+
+      <!-- benefits -->
+      <div class="benefits">
+        <div class="benefit">
+          <div class="benefit-ico gold">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>Capture high-intent leads</h3>
+          <p>Reach the homeowners who research for weeks before calling. Every estimate is a contact you can follow up with.</p>
+        </div>
+        <div class="benefit">
+          <div class="benefit-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg>
+          </div>
+          <h3>Qualify before you call</h3>
+          <p>Customers get an instant ballpark; you walk into the design call already knowing scope and budget.</p>
+        </div>
+        <div class="benefit">
+          <div class="benefit-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 10 4.6-1.5 8-5 8-10V5z"/></svg>
+          </div>
+          <h3>Looks like Starr built it</h3>
+          <p>Lives on your site, in Starr navy. White-label removes any other branding entirely &mdash; it's all you.</p>
+        </div>
+      </div>
+
+      <!-- how it works -->
+      <div class="how">
+        <div class="how-title">Live in an <span>afternoon</span></div>
+        <div class="step"><span class="step-n">1</span><p><b>Start from the kitchen template</b> &mdash; already built for remodels.</p></div>
+        <div class="step"><span class="step-n">2</span><p><b>Set your prices</b> in plain English &mdash; no code.</p></div>
+        <div class="step"><span class="step-n">3</span><p><b>Paste one line</b> on your website. Done.</p></div>
+      </div>
+
+      <!-- value + CTA -->
+      <div class="bottom">
+        <div class="price-cta">
+          <span class="pc-eyebrow">The math is simple</span>
+          <h2>One booked remodel pays for years.</h2>
+          <p class="roi">
+            At Starr&rsquo;s project sizes, a <b>single</b> captured kitchen lead covers the tool many times over. Plans
+            start at <b>$29/mo</b>; the white-label Agency plan makes it 100% Starr-branded.
+          </p>
+          <div class="tiers">
+            <div class="tier">
+              <div class="t-name">Starter</div>
+              <div class="t-price">$29<span>/mo</span></div>
+              <div class="t-note">1 calculator</div>
+            </div>
+            <div class="tier">
+              <div class="t-name">Pro</div>
+              <div class="t-price">$59<span>/mo</span></div>
+              <div class="t-note">5 calculators</div>
+            </div>
+            <div class="tier feat">
+              <div class="t-name">Agency</div>
+              <div class="t-price">$149<span>/mo</span></div>
+              <div class="t-note">White-label</div>
+            </div>
+          </div>
+          <p class="price-fine">No setup fee · cancel anytime · build free, publish when ready.</p>
+        </div>
+
+        <div class="qr-card">
+          <div class="qr-cap">See your kitchen estimator <span>live</span></div>
+          <div class="qr-box">
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=0&data=https%3A%2F%2Fquotebuilder-embed-demo.netlify.app%2Fshawn-starr-custom-homes%2F"
+              alt="Scan to open the live Starr Custom Homes demo"
+            />
+          </div>
+          <div class="qr-url">quotebuilder-embed-demo.netlify.app/shawn-starr-custom-homes</div>
+          <div class="qr-then">Built with <b>quote-builder-pro.com</b></div>
+        </div>
+      </div>
+
+      <div class="foot">
+        <span>Prepared for Shawn Starr Custom Homes · sample demonstration</span>
+        <span>quote-builder-pro.com</span>
+      </div>
+    </div>
+  </body>
+</html>
