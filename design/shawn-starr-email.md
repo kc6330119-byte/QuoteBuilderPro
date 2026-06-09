@@ -85,3 +85,32 @@ sample, with an honest take-down date that creates gentle urgency.
 ## Notes
 - "Unlisted and not searchable" is accurate (the demo page is `noindex, nofollow`), but anyone with the link can still open it — honest without overpromising privacy.
 - The kitchen estimator is the *wedge* (it's built and tangible). Whole-home and new-build calculators are the natural expansion — surface them on the call, or build a second branded demo to show the range.
+
+---
+
+## If Shawn's interested: first-month-free promo code
+
+The checkout already supports promo codes (`allow_promotion_codes: true` in
+`lib/billing-actions.ts`), so this is a **Stripe Dashboard task — no code change or deploy.**
+
+**Create it in Stripe (~2 min):**
+1. **Coupon** — *Product catalog → Coupons → New*: **100% off**, **Duration: Once**.
+   "Once" applies to the first invoice only, so on a monthly plan that's the **first
+   month free**; it bills normally after.
+2. **Promotion code** on that coupon — e.g. `STARRFREE`. Set **Max redemptions: 1**
+   (only Shawn) and optionally an **expiration** to match the demo take-down date.
+3. **Send Shawn the code.** At checkout he picks a plan → "Add promotion code" →
+   enters `STARRFREE` → month one is **$0**.
+
+**Know before you offer it:**
+- He still enters a card (subscriptions need one for renewal); the first invoice just
+  bills $0 — standard "first month free, cancel anytime."
+- **Create the coupon in Live mode** — coupons are environment-specific (a Test-mode
+  coupon won't work for a real customer).
+- "Once" = first *invoice*. Monthly plan → one month. An annual plan would need a
+  `repeating` (12-month) coupon instead.
+- Stripe shows a redemption count on the code, so you'll see when he activates.
+
+**Optional:** a pre-applied discount link (auto-applies the coupon so he doesn't type
+a code) is possible via `discounts: [{ coupon }]` in `createCheckoutSessionAction` —
+ask if you want it wired up.
