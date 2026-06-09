@@ -53,44 +53,27 @@ export default async function SecureEmbedQuotePage({
   const brand = calculator.branding;
 
   return (
-    <main className="min-h-screen bg-white px-3 py-4 text-ink sm:px-5 sm:py-6">
+    <main className="flex h-[100dvh] flex-col overflow-hidden bg-white text-ink">
       <EmbedResizeReporter frameKey={frameKey} />
-      <section className="mx-auto max-w-5xl">
-        <div className="mb-5 rounded-xl border border-line bg-paper p-4">
-          <QuoteBrandMark branding={brand} size="sm" />
-          <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em]" style={{ color: brand.primaryColor }}>
-            Instant estimate
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-black leading-tight text-ink">{calculator.name}</h1>
-          <p className="mt-2 text-sm leading-6 text-coal/70">{brand.introText}</p>
-        </div>
-        <PublicQuoteForm
-          calculator={calculator}
-          hostReturnLabel={isEmbeddedInHostPage ? null : safeReturnLabel}
-          hostReturnUrl={isEmbeddedInHostPage ? null : safeReturnUrl}
-          submitted={submitted === "1"}
-          variant="embed"
-          legalRequired={legal === "required"}
-          returnTo={buildEmbedReturnPath(buildPublicEmbedPath(calculator), {
-            isEmbeddedInHostPage,
-            returnLabel: safeReturnLabel,
-            returnUrl: safeReturnUrl
-          })}
-        />
-        {calculator.hideBranding ? null : (
-          <p className="mt-4 text-center text-xs font-semibold text-coal/45">
-            Powered by{" "}
-            <a
-              href="/?utm_source=embed&utm_medium=powered_by"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold text-coal/60 underline-offset-2 transition hover:text-teal-700 hover:underline"
-            >
-              QuoteBuilder Pro
-            </a>
-          </p>
-        )}
-      </section>
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-paper px-4 py-3 sm:px-5">
+        <QuoteBrandMark branding={brand} size="sm" />
+        <span className="shrink-0 text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: brand.primaryColor }}>
+          Instant estimate
+        </span>
+      </header>
+      <PublicQuoteForm
+        calculator={calculator}
+        hostReturnLabel={isEmbeddedInHostPage ? null : safeReturnLabel}
+        hostReturnUrl={isEmbeddedInHostPage ? null : safeReturnUrl}
+        submitted={submitted === "1"}
+        variant="embed"
+        legalRequired={legal === "required"}
+        returnTo={buildEmbedReturnPath(buildPublicEmbedPath(calculator), {
+          isEmbeddedInHostPage,
+          returnLabel: safeReturnLabel,
+          returnUrl: safeReturnUrl
+        })}
+      />
     </main>
   );
 }

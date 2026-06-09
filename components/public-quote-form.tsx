@@ -41,25 +41,26 @@ export function PublicQuoteForm({
       })
     )
   );
+  const isEmbed = variant === "embed";
   const visibleQuestions = useMemo(() => getVisibleQuestions(calculator.questions, answers), [answers, calculator.questions]);
   const total = useMemo(() => calculateQuote(calculator.questions, calculator.rules, answers), [answers, calculator]);
-  const submitReturnPath =
-    returnTo ?? (variant === "embed" ? buildPublicEmbedPath(calculator) : buildPublicQuotePath(calculator));
+  const submitReturnPath = returnTo ?? (isEmbed ? buildPublicEmbedPath(calculator) : buildPublicQuotePath(calculator));
   const quoteTheme = { "--quote-brand": calculator.branding.primaryColor } as CSSProperties;
+  const cardClass = isEmbed ? "rounded-lg border border-line bg-white p-4" : "rounded-lg border border-line bg-white p-5 shadow-crisp";
 
   if (submitted) {
-    return (
+    const successCard = (
       <div className="rounded-lg border border-teal-100 bg-teal-50 p-6" style={quoteTheme}>
         <CheckCircle2 className="h-10 w-10" style={{ color: calculator.branding.primaryColor }} />
         <h2 className="mt-4 font-display text-2xl font-bold text-ink">Quote request received</h2>
         <p className="mt-2 text-sm leading-6 text-coal/70">
-          {variant === "embed"
+          {isEmbed
             ? "Your estimate was submitted. The business will follow up with you soon."
             : "Your estimate was submitted. The lead is now available in the dashboard leads view."}
         </p>
         <p className="mt-4 text-sm font-semibold text-teal-700">Estimated Price: {formatDollars(total)}</p>
         <p className="mt-3 text-xs leading-5 text-coal/60">{estimateDisclaimer}</p>
-        {variant === "embed" && hostReturnUrl ? (
+        {isEmbed && hostReturnUrl ? (
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <a
               href={hostReturnUrl}
@@ -76,7 +77,7 @@ export function PublicQuoteForm({
               Start another estimate
             </a>
           </div>
-        ) : variant === "embed" ? (
+        ) : isEmbed ? (
           <a
             href={submitReturnPath}
             className="mt-5 inline-flex items-center justify-center gap-2 rounded-md bg-[var(--quote-brand)] px-4 py-3 text-sm font-bold text-white shadow-crisp transition hover:opacity-90"
@@ -86,19 +87,12 @@ export function PublicQuoteForm({
         ) : null}
       </div>
     );
+
+    return isEmbed ? <div className="min-h-0 flex-1 overflow-y-auto p-4">{successCard}</div> : successCard;
   }
 
-  return (
-    <form
-      action={allowSubmission ? createQuoteSubmissionAction : undefined}
-      className={variant === "embed" ? "grid gap-5 lg:grid-cols-[1fr_300px]" : "grid gap-6 lg:grid-cols-[1fr_340px]"}
-      style={quoteTheme}
-      onSubmit={(event) => {
-        if (!allowSubmission) {
-          event.preventDefault();
-        }
-      }}
-    >
+  const hiddenFields = (
+    <>
       <input type="hidden" name="calculatorId" value={calculator.id} />
       <input type="hidden" name="calculatorSlug" value={calculator.slug} />
       <input type="hidden" name="calculatorPublicId" value={calculator.publicId} />
@@ -107,164 +101,237 @@ export function PublicQuoteForm({
       <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", height: 0, width: 0, overflow: "hidden" }}>
         <input type="text" name="companyWebsite" tabIndex={-1} autoComplete="off" />
       </div>
-      <section className="space-y-5">
-        {!allowSubmission ? (
-          <div className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold leading-6 text-sky-900">
-            Preview mode is only visible to signed-in team members. Publish this calculator before sharing the public
-            quote page or embed code with customers.
-          </div>
-        ) : null}
-        {legalRequired ? (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-6 text-amber-900">
-            Please acknowledge the non-binding estimate disclaimer and legal terms before submitting your quote request.
-          </div>
-        ) : null}
-        {visibleQuestions.length < calculator.questions.length ? (
-          <div className="rounded-lg border border-teal-100 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800">
-            Showing the next questions based on your selections.
-          </div>
-        ) : null}
-        {visibleQuestions.map((question) => (
-          <div key={question.id} className={variant === "embed" ? "rounded-lg border border-line bg-white p-4" : "rounded-lg border border-line bg-white p-5 shadow-crisp"}>
-            <label className="block text-sm font-bold text-ink" htmlFor={question.id}>
-              {question.label}
-              {question.isRequired ? <span className="ml-1 text-coral">*</span> : null}
-            </label>
-            {question.questionType === "NUMBER" ? (
-              <input
-                id={question.id}
-                name={`answer_${question.id}`}
-                type="number"
-                min={0}
-                inputMode="decimal"
-                value={String(answers[question.id] ?? "")}
-                onBlur={(event) => {
-                  const rawValue = event.target.value.trim();
+    </>
+  );
 
-                  if (!rawValue) return;
-
-                  const numberValue = Number(rawValue);
-
-                  if (Number.isFinite(numberValue)) {
-                    setAnswers((current) => ({ ...current, [question.id]: String(numberValue) }));
-                  }
-                }}
-                onChange={(event) =>
-                  setAnswers((current) => ({ ...current, [question.id]: event.target.value }))
-                }
-                onFocus={(event) => {
-                  if (event.currentTarget.value === "0") event.currentTarget.select();
-                }}
-                required={question.isRequired}
-                className="mt-3 h-12 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
-              />
-            ) : null}
-            {question.questionType === "SELECT" ? (
-              <select
-                id={question.id}
-                name={`answer_${question.id}`}
-                value={String(answers[question.id])}
-                onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))}
-                required={question.isRequired}
-                className="mt-3 h-12 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
-              >
-                {question.options.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            ) : null}
-            {question.questionType === "BOOLEAN" ? (
-              <label className="mt-3 flex items-center justify-between gap-3 rounded-md border border-line bg-paper px-3 py-3">
-                <span className="text-sm text-coal/70">Add this option</span>
-                <input
-                  type="checkbox"
-                  name={`answer_${question.id}`}
-                  value="true"
-                  checked={Boolean(answers[question.id])}
-                  onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.checked }))}
-                  className="h-5 w-5 accent-[var(--quote-brand)]"
-                />
-              </label>
-            ) : null}
-            {question.questionType === "TEXT" ? (
-              <textarea
-                id={question.id}
-                name={`answer_${question.id}`}
-                rows={3}
-                value={String(answers[question.id])}
-                onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))}
-                required={question.isRequired}
-                className="mt-3 w-full rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
-              />
-            ) : null}
-          </div>
-        ))}
-        <div className={variant === "embed" ? "rounded-lg border border-line bg-white p-4" : "rounded-lg border border-line bg-white p-5 shadow-crisp"}>
-          <h2 className="font-display text-xl font-bold text-ink">Your contact details</h2>
-          <p className="mt-1 text-sm text-coal/70">Required fields are validated before the quote request is saved.</p>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <input
-              required
-              name="customerName"
-              placeholder="Name"
-              className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white"
-            />
-            <input
-              required
-              name="customerEmail"
-              type="email"
-              placeholder="Email"
-              className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white"
-            />
-            <input
-              name="customerPhone"
-              placeholder="Phone"
-              className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white"
-            />
-            <textarea
-              name="customerNotes"
-              placeholder="Project notes"
-              rows={4}
-              className="rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white md:col-span-2"
-            />
-          </div>
-          <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 px-4 py-3">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-900">Non-binding estimate</p>
-            <p className="mt-2 text-xs leading-5 text-amber-900/85">{estimateDisclaimer}</p>
-            <label className="mt-3 flex items-start gap-3 text-xs font-semibold leading-5 text-amber-950">
-              <input
-                required
-                name="acceptedLegalAcknowledgement"
-                type="checkbox"
-                className="mt-1 h-4 w-4 shrink-0 accent-[var(--quote-brand)]"
-              />
-              <span>
-                I understand this is a non-binding estimate and agree to the{" "}
-                <a href="/terms" target="_blank" rel="noreferrer" className="underline underline-offset-2">
-                  Terms
-                </a>{" "}
-                and{" "}
-                <a href="/privacy" target="_blank" rel="noreferrer" className="underline underline-offset-2">
-                  Privacy Policy
-                </a>
-                .
-              </span>
-            </label>
-          </div>
+  // Questions + contact + legal — shared between both layouts.
+  const formBody = (
+    <>
+      {!allowSubmission ? (
+        <div className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm font-semibold leading-6 text-sky-900">
+          Preview mode is only visible to signed-in team members. Publish this calculator before sharing the public quote
+          page or embed code with customers.
         </div>
-      </section>
+      ) : null}
+      {legalRequired ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-6 text-amber-900">
+          Please acknowledge the non-binding estimate disclaimer and legal terms before submitting your quote request.
+        </div>
+      ) : null}
+      {visibleQuestions.length < calculator.questions.length ? (
+        <div className="rounded-lg border border-teal-100 bg-teal-50 px-4 py-3 text-sm font-semibold text-teal-800">
+          Showing the next questions based on your selections.
+        </div>
+      ) : null}
+      {visibleQuestions.map((question) => (
+        <div key={question.id} className={cardClass}>
+          <label className="block text-sm font-bold text-ink" htmlFor={question.id}>
+            {question.label}
+            {question.isRequired ? <span className="ml-1 text-coral">*</span> : null}
+          </label>
+          {question.questionType === "NUMBER" ? (
+            <input
+              id={question.id}
+              name={`answer_${question.id}`}
+              type="number"
+              min={0}
+              inputMode="decimal"
+              value={String(answers[question.id] ?? "")}
+              onBlur={(event) => {
+                const rawValue = event.target.value.trim();
+                if (!rawValue) return;
+                const numberValue = Number(rawValue);
+                if (Number.isFinite(numberValue)) {
+                  setAnswers((current) => ({ ...current, [question.id]: String(numberValue) }));
+                }
+              }}
+              onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))}
+              onFocus={(event) => {
+                if (event.currentTarget.value === "0") event.currentTarget.select();
+              }}
+              required={question.isRequired}
+              className="mt-3 h-12 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
+            />
+          ) : null}
+          {question.questionType === "SELECT" ? (
+            <select
+              id={question.id}
+              name={`answer_${question.id}`}
+              value={String(answers[question.id])}
+              onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))}
+              required={question.isRequired}
+              className="mt-3 h-12 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
+            >
+              {question.options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          ) : null}
+          {question.questionType === "BOOLEAN" ? (
+            <label className="mt-3 flex items-center justify-between gap-3 rounded-md border border-line bg-paper px-3 py-3">
+              <span className="text-sm text-coal/70">Add this option</span>
+              <input
+                type="checkbox"
+                name={`answer_${question.id}`}
+                value="true"
+                checked={Boolean(answers[question.id])}
+                onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.checked }))}
+                className="h-5 w-5 accent-[var(--quote-brand)]"
+              />
+            </label>
+          ) : null}
+          {question.questionType === "TEXT" ? (
+            <textarea
+              id={question.id}
+              name={`answer_${question.id}`}
+              rows={3}
+              value={String(answers[question.id])}
+              onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))}
+              required={question.isRequired}
+              className="mt-3 w-full rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none transition focus:border-[var(--quote-brand)] focus:bg-white"
+            />
+          ) : null}
+        </div>
+      ))}
+      <div className={cardClass}>
+        <h2 className="font-display text-xl font-bold text-ink">Your contact details</h2>
+        <p className="mt-1 text-sm text-coal/70">Required fields are validated before the quote request is saved.</p>
+        <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <input
+            required
+            name="customerName"
+            placeholder="Name"
+            className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white"
+          />
+          <input
+            required
+            name="customerEmail"
+            type="email"
+            placeholder="Email"
+            className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white"
+          />
+          <input
+            name="customerPhone"
+            placeholder="Phone"
+            className="h-12 rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white"
+          />
+          <textarea
+            name="customerNotes"
+            placeholder="Project notes"
+            rows={4}
+            className="rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none focus:border-[var(--quote-brand)] focus:bg-white md:col-span-2"
+          />
+        </div>
+        <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 px-4 py-3">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-900">Non-binding estimate</p>
+          <p className="mt-2 text-xs leading-5 text-amber-900/85">{estimateDisclaimer}</p>
+          <label className="mt-3 flex items-start gap-3 text-xs font-semibold leading-5 text-amber-950">
+            <input
+              required
+              name="acceptedLegalAcknowledgement"
+              type="checkbox"
+              className="mt-1 h-4 w-4 shrink-0 accent-[var(--quote-brand)]"
+            />
+            <span>
+              I understand this is a non-binding estimate and agree to the{" "}
+              <a href="/terms" target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                Terms
+              </a>{" "}
+              and{" "}
+              <a href="/privacy" target="_blank" rel="noreferrer" className="underline underline-offset-2">
+                Privacy Policy
+              </a>
+              .
+            </span>
+          </label>
+        </div>
+      </div>
+    </>
+  );
+
+  const footerNote = calculator.branding.footerText ? (
+    <div className="rounded-lg border border-line bg-white p-4 text-sm leading-6 text-coal/70">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-coal/45">{calculator.branding.displayName} note</p>
+      <p className="mt-2">{calculator.branding.footerText}</p>
+    </div>
+  ) : null;
+
+  const onSubmit = (event: React.FormEvent) => {
+    if (!allowSubmission) event.preventDefault();
+  };
+
+  // Embedded widget: fixed-height flex column — questions scroll, the estimate + submit stay pinned and visible.
+  if (isEmbed) {
+    return (
+      <form action={allowSubmission ? createQuoteSubmissionAction : undefined} className="flex min-h-0 flex-1 flex-col" style={quoteTheme} onSubmit={onSubmit}>
+        {hiddenFields}
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-5">
+          <div>
+            <h1 className="font-display text-2xl font-black leading-tight text-ink">{calculator.name}</h1>
+            {calculator.branding.introText ? (
+              <p className="mt-1 text-sm leading-6 text-coal/65">{calculator.branding.introText}</p>
+            ) : null}
+          </div>
+          {formBody}
+          {footerNote}
+        </div>
+        <div className="shrink-0 border-t border-line bg-white px-4 py-3 sm:px-5">
+          <div
+            className="flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-white shadow-soft"
+            style={{ background: `linear-gradient(135deg, ${calculator.branding.primaryColor}, #111827 72%)` }}
+          >
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-teal-100">Estimated price</p>
+              <p className="font-display text-2xl font-black leading-none">{formatDollars(total)}</p>
+            </div>
+            <SubmitButton
+              variant="secondary"
+              className="shrink-0 border border-white/15 bg-white !text-ink hover:bg-white/90 hover:!text-ink"
+              pendingLabel="Submitting..."
+              disabled={!allowSubmission}
+            >
+              {allowSubmission ? (
+                <>
+                  Submit <ArrowRight className="h-4 w-4" />
+                </>
+              ) : (
+                "Preview only"
+              )}
+            </SubmitButton>
+          </div>
+          {calculator.hideBranding ? null : (
+            <p className="mt-2 text-center text-[10px] font-semibold text-coal/40">
+              Powered by{" "}
+              <a
+                href="/?utm_source=embed&utm_medium=powered_by"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-coal/55 hover:text-teal-700 hover:underline"
+              >
+                QuoteBuilder Pro
+              </a>
+            </p>
+          )}
+        </div>
+      </form>
+    );
+  }
+
+  // Standalone quote page: two columns with a sticky estimate card.
+  return (
+    <form action={allowSubmission ? createQuoteSubmissionAction : undefined} className="grid gap-6 lg:grid-cols-[1fr_340px]" style={quoteTheme} onSubmit={onSubmit}>
+      {hiddenFields}
+      <section className="space-y-5">{formBody}</section>
       <aside>
         <div
-          className={variant === "embed" ? "rounded-lg border border-line p-4 text-white" : "sticky top-6 rounded-lg border border-line p-5 text-white shadow-soft"}
+          className="sticky top-6 rounded-lg border border-line p-5 text-white shadow-soft"
           style={{ background: `linear-gradient(135deg, ${calculator.branding.primaryColor}, #111827 72%)` }}
         >
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-100">Estimated Price</p>
-          <p className={variant === "embed" ? "mt-3 font-display text-3xl font-bold" : "mt-3 font-display text-4xl font-bold"}>{formatDollars(total)}</p>
-          <p className="mt-3 text-sm leading-6 text-white/70">
-            This updates in real time as customers answer the quote questions.
-          </p>
+          <p className="mt-3 font-display text-4xl font-bold">{formatDollars(total)}</p>
+          <p className="mt-3 text-sm leading-6 text-white/70">This updates in real time as customers answer the quote questions.</p>
           <SubmitButton
             variant="secondary"
             className="mt-5 w-full border border-white/15 bg-white !text-ink hover:bg-white/90 hover:!text-ink"
@@ -280,12 +347,7 @@ export function PublicQuoteForm({
             )}
           </SubmitButton>
         </div>
-        {calculator.branding.footerText ? (
-          <div className="mt-4 rounded-lg border border-line bg-white p-4 text-sm leading-6 text-coal/70">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-coal/45">{calculator.branding.displayName} note</p>
-            <p className="mt-2">{calculator.branding.footerText}</p>
-          </div>
-        ) : null}
+        {footerNote ? <div className="mt-4">{footerNote}</div> : null}
       </aside>
     </form>
   );

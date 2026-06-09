@@ -473,7 +473,7 @@
       .quote-frame {
         display: block;
         width: 100%;
-        min-height: 980px;
+        height: 720px;
         border: 0;
         background: var(--paper);
       }
@@ -810,7 +810,7 @@
                 <iframe
                   src="https://quote-builder-pro.com/embed/qb-815005d7840d/rolloff-container-rental-6?embedded=1&returnUrl=https%3A%2F%2Fquotebuilder-embed-demo.netlify.app%2F%23estimate&returnLabel=Phillips%20demo%20website"
                   title="Phillips Roll-Off Containers quote calculator"
-                  style="display:block;width:100%;min-height:980px;border:0;background:#f8f4ec"
+                  style="display:block;width:100%;height:720px;border:0;background:#f8f4ec"
                 ></iframe>
               </noscript>
               <div class="mobile-calculator-fallback">
@@ -866,23 +866,9 @@
         </div>
       </div>
     </footer>
-    <script>
-      (() => {
-        const frameKey = "qb-815005d7840d/rolloff-container-rental-6";
-        const iframe = document.querySelector("[data-quotebuilder-demo-frame='" + frameKey + "']");
-        const quoteBuilderOrigin = "https://quote-builder-pro.com";
-
-        if (!iframe) return;
-
-        window.addEventListener("message", (event) => {
-          const data = event.data || {};
-
-          if (event.origin !== quoteBuilderOrigin) return;
-          if (data.type !== "quotebuilder:resize" || (data.key || data.slug) !== frameKey || !data.height) return;
-
-          iframe.style.height = Math.max(Number(data.height), 620) + "px";
-        });
-      })();
-    </script>
+    <!--
+      The calculator is a fixed-height, self-contained widget (see .quote-frame { height }) that scrolls
+      internally with the Estimated Price + Submit pinned to the bottom. No auto-grow / resize listener.
+    -->
   </body>
 </html>

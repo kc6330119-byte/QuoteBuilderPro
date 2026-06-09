@@ -54,7 +54,7 @@ export function GET() {
   iframe.loading = "lazy";
   iframe.style.width = "100%";
   iframe.style.maxWidth = "100%";
-  iframe.style.minHeight = currentScript.getAttribute("data-min-height") || "680px";
+  iframe.style.height = (parseInt(currentScript.getAttribute("data-height") || currentScript.getAttribute("data-min-height") || "680", 10) || 680) + "px";
   iframe.style.border = "0";
   iframe.style.display = "block";
   iframe.style.overflow = "hidden";
@@ -64,16 +64,8 @@ export function GET() {
   container.innerHTML = "";
   container.appendChild(iframe);
 
-  function handleResize(event) {
-    if (event.origin !== baseUrl) return;
-    const data = event.data || {};
-    if (data.type !== "quotebuilder:resize" || (data.key || data.slug) !== frameKey || !data.height) return;
-
-    iframe.style.height = Math.max(Number(data.height), 520) + "px";
-  }
-
-  window.addEventListener("message", handleResize);
-
+  // The calculator is a fixed-height, self-contained widget that scrolls internally (the estimate stays
+  // pinned). Override the height with data-height on the script tag. No auto-grow / postMessage needed.
   function fitFrame() {
     iframe.style.width = "100%";
   }
