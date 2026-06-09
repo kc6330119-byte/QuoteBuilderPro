@@ -5,6 +5,7 @@ import { CalculatorBuilderGuide } from "@/components/calculator-builder-guide";
 import { CalculatorDangerActions } from "@/components/calculator-danger-actions";
 import { CalculatorEmbedPanel } from "@/components/calculator-embed-panel";
 import { CalculatorWorkspace } from "@/components/calculator-workspace";
+import { CopyEmbedButton } from "@/components/copy-embed-button";
 import { FieldHelp } from "@/components/field-help";
 import { SubmitButton } from "@/components/submit-button";
 import { updateCalculatorBrandingAction, updateCalculatorPublishStatusAction } from "@/lib/actions";
@@ -13,6 +14,7 @@ import { buildPublicQuotePath } from "@/lib/public-calculator-paths";
 
 export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorData }) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const embedSnippet = `<script src="${appUrl.replace(/\/$/, "")}/embed.js" data-public-id="${calculator.publicId}" data-slug="${calculator.slug}"></script>`;
 
   return (
     <div className="space-y-6">
@@ -28,9 +30,12 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
             <p className="mt-2 text-sm leading-6 text-coal/70">{calculator.description || "No description yet."}</p>
           </div>
           {calculator.isPublished ? (
-            <ButtonLink href={buildPublicQuotePath(calculator)} variant="outline">
-              Public quote <ArrowUpRight className="h-4 w-4" />
-            </ButtonLink>
+            <div className="flex flex-wrap items-center gap-2">
+              <CopyEmbedButton snippet={embedSnippet} />
+              <ButtonLink href={buildPublicQuotePath(calculator)} variant="outline">
+                Public quote <ArrowUpRight className="h-4 w-4" />
+              </ButtonLink>
+            </div>
           ) : (
             <Button type="button" variant="outline" disabled title="Publish this calculator before viewing it">
               Publish to view quote
@@ -49,8 +54,8 @@ export function CalculatorEditor({ calculator }: { calculator: CalculatorEditorD
             </p>
             <p className="mt-1 text-sm leading-6 text-coal/65">
               {calculator.isPublished
-                ? "Customers can use the public quote page and embedded widget."
-                : "Publish it when the questions and pricing are ready for customers."}
+                ? "Customers can use the public quote page and embedded widget. Grab your embed code from the button up top (or the panel at the bottom)."
+                : "Publish when your questions and pricing are ready — your embed code appears up top the moment you do."}
             </p>
           </div>
           <SubmitButton
