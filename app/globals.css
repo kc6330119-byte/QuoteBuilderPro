@@ -30,6 +30,20 @@ body {
   color: white;
 }
 
+/* Hide the native up/down spinners on number inputs. Price fields step by 0.01
+   (so decimal rates like $6.75/sq ft stay valid), which made the arrows nudge
+   amounts by a cent — useless for whole-dollar pricing. Values are typed. */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 .surface-grid {
   background-image:
     linear-gradient(rgba(25, 32, 29, 0.055) 1px, transparent 1px),
