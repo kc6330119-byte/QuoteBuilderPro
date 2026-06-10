@@ -9,6 +9,8 @@
       name="description"
       content="A hosted demo showing how a QuoteBuilder Pro roll-off container quote calculator can be embedded on a customer website."
     />
+    <link rel="preconnect" href="https://images.squarespace-cdn.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <style>
       :root {
         --red: #e8173f;
@@ -671,9 +673,260 @@
           display: block;
         }
       }
+
+      /* ============================================================
+         3D visualizer + GSAP polish (enhancement layer)
+         Everything below is additive; with JS or WebGL unavailable the
+         page renders exactly as before (static card grid stays).
+         ============================================================ */
+
+      #scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 140;
+        width: 100%;
+        height: 4px;
+        background: var(--red);
+        transform: scaleX(0);
+        transform-origin: 0 50%;
+        pointer-events: none;
+      }
+
+      /* Sticky header: wrapper goes full-width so the background reads as a bar;
+         .site-header inside keeps the original centered layout. */
+      .site-header-wrap {
+        position: sticky;
+        top: 0;
+        z-index: 90;
+        background: transparent;
+        transition: background 240ms ease, box-shadow 240ms ease;
+      }
+
+      .site-header-wrap.scrolled {
+        background: rgba(255, 253, 247, 0.93);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 12px 34px rgba(27, 37, 18, 0.14);
+      }
+
+      @media (max-width: 960px) {
+        .site-header-wrap {
+          position: static;
+        }
+      }
+
+      /* Hero delivery rig: decorative 2D container that "delivers" into frame. */
+      .hero-rig {
+        position: absolute;
+        z-index: 0;
+        bottom: -14px;
+        left: 50%;
+        width: clamp(240px, 28vw, 430px);
+        transform: translateX(-46%);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .hero-rig svg {
+        display: block;
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 26px 28px rgba(0, 0, 0, 0.45));
+      }
+
+      .hero-rig .dust {
+        position: absolute;
+        bottom: 4px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(248, 244, 236, 0.6);
+        filter: blur(7px);
+        opacity: 0;
+      }
+
+      .hero-rig .d1 { left: 6%; }
+      .hero-rig .d2 { left: 40%; bottom: 0; }
+      .hero-rig .d3 { left: 74%; }
+
+      @media (max-width: 960px) {
+        .hero-rig { display: none; }
+      }
+
+      /* Size visualizer */
+      .viz-shell {
+        margin-top: 34px;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background: var(--cream);
+        box-shadow: 0 16px 44px rgba(44, 53, 31, 0.08);
+        padding: clamp(16px, 2.6vw, 26px);
+      }
+
+      .viz-shell[hidden] { display: none; }
+
+      .viz-buttons {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .viz-btn {
+        flex: 1 0 auto;
+        min-height: 46px;
+        border: 2px solid var(--line);
+        border-radius: 999px;
+        padding: 0 18px;
+        background: #fff;
+        color: var(--green-dark);
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 1000;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 160ms ease;
+      }
+
+      .viz-btn:hover {
+        border-color: var(--red);
+        color: var(--red-dark);
+      }
+
+      .viz-btn.active {
+        border-color: var(--red);
+        background: var(--red);
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(232, 23, 63, 0.28);
+      }
+
+      .viz-stage {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(250px, 0.7fr);
+        gap: clamp(14px, 2.4vw, 26px);
+        align-items: stretch;
+        margin-top: 14px;
+      }
+
+      .viz-canvas-wrap {
+        position: relative;
+        overflow: hidden;
+        min-height: 430px;
+        border-radius: 18px;
+        background:
+          radial-gradient(circle at 50% 78%, rgba(120, 168, 63, 0.12), transparent 58%),
+          linear-gradient(rgba(255, 253, 247, 0.6), rgba(248, 244, 236, 0.9));
+      }
+
+      .viz-canvas-wrap canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        touch-action: pan-y;
+        cursor: grab;
+      }
+
+      .viz-canvas-wrap canvas.dragging { cursor: grabbing; }
+
+      .viz-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+        padding: clamp(18px, 2.2vw, 26px);
+      }
+
+      .viz-panel h3 {
+        margin: 0;
+        color: var(--red);
+        font-size: 2.2rem;
+        font-weight: 1000;
+        letter-spacing: -0.05em;
+        line-height: 1;
+      }
+
+      .viz-dims {
+        color: var(--green-dark);
+        font-size: 0.84rem;
+        font-weight: 900;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .viz-price {
+        margin-top: 6px;
+        color: var(--black);
+        font-size: 1.62rem;
+        font-weight: 1000;
+        letter-spacing: -0.03em;
+      }
+
+      .viz-price small {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .viz-loads {
+        align-self: flex-start;
+        border-radius: 999px;
+        background: rgba(120, 168, 63, 0.16);
+        color: var(--green-dark);
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 7px 12px;
+        margin-top: 4px;
+      }
+
+      .viz-copy {
+        margin: 8px 0 14px;
+        color: var(--muted);
+        font-size: 0.96rem;
+        line-height: 1.6;
+      }
+
+      .viz-panel .button { margin-top: auto; justify-content: center; }
+
+      .viz-hint {
+        margin: 12px 4px 0;
+        color: var(--muted);
+        font-size: 0.8rem;
+        letter-spacing: 0.04em;
+        text-align: center;
+      }
+
+      /* Once the 3D visualizer boots, it replaces the static grid (which stays
+         in the DOM as the no-JS / no-WebGL fallback). */
+      #containers.viz-on .container-grid { display: none; }
+
+      @media (max-width: 860px) {
+        .viz-stage { grid-template-columns: 1fr; }
+        .viz-canvas-wrap { min-height: 320px; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+      }
     </style>
+    <!-- Animation libs (pinned, deferred — never block first paint). Three.js is NOT
+         loaded here: the visualizer dynamic-imports it only when its section nears
+         the viewport, keeping WebGL entirely off the critical path. -->
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
   </head>
   <body>
+    <div id="scroll-progress" aria-hidden="true"></div>
     <div class="demo-banner">
       Demo preview only: this page shows how the QuoteBuilder Pro calculator could be embedded on the Phillips website.
       <a href="https://quote-builder-pro.com/?utm_source=demo&amp;utm_medium=demo_banner" target="_blank" rel="noopener">Build your own &rarr;</a>
@@ -687,7 +940,8 @@
       </div>
     </div>
 
-    <header class="site-header">
+    <header class="site-header-wrap">
+    <div class="site-header">
       <a class="brand" href="#">
         <img
           class="brand-logo"
@@ -705,10 +959,44 @@
         <a href="#service-area">Service area</a>
         <a href="#contact">Contact</a>
       </nav>
+    </div>
     </header>
 
     <main>
       <section class="hero">
+        <!-- Decorative "delivery" container: GSAP slides it in on load like a real
+             roll-off drop. Pure 2D SVG so the hero never waits on WebGL. -->
+        <div class="hero-rig" aria-hidden="true">
+          <svg viewBox="0 0 460 240" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <!-- skids -->
+            <rect x="34" y="206" width="372" height="9" rx="3" fill="#3a4434" />
+            <!-- body: rear vertical, angled nose at the front (right) -->
+            <path d="M40 84 L368 84 L430 132 L430 206 L40 206 Z" fill="#78a83f" stroke="#263f15" stroke-width="3" stroke-linejoin="round" />
+            <!-- top rim band -->
+            <path d="M40 84 L368 84 L380 93 L40 93 Z" fill="#59822e" />
+            <!-- rear door hardware -->
+            <rect x="46" y="100" width="10" height="100" rx="2" fill="#59822e" />
+            <rect x="40" y="118" width="34" height="8" rx="3" fill="#2c2f2a" />
+            <rect x="40" y="168" width="34" height="8" rx="3" fill="#2c2f2a" />
+            <!-- side ribs -->
+            <rect x="96" y="96" width="12" height="110" fill="#59822e" />
+            <rect x="152" y="96" width="12" height="110" fill="#59822e" />
+            <rect x="208" y="96" width="12" height="110" fill="#59822e" />
+            <rect x="264" y="96" width="12" height="110" fill="#59822e" />
+            <rect x="320" y="96" width="12" height="110" fill="#59822e" />
+            <!-- angled-nose rail + hook plate -->
+            <path d="M368 92 L424 135 L424 150 L362 102 Z" fill="#59822e" />
+            <rect x="406" y="150" width="20" height="42" rx="3" fill="#4c6c28" />
+            <!-- rollers -->
+            <circle cx="92" cy="216" r="16" fill="#2c2f2a" stroke="#151515" stroke-width="3" />
+            <circle cx="142" cy="216" r="16" fill="#2c2f2a" stroke="#151515" stroke-width="3" />
+            <circle cx="92" cy="216" r="5" fill="#6e7169" />
+            <circle cx="142" cy="216" r="5" fill="#6e7169" />
+          </svg>
+          <span class="dust d1"></span>
+          <span class="dust d2"></span>
+          <span class="dust d3"></span>
+        </div>
         <div class="section hero-inner">
           <div>
             <p class="eyebrow">Local roll-off container rentals</p>
@@ -735,11 +1023,11 @@
             </p>
             <div class="quick-facts">
               <div class="fact">
-                <strong>4</strong>
+                <strong data-count="4">4</strong>
                 <span>Container options</span>
               </div>
               <div class="fact">
-                <strong>24/7</strong>
+                <strong data-count="24" data-suffix="/7">24/7</strong>
                 <span>Online estimate</span>
               </div>
             </div>
@@ -754,6 +1042,34 @@
           <p class="body-copy">
             Container sizes stay easy to scan, and visitors go straight into the quote calculator when they are ready.
           </p>
+        </div>
+
+        <!-- 3D size visualizer. Hidden until Three.js boots successfully; the static
+             card grid below remains the fallback for no-JS / no-WebGL visitors. -->
+        <div class="viz-shell" id="size-viz" hidden>
+          <div class="viz-buttons" role="group" aria-label="Choose a container size">
+            <button type="button" class="viz-btn active" data-size="s11" aria-pressed="true">11 Yard</button>
+            <button type="button" class="viz-btn" data-size="s16" aria-pressed="false">16 Yard</button>
+            <button type="button" class="viz-btn" data-size="s20l" aria-pressed="false">20 Long</button>
+            <button type="button" class="viz-btn" data-size="s20t" aria-pressed="false">20 Tall</button>
+          </div>
+          <div class="viz-stage">
+            <div class="viz-canvas-wrap">
+              <canvas id="viz-canvas" role="img" aria-label="3D model of the selected roll-off container with a person and pickup truck for scale"></canvas>
+            </div>
+            <aside class="viz-panel" aria-live="polite">
+              <h3 id="viz-name">11 Yard</h3>
+              <div class="viz-dims" id="viz-dims">11' L &times; 7'6" W &times; 4' H</div>
+              <div class="viz-price">
+                <span id="viz-price">From $295</span>
+                <small id="viz-perton">+ $79/ton disposal &middot; same-day delivery available</small>
+              </div>
+              <span class="viz-loads" id="viz-loads">&asymp; 5 pickup truck loads</span>
+              <p class="viz-copy" id="viz-copy">Compact option for smaller cleanouts, tight spaces, and lighter project debris.</p>
+              <a class="button" id="viz-cta" href="#estimate">Get an estimate for this size</a>
+            </aside>
+          </div>
+          <p class="viz-hint" id="viz-hint">Drag to spin &middot; sizes shown at true relative scale</p>
         </div>
 
         <div class="container-grid" aria-label="Container options">
@@ -870,5 +1186,452 @@
       The calculator is a fixed-height, self-contained widget (see .quote-frame { height }) that scrolls
       internally with the Estimated Price + Submit pinned to the bottom. No auto-grow / resize listener.
     -->
+
+    <script>
+      // ===================== GSAP polish: hero, scroll, counters =====================
+      // Defensive by design: with GSAP unavailable the page renders fully static.
+      window.addEventListener("DOMContentLoaded", () => {
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const G = window.gsap;
+
+        // Sticky header surface (CSS class toggle; independent of GSAP)
+        const header = document.querySelector(".site-header-wrap");
+        const onScroll = () => header && header.classList.toggle("scrolled", scrollY > 8);
+        addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+
+        // Stat counters
+        const counters = [...document.querySelectorAll("[data-count]")];
+        const finishCounter = (el) => { el.textContent = el.dataset.count + (el.dataset.suffix || ""); };
+        const runCounter = (el) => {
+          if (!G || reduced) return finishCounter(el);
+          const o = { v: 0 };
+          const end = +el.dataset.count;
+          const suffix = el.dataset.suffix || "";
+          G.to(o, { v: end, duration: 1.1, ease: "power1.out", onUpdate: () => { el.textContent = Math.round(o.v) + suffix; } });
+        };
+
+        if (!G) {
+          const bar = document.getElementById("scroll-progress");
+          const prog = () => {
+            const max = document.documentElement.scrollHeight - innerHeight;
+            bar.style.transform = "scaleX(" + (max > 0 ? scrollY / max : 0) + ")";
+          };
+          addEventListener("scroll", prog, { passive: true });
+          prog();
+          counters.forEach(finishCounter);
+          return;
+        }
+
+        G.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+        // Scroll progress bar (brand accent)
+        G.to("#scroll-progress", { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.4 } });
+
+        // Hero delivery choreography: container angles in from upper-right, settles
+        // level with a bounce + dust puff; copy staggers in just after it lands.
+        const rig = document.querySelector(".hero-rig");
+        if (reduced) {
+          if (rig) G.set(rig, { autoAlpha: 1 });
+          counters.forEach(finishCounter);
+        } else {
+          const tl = G.timeline({ defaults: { ease: "power3.out" } });
+          if (rig) {
+            G.set(rig, { xPercent: 30, yPercent: -52, rotation: 7, autoAlpha: 0 });
+            tl.to(rig, { autoAlpha: 1, duration: 0.12 }, 0.05)
+              .to(rig, { xPercent: 0, yPercent: 0, duration: 0.85, ease: "power2.in" }, 0.05)
+              .to(rig, { rotation: 0, duration: 0.42, ease: "back.out(2.4)" }, "-=0.16")
+              .to(".hero-rig .dust", { autoAlpha: 0.85, scale: 1.7, duration: 0.16, stagger: 0.05 }, "-=0.3")
+              .to(".hero-rig .dust", { autoAlpha: 0, scale: 2.8, duration: 0.55, stagger: 0.05 }, "-=0.08");
+            G.to(rig, { y: "-=7", duration: 2.8, yoyo: true, repeat: -1, ease: "sine.inOut", delay: 2 });
+          }
+          tl.from([".hero .eyebrow", ".hero h1", ".hero .lead", ".hero-actions"], { y: 26, autoAlpha: 0, duration: 0.55, stagger: 0.1 }, 0.5)
+            .from(".hero-card", { y: 30, autoAlpha: 0, duration: 0.6 }, 0.85)
+            .add(() => counters.forEach(runCounter), 1.15);
+        }
+
+        // Section reveals: once-only, subtle. The embed card fades opacity-only —
+        // its space is fully reserved, so the iframe never shifts layout.
+        const reveal = (targets, trigger, y) => {
+          G.from(targets, {
+            autoAlpha: 0,
+            y: reduced ? 0 : (y == null ? 26 : y),
+            duration: reduced ? 0.4 : 0.6,
+            stagger: reduced ? 0 : 0.09,
+            ease: "power2.out",
+            scrollTrigger: { trigger, start: "top 80%", once: true }
+          });
+        };
+        reveal("#containers .section-heading > *", "#containers");
+        reveal("#estimate .estimate-grid > div:first-child > *", "#estimate");
+        G.from(".embed-card", {
+          autoAlpha: 0, duration: 0.7, ease: "power1.out",
+          scrollTrigger: { trigger: "#estimate", start: "top 75%", once: true }
+        });
+        reveal("#service-area > *", "#service-area", 30);
+      });
+    </script>
+
+    <script type="module">
+      // ============================ 3D SIZE VISUALIZER ============================
+      // Three.js is dynamic-imported only when the sizes section nears the viewport,
+      // so WebGL never touches the critical path. Any failure (no WebGL, blocked CDN,
+      // old browser) leaves the static card grid exactly as it was.
+      (() => {
+        const section = document.getElementById("containers");
+        const shell = document.getElementById("size-viz");
+        const canvas = document.getElementById("viz-canvas");
+        const wrap = canvas && canvas.parentElement;
+        if (!section || !shell || !canvas) return;
+
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const coarse = matchMedia("(pointer: coarse)").matches;
+
+        // Real Phillips dimensions; prices mirror the live calculator's rules
+        // (base $295, the two 20s +$30, $79/ton hauled). "Pickup loads" compares
+        // true cubic volume against a full-size pickup bed (~2.5 cu yd).
+        const SIZES = {
+          s11:  { name: "11 Yard", L: 11, W: 7.5, H: 4,   price: "From $295", loads: 5,
+                  dims: "11' L × 7'6\" W × 4' H",
+                  copy: "Compact option for smaller cleanouts, tight spaces, and lighter project debris." },
+          s16:  { name: "16 Yard", L: 13, W: 7.5, H: 4,   price: "From $295", loads: 6,
+                  dims: "13' L × 7'6\" W × 4' H",
+                  copy: "Useful for mid-size remodels, roofing projects, and garage or household cleanouts." },
+          s20l: { name: "20 Long", L: 17, W: 7.5, H: 5,   price: "From $325", loads: 9,
+                  dims: "17' L × 7'6\" W × 5' H",
+                  copy: "A longer container layout for projects that need more room and easier loading access." },
+          s20t: { name: "20 Tall", L: 17, W: 7.5, H: 6.5, price: "From $325", loads: 12,
+                  dims: "17' L × 7'6\" W × 6'6\" H",
+                  copy: "Higher capacity for larger jobs, construction debris, and bulkier materials." }
+        };
+
+        let booted = false;
+        const lazy = new IntersectionObserver((entries) => {
+          if (booted || !entries.some((e) => e.isIntersecting)) return;
+          booted = true;
+          lazy.disconnect();
+          boot().catch(() => { /* leave the static grid in place */ });
+        }, { rootMargin: "600px 0px" });
+        lazy.observe(section);
+
+        async function boot() {
+          const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js");
+
+          let renderer;
+          try {
+            renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "low-power" });
+          } catch (e) {
+            return; // no WebGL: fallback grid stays
+          }
+          renderer.setClearColor(0x000000, 0);
+
+          const scene = new THREE.Scene();
+          const camera = new THREE.PerspectiveCamera(32, 1, 0.5, 400);
+          const AZ = 0.66, EL = 0.33; // camera azimuth/elevation (radians)
+
+          // Three-point lighting; the contact shadow is a cheap gradient blob,
+          // so no shadow maps are needed at all.
+          scene.add(new THREE.HemisphereLight(0xfff8ec, 0x9aa08a, 1.05));
+          const key = new THREE.DirectionalLight(0xffffff, 1.55);
+          key.position.set(7, 10, 5);
+          scene.add(key);
+          const fill = new THREE.DirectionalLight(0xdfe8d2, 0.5);
+          fill.position.set(-8, 5, -6);
+          scene.add(fill);
+
+          // Brand-anchored paint (page green) + steel hardware
+          const paint = new THREE.MeshStandardMaterial({ color: 0x76a23c, metalness: 0.3, roughness: 0.58 });
+          const paintDark = new THREE.MeshStandardMaterial({ color: 0x577f2c, metalness: 0.34, roughness: 0.62 });
+          const steel = new THREE.MeshStandardMaterial({ color: 0x4c4f49, metalness: 0.5, roughness: 0.5 });
+          const grayRef = new THREE.MeshStandardMaterial({ color: 0x9a9d97, metalness: 0.1, roughness: 0.85 });
+          const darkRef = new THREE.MeshBasicMaterial({ color: 0x3c423a, side: THREE.DoubleSide });
+
+          const unit = new THREE.BoxGeometry(1, 1, 1);
+          const unitP = new THREE.BoxGeometry(1, 1, 1);
+          unitP.translate(0, 0.5, 0); // bottom-pivot box for the angled nose
+
+          const world = new THREE.Group(); // mouse-parallax tilt
+          const rig = new THREE.Group();   // user drag rotation
+          const box = new THREE.Group();   // the container itself
+          world.add(rig); rig.add(box); scene.add(world);
+
+          const mk = (mat, geo, parent) => {
+            const m = new THREE.Mesh(geo || unit, mat);
+            (parent || box).add(m);
+            return m;
+          };
+
+          // --- container parts: unit boxes, scaled per-axis in layout() so wall
+          //     thickness stays constant while L/W/H morph (no geometry rebuilds) ---
+          const yB = 0.34; // skid height — container floor sits on rails
+          const t = 0.2;   // wall thickness
+          const floor = mk(paintDark);
+          const wallL = mk(paint), wallR = mk(paint);
+          const nose = mk(paint, unitP); // angled front
+          const door = mk(paint);
+          const doorBar1 = mk(steel), doorBar2 = mk(steel);
+          const rimL = mk(paintDark), rimR = mk(paintDark), rimB = mk(paintDark);
+          const skid1 = mk(paintDark), skid2 = mk(paintDark);
+          const wheelGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.36, 18);
+          const wheel1 = mk(steel, wheelGeo), wheel2 = mk(steel, wheelGeo);
+          wheel1.rotation.x = wheel2.rotation.x = Math.PI / 2;
+          const MAX_RIBS = 8;
+          const ribs = [];
+          for (let i = 0; i < MAX_RIBS * 2; i++) ribs.push(mk(paintDark));
+
+          // Soft contact shadow: radial-gradient canvas texture on a ground plane
+          const sc = document.createElement("canvas");
+          sc.width = sc.height = 128;
+          const sg = sc.getContext("2d");
+          const grad = sg.createRadialGradient(64, 64, 6, 64, 64, 62);
+          grad.addColorStop(0, "rgba(20,24,16,0.42)");
+          grad.addColorStop(1, "rgba(20,24,16,0)");
+          sg.fillStyle = grad;
+          sg.fillRect(0, 0, 128, 128);
+          const shadow = new THREE.Mesh(
+            new THREE.PlaneGeometry(1, 1),
+            new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, depthWrite: false })
+          );
+          shadow.rotation.x = -Math.PI / 2;
+          shadow.position.y = 0.02;
+          rig.add(shadow);
+
+          // --- scale references ---
+          // 6 ft human silhouette (flat, billboarded toward the camera)
+          const human = new THREE.Group();
+          rig.add(human);
+          const flat = (w, h, x, y) => {
+            const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), darkRef);
+            m.position.set(x, y, 0);
+            human.add(m);
+          };
+          flat(0.46, 2.7, -0.3, 1.35);
+          flat(0.46, 2.7, 0.3, 1.35);
+          flat(1.28, 2.25, 0, 3.72);
+          const head = new THREE.Mesh(new THREE.CircleGeometry(0.45, 24), darkRef);
+          head.position.set(0, 5.5, 0);
+          human.add(head);
+
+          // Low-poly full-size pickup (~19' long) parked behind for scale
+          const truck = new THREE.Group();
+          rig.add(truck);
+          const tb = (sx, sy, sz, x, y, z) => {
+            const m = mk(grayRef, unit, truck);
+            m.scale.set(sx, sy, sz);
+            m.position.set(x, y, z);
+          };
+          tb(19, 1.9, 6.4, 0, 2.1, 0);
+          tb(5.4, 2.1, 6.0, 1.6, 4.1, 0);
+          tb(4.8, 1.2, 6.0, 6.2, 3.4, 0);
+          tb(7.6, 1.4, 0.3, -5.2, 3.6, 2.9);
+          tb(7.6, 1.4, 0.3, -5.2, 3.6, -2.9);
+          tb(0.3, 1.4, 6.0, -8.9, 3.6, 0);
+          [[5.7, 2.6], [5.7, -2.6], [-5.7, 2.6], [-5.7, -2.6]].forEach(([x, z]) => {
+            const w = mk(steel, new THREE.CylinderGeometry(1.25, 1.25, 0.7, 16), truck);
+            w.rotation.x = Math.PI / 2;
+            w.position.set(x, 1.25, z);
+          });
+          truck.position.set(-2, 0, -13.5);
+
+          // --- parametric layout: repositions/rescales parts for dims {L,W,H} ---
+          const dims = { L: SIZES.s11.L, W: SIZES.s11.W, H: SIZES.s11.H };
+          function layout(d) {
+            const wallH = d.H - t;
+            const wallY = yB + t + wallH / 2;
+            floor.scale.set(d.L, t, d.W);
+            floor.position.set(0, yB + t / 2, 0);
+            wallL.scale.set(d.L, wallH, t);
+            wallL.position.set(0, wallY, -(d.W - t) / 2);
+            wallR.scale.set(d.L, wallH, t);
+            wallR.position.set(0, wallY, (d.W - t) / 2);
+            door.scale.set(t, wallH, d.W - 2 * t);
+            door.position.set(-(d.L - t) / 2, wallY, 0);
+            doorBar1.scale.set(0.14, 0.3, d.W * 0.9);
+            doorBar1.position.set(-d.L / 2 - 0.1, yB + d.H * 0.36, 0);
+            doorBar2.scale.set(0.14, 0.3, d.W * 0.9);
+            doorBar2.position.set(-d.L / 2 - 0.1, yB + d.H * 0.72, 0);
+            nose.scale.set(t, d.H - t + 0.55, d.W - 2 * t);
+            nose.position.set((d.L - t) / 2, yB + t * 0.75, 0);
+            nose.rotation.z = -0.21;
+            rimL.scale.set(d.L + 0.08, 0.24, 0.26);
+            rimL.position.set(0, yB + d.H, -(d.W - t) / 2);
+            rimR.scale.set(d.L + 0.08, 0.24, 0.26);
+            rimR.position.set(0, yB + d.H, (d.W - t) / 2);
+            rimB.scale.set(0.26, 0.24, d.W);
+            rimB.position.set(-(d.L - t) / 2, yB + d.H, 0);
+            skid1.scale.set(d.L * 0.94, yB, 0.34);
+            skid1.position.set(0, yB / 2, -d.W / 4);
+            skid2.scale.set(d.L * 0.94, yB, 0.34);
+            skid2.position.set(0, yB / 2, d.W / 4);
+            wheel1.position.set(-d.L / 2 + 1.1, 0.5, -d.W / 4);
+            wheel2.position.set(-d.L / 2 + 1.1, 0.5, d.W / 4);
+            const n = Math.max(4, Math.min(MAX_RIBS, Math.round(d.L * 0.47)));
+            for (let i = 0; i < MAX_RIBS; i++) {
+              const show = i < n;
+              const x = -d.L * 0.42 + (i * (d.L * 0.78)) / (n - 1);
+              [ribs[i], ribs[i + MAX_RIBS]].forEach((r, side) => {
+                r.visible = show;
+                if (show) {
+                  r.scale.set(0.2, wallH * 0.86, 0.14);
+                  r.position.set(x, wallY, (side ? 1 : -1) * (d.W / 2 + 0.06));
+                }
+              });
+            }
+            shadow.scale.set(d.L + 6, d.W + 7, 1);
+            human.position.set(d.L / 2 + 3.1, 0, d.W / 2 + 1.1);
+          }
+
+          // --- camera framing: reframes so every size fits comfortably ---
+          const camTarget = new THREE.Vector3();
+          const aim = () => camera.lookAt(camTarget);
+          function frame(d, animate) {
+            const targetY = yB + d.H * 0.42;
+            const dist = Math.max(d.L + 9, d.H * 2.9 + 8, 20) * 1.58;
+            const px = Math.sin(AZ) * Math.cos(EL) * dist;
+            const pz = Math.cos(AZ) * Math.cos(EL) * dist;
+            const py = Math.sin(EL) * dist + targetY;
+            if (animate && window.gsap && !reduced) {
+              window.gsap.to(camTarget, { y: targetY, duration: 1.2, ease: "power2.inOut" });
+              window.gsap.to(camera.position, { x: px, y: py, z: pz, duration: 1.2, ease: "power2.inOut", onUpdate: aim, onComplete: aim });
+            } else {
+              camTarget.set(0, targetY, 0);
+              camera.position.set(px, py, pz);
+              aim();
+            }
+          }
+
+          function resize() {
+            const w = wrap.clientWidth, h = wrap.clientHeight;
+            if (!w || !h) return;
+            renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+            renderer.setSize(w, h, false);
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+          }
+          new ResizeObserver(() => { resize(); render(); }).observe(wrap);
+
+          // --- info panel + size selection ---
+          const el = {
+            name: document.getElementById("viz-name"),
+            dims: document.getElementById("viz-dims"),
+            price: document.getElementById("viz-price"),
+            loads: document.getElementById("viz-loads"),
+            copy: document.getElementById("viz-copy")
+          };
+          const panelEls = [el.name, el.dims, el.price.parentElement, el.loads, el.copy];
+          const buttons = [...shell.querySelectorAll(".viz-btn")];
+
+          function select(key, instant) {
+            const S = SIZES[key];
+            buttons.forEach((b) => {
+              const on = b.dataset.size === key;
+              b.classList.toggle("active", on);
+              b.setAttribute("aria-pressed", String(on));
+            });
+            const swap = () => {
+              el.name.textContent = S.name;
+              el.dims.textContent = S.dims;
+              el.price.textContent = S.price;
+              el.loads.textContent = "≈ " + S.loads + " pickup truck loads";
+              el.copy.textContent = S.copy;
+            };
+            const G = window.gsap;
+            if (G && !reduced && !instant) {
+              G.timeline()
+                .to(panelEls, { y: -8, autoAlpha: 0, duration: 0.16, stagger: 0.02, ease: "power1.in" })
+                .add(swap)
+                .to(panelEls, { y: 0, autoAlpha: 1, duration: 0.3, stagger: 0.03, ease: "power2.out" });
+              G.to(dims, { L: S.L, W: S.W, H: S.H, duration: 1.2, ease: "power2.inOut", onUpdate: () => layout(dims) });
+              frame(S, true);
+            } else {
+              swap();
+              dims.L = S.L; dims.W = S.W; dims.H = S.H;
+              layout(dims);
+              frame(S, false);
+              if (G && !instant) G.fromTo(canvas, { autoAlpha: 0.25 }, { autoAlpha: 1, duration: 0.35 }); // reduced-motion crossfade
+              render();
+            }
+          }
+          buttons.forEach((b) => b.addEventListener("click", () => select(b.dataset.size, false)));
+
+          // CTA: GSAP smooth-scroll to the estimate embed
+          document.getElementById("viz-cta").addEventListener("click", (e) => {
+            const G = window.gsap;
+            if (G && G.plugins && G.plugins.scrollTo && !reduced) {
+              e.preventDefault();
+              G.to(window, { scrollTo: { y: "#estimate", offsetY: 8 }, duration: 0.9, ease: "power2.inOut" });
+            }
+          });
+
+          // --- interaction: drag-to-rotate (desktop), parallax, idle spin ---
+          let dragging = false, lastX = 0, idleAt = 0;
+          if (!coarse) {
+            canvas.addEventListener("pointerdown", (e) => {
+              dragging = true;
+              lastX = e.clientX;
+              canvas.classList.add("dragging");
+              canvas.setPointerCapture(e.pointerId);
+            });
+            canvas.addEventListener("pointermove", (e) => {
+              if (!dragging) return;
+              rig.rotation.y += (e.clientX - lastX) * 0.006;
+              lastX = e.clientX;
+            });
+            const end = (e) => {
+              if (!dragging) return;
+              dragging = false;
+              canvas.classList.remove("dragging");
+              idleAt = performance.now() + 3500; // resume idle spin after a pause
+            };
+            canvas.addEventListener("pointerup", end);
+            canvas.addEventListener("pointercancel", end);
+          }
+          let nx = 0, ny = 0, pNX = 0, pNY = 0;
+          if (!coarse && !reduced) {
+            addEventListener("pointermove", (e) => {
+              nx = (e.clientX / innerWidth) * 2 - 1;
+              ny = (e.clientY / innerHeight) * 2 - 1;
+            }, { passive: true });
+          }
+
+          // --- render loop: paused off-screen and in hidden tabs ---
+          let visible = false;
+          new IntersectionObserver((es) => { visible = es.some((e) => e.isIntersecting); }, { threshold: 0 }).observe(wrap);
+          const render = () => renderer.render(scene, camera);
+          let last = performance.now();
+          function loop(now) {
+            requestAnimationFrame(loop);
+            if (!visible || document.hidden) { last = now; return; }
+            const dt = Math.min((now - last) / 1000, 0.05);
+            last = now;
+            if (!reduced && !dragging && now > idleAt) rig.rotation.y += dt * 0.12; // gentle idle spin
+            if (!coarse && !reduced) {
+              pNX += (nx * 0.07 - pNX) * 0.05;
+              pNY += (ny * 0.04 - pNY) * 0.05;
+              world.rotation.y = pNX;
+              world.rotation.x = pNY;
+            }
+            // keep the silhouette facing the camera as everything rotates
+            human.rotation.y = AZ - rig.rotation.y - world.rotation.y;
+            render();
+          }
+
+          // --- reveal: swap the static grid for the live visualizer ---
+          shell.hidden = false;
+          section.classList.add("viz-on");
+          resize();
+          layout(dims);
+          select("s11", true);
+          if (coarse) document.getElementById("viz-hint").textContent = "Sizes shown at true relative scale";
+          if (window.gsap && !reduced) {
+            window.gsap.from(shell, { y: 22, autoAlpha: 0, duration: 0.55, ease: "power2.out" });
+          }
+          requestAnimationFrame(loop);
+
+          // verification handle (harmless on a demo page)
+          window.__viz = { renderer, scene, dims, select, rig };
+        }
+      })();
+    </script>
   </body>
 </html>
