@@ -858,23 +858,6 @@
         text-transform: uppercase;
       }
 
-      .viz-price {
-        margin-top: 6px;
-        color: var(--black);
-        font-size: 1.62rem;
-        font-weight: 1000;
-        letter-spacing: -0.03em;
-      }
-
-      .viz-price small {
-        display: block;
-        margin-top: 2px;
-        color: var(--muted);
-        font-size: 0.82rem;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-      }
-
       .viz-loads {
         align-self: flex-start;
         border-radius: 999px;
@@ -970,23 +953,19 @@
           <svg viewBox="0 0 460 240" xmlns="http://www.w3.org/2000/svg" fill="none">
             <!-- skids -->
             <rect x="34" y="206" width="372" height="9" rx="3" fill="#3a4434" />
-            <!-- body: rear vertical, angled nose at the front (right) -->
-            <path d="M40 84 L368 84 L430 132 L430 206 L40 206 Z" fill="#78a83f" stroke="#263f15" stroke-width="3" stroke-linejoin="round" />
+            <!-- body: plain rear (no door — matches the real fleet), angled nose at the front (right) -->
+            <path d="M40 84 L368 84 L430 132 L430 206 L40 206 Z" fill="#7eb242" stroke="#263f15" stroke-width="3" stroke-linejoin="round" />
             <!-- top rim band -->
-            <path d="M40 84 L368 84 L380 93 L40 93 Z" fill="#59822e" />
-            <!-- rear door hardware -->
-            <rect x="46" y="100" width="10" height="100" rx="2" fill="#59822e" />
-            <rect x="40" y="118" width="34" height="8" rx="3" fill="#2c2f2a" />
-            <rect x="40" y="168" width="34" height="8" rx="3" fill="#2c2f2a" />
-            <!-- side ribs -->
-            <rect x="96" y="96" width="12" height="110" fill="#59822e" />
-            <rect x="152" y="96" width="12" height="110" fill="#59822e" />
-            <rect x="208" y="96" width="12" height="110" fill="#59822e" />
-            <rect x="264" y="96" width="12" height="110" fill="#59822e" />
-            <rect x="320" y="96" width="12" height="110" fill="#59822e" />
-            <!-- angled-nose rail + hook plate -->
-            <path d="M368 92 L424 135 L424 150 L362 102 Z" fill="#59822e" />
-            <rect x="406" y="150" width="20" height="42" rx="3" fill="#4c6c28" />
+            <path d="M40 84 L368 84 L380 93 L40 93 Z" fill="#5c8a2e" />
+            <!-- rear corner post -->
+            <rect x="40" y="93" width="14" height="113" fill="#5c8a2e" />
+            <!-- low rub-rail skirt: smooth slab sides like the photos -->
+            <rect x="44" y="188" width="372" height="11" fill="#5c8a2e" />
+            <!-- angled nose rail + center hook spine -->
+            <path d="M368 92 L424 135 L424 150 L362 102 Z" fill="#5c8a2e" />
+            <path d="M382 95 L428 131 L428 145 L374 103 Z" fill="#6da136" />
+            <!-- cable hook protruding from the upper nose -->
+            <path d="M392 102 q 18 -14 28 0 q 6 10 -6 16" stroke="#2c2f2a" stroke-width="7" fill="none" stroke-linecap="round" />
             <!-- rollers -->
             <circle cx="92" cy="216" r="16" fill="#2c2f2a" stroke="#151515" stroke-width="3" />
             <circle cx="142" cy="216" r="16" fill="#2c2f2a" stroke="#151515" stroke-width="3" />
@@ -1060,10 +1039,6 @@
             <aside class="viz-panel" aria-live="polite">
               <h3 id="viz-name">11 Yard</h3>
               <div class="viz-dims" id="viz-dims">11' L &times; 7'6" W &times; 4' H</div>
-              <div class="viz-price">
-                <span id="viz-price">From $295</span>
-                <small id="viz-perton">+ $79/ton disposal &middot; same-day delivery available</small>
-              </div>
               <span class="viz-loads" id="viz-loads">&asymp; 5 pickup truck loads</span>
               <p class="viz-copy" id="viz-copy">Compact option for smaller cleanouts, tight spaces, and lighter project debris.</p>
               <a class="button" id="viz-cta" href="#estimate">Get an estimate for this size</a>
@@ -1287,20 +1262,21 @@
         const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
         const coarse = matchMedia("(pointer: coarse)").matches;
 
-        // Real Phillips dimensions; prices mirror the live calculator's rules
-        // (base $295, the two 20s +$30, $79/ton hauled). "Pickup loads" compares
-        // true cubic volume against a full-size pickup bed (~2.5 cu yd).
+        // Real Phillips dimensions. Pricing intentionally lives ONLY in the embedded
+        // calculator — the panel never states a number, so it can't contradict it.
+        // "Pickup loads" compares true cubic volume against a full-size pickup bed
+        // (~2.5 cu yd).
         const SIZES = {
-          s11:  { name: "11 Yard", L: 11, W: 7.5, H: 4,   price: "From $295", loads: 5,
+          s11:  { name: "11 Yard", L: 11, W: 7.5, H: 4,   loads: 5,
                   dims: "11' L × 7'6\" W × 4' H",
                   copy: "Compact option for smaller cleanouts, tight spaces, and lighter project debris." },
-          s16:  { name: "16 Yard", L: 13, W: 7.5, H: 4,   price: "From $295", loads: 6,
+          s16:  { name: "16 Yard", L: 13, W: 7.5, H: 4,   loads: 6,
                   dims: "13' L × 7'6\" W × 4' H",
                   copy: "Useful for mid-size remodels, roofing projects, and garage or household cleanouts." },
-          s20l: { name: "20 Long", L: 17, W: 7.5, H: 5,   price: "From $325", loads: 9,
+          s20l: { name: "20 Long", L: 17, W: 7.5, H: 5,   loads: 9,
                   dims: "17' L × 7'6\" W × 5' H",
                   copy: "A longer container layout for projects that need more room and easier loading access." },
-          s20t: { name: "20 Tall", L: 17, W: 7.5, H: 6.5, price: "From $325", loads: 12,
+          s20t: { name: "20 Tall", L: 17, W: 7.5, H: 6.5, loads: 12,
                   dims: "17' L × 7'6\" W × 6'6\" H",
                   copy: "Higher capacity for larger jobs, construction debris, and bulkier materials." }
         };
@@ -1331,17 +1307,17 @@
 
           // Three-point lighting; the contact shadow is a cheap gradient blob,
           // so no shadow maps are needed at all.
-          scene.add(new THREE.HemisphereLight(0xfff8ec, 0x9aa08a, 1.05));
+          scene.add(new THREE.HemisphereLight(0xfff8ec, 0x9aa08a, 1.2));
           const key = new THREE.DirectionalLight(0xffffff, 1.55);
           key.position.set(7, 10, 5);
           scene.add(key);
-          const fill = new THREE.DirectionalLight(0xdfe8d2, 0.5);
+          const fill = new THREE.DirectionalLight(0xdfe8d2, 0.85);
           fill.position.set(-8, 5, -6);
           scene.add(fill);
 
-          // Brand-anchored paint (page green) + steel hardware
-          const paint = new THREE.MeshStandardMaterial({ color: 0x76a23c, metalness: 0.3, roughness: 0.58 });
-          const paintDark = new THREE.MeshStandardMaterial({ color: 0x577f2c, metalness: 0.34, roughness: 0.62 });
+          // Paint matched to the fleet photos (bright apple green) + steel hardware
+          const paint = new THREE.MeshStandardMaterial({ color: 0x7eb242, metalness: 0.3, roughness: 0.58 });
+          const paintDark = new THREE.MeshStandardMaterial({ color: 0x5c8a2e, metalness: 0.34, roughness: 0.62 });
           const steel = new THREE.MeshStandardMaterial({ color: 0x4c4f49, metalness: 0.5, roughness: 0.5 });
           const grayRef = new THREE.MeshStandardMaterial({ color: 0x9a9d97, metalness: 0.1, roughness: 0.85 });
           const darkRef = new THREE.MeshBasicMaterial({ color: 0x3c423a, side: THREE.DoubleSide });
@@ -1366,18 +1342,25 @@
           const yB = 0.34; // skid height — container floor sits on rails
           const t = 0.2;   // wall thickness
           const floor = mk(paintDark);
-          const wallL = mk(paint), wallR = mk(paint);
-          const nose = mk(paint, unitP); // angled front
-          const door = mk(paint);
-          const doorBar1 = mk(steel), doorBar2 = mk(steel);
+          const wallL = mk(paint), wallR = mk(paint);   // smooth slab sides, like the fleet
+          const nose = mk(paint, unitP);                // angled front (hook end)
+          const rear = mk(paint);                       // plain end panel — no door on Phillips containers
+          const postL = mk(paintDark), postR = mk(paintDark); // rear corner posts
+          const railL = mk(paintDark), railR = mk(paintDark); // low rub-rail skirt
           const rimL = mk(paintDark), rimR = mk(paintDark), rimB = mk(paintDark);
           const skid1 = mk(paintDark), skid2 = mk(paintDark);
           const wheelGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.36, 18);
           const wheel1 = mk(steel, wheelGeo), wheel2 = mk(steel, wheelGeo);
           wheel1.rotation.x = wheel2.rotation.x = Math.PI / 2;
-          const MAX_RIBS = 8;
-          const ribs = [];
-          for (let i = 0; i < MAX_RIBS * 2; i++) ribs.push(mk(paintDark));
+
+          // Cable-hook assembly riding the angled nose: center spine up the slope,
+          // hook pin held between two cheek plates near the top — the photo look.
+          const noseRig = new THREE.Group();
+          box.add(noseRig);
+          const spine = mk(paintDark, unitP, noseRig);
+          const cheekL = mk(steel, unit, noseRig), cheekR = mk(steel, unit, noseRig);
+          const hook = mk(steel, new THREE.CylinderGeometry(0.13, 0.13, 0.62, 12), noseRig);
+          hook.rotation.x = Math.PI / 2;
 
           // Soft contact shadow: radial-gradient canvas texture on a ground plane
           const sc = document.createElement("canvas");
@@ -1444,15 +1427,29 @@
             wallL.position.set(0, wallY, -(d.W - t) / 2);
             wallR.scale.set(d.L, wallH, t);
             wallR.position.set(0, wallY, (d.W - t) / 2);
-            door.scale.set(t, wallH, d.W - 2 * t);
-            door.position.set(-(d.L - t) / 2, wallY, 0);
-            doorBar1.scale.set(0.14, 0.3, d.W * 0.9);
-            doorBar1.position.set(-d.L / 2 - 0.1, yB + d.H * 0.36, 0);
-            doorBar2.scale.set(0.14, 0.3, d.W * 0.9);
-            doorBar2.position.set(-d.L / 2 - 0.1, yB + d.H * 0.72, 0);
-            nose.scale.set(t, d.H - t + 0.55, d.W - 2 * t);
+            rear.scale.set(t, wallH, d.W - 2 * t);
+            rear.position.set(-(d.L - t) / 2, wallY, 0);
+            postL.scale.set(0.3, wallH, 0.32);
+            postL.position.set(-(d.L - t) / 2 - 0.08, wallY, -(d.W / 2 - 0.3));
+            postR.scale.set(0.3, wallH, 0.32);
+            postR.position.set(-(d.L - t) / 2 - 0.08, wallY, (d.W / 2 - 0.3));
+            railL.scale.set(d.L * 0.96, 0.5, 0.12);
+            railL.position.set(0, yB + 0.45, -(d.W / 2 + 0.07));
+            railR.scale.set(d.L * 0.96, 0.5, 0.12);
+            railR.position.set(0, yB + 0.45, (d.W / 2 + 0.07));
+            const noseH = d.H - t + 0.55;
+            nose.scale.set(t, noseH, d.W - 2 * t);
             nose.position.set((d.L - t) / 2, yB + t * 0.75, 0);
             nose.rotation.z = -0.21;
+            noseRig.position.copy(nose.position);
+            noseRig.rotation.z = -0.21;
+            spine.scale.set(0.32, noseH + 0.1, 0.7);
+            spine.position.set(0.12, 0, 0);
+            cheekL.scale.set(0.55, 0.6, 0.1);
+            cheekL.position.set(0.36, noseH * 0.74, -0.27);
+            cheekR.scale.set(0.55, 0.6, 0.1);
+            cheekR.position.set(0.36, noseH * 0.74, 0.27);
+            hook.position.set(0.46, noseH * 0.74, 0);
             rimL.scale.set(d.L + 0.08, 0.24, 0.26);
             rimL.position.set(0, yB + d.H, -(d.W - t) / 2);
             rimR.scale.set(d.L + 0.08, 0.24, 0.26);
@@ -1465,18 +1462,6 @@
             skid2.position.set(0, yB / 2, d.W / 4);
             wheel1.position.set(-d.L / 2 + 1.1, 0.5, -d.W / 4);
             wheel2.position.set(-d.L / 2 + 1.1, 0.5, d.W / 4);
-            const n = Math.max(4, Math.min(MAX_RIBS, Math.round(d.L * 0.47)));
-            for (let i = 0; i < MAX_RIBS; i++) {
-              const show = i < n;
-              const x = -d.L * 0.42 + (i * (d.L * 0.78)) / (n - 1);
-              [ribs[i], ribs[i + MAX_RIBS]].forEach((r, side) => {
-                r.visible = show;
-                if (show) {
-                  r.scale.set(0.2, wallH * 0.86, 0.14);
-                  r.position.set(x, wallY, (side ? 1 : -1) * (d.W / 2 + 0.06));
-                }
-              });
-            }
             shadow.scale.set(d.L + 6, d.W + 7, 1);
             human.position.set(d.L / 2 + 3.1, 0, d.W / 2 + 1.1);
           }
@@ -1514,11 +1499,10 @@
           const el = {
             name: document.getElementById("viz-name"),
             dims: document.getElementById("viz-dims"),
-            price: document.getElementById("viz-price"),
             loads: document.getElementById("viz-loads"),
             copy: document.getElementById("viz-copy")
           };
-          const panelEls = [el.name, el.dims, el.price.parentElement, el.loads, el.copy];
+          const panelEls = [el.name, el.dims, el.loads, el.copy];
           const buttons = [...shell.querySelectorAll(".viz-btn")];
 
           function select(key, instant) {
@@ -1531,7 +1515,6 @@
             const swap = () => {
               el.name.textContent = S.name;
               el.dims.textContent = S.dims;
-              el.price.textContent = S.price;
               el.loads.textContent = "≈ " + S.loads + " pickup truck loads";
               el.copy.textContent = S.copy;
             };
