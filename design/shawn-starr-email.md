@@ -8,10 +8,21 @@ the one-page brochure.
 PDF is the supporting leave-behind. One CTA. Transparent that it's a private
 sample, with an honest take-down date that creates gentle urgency.
 
+**Escalation ladder (one new card per touch):**
+1. **Email 1** — the branded demo (customer experience) + a P.S. pointing at the
+   homepage's live editor (owner experience: "you can change prices yourself").
+   No pricing talk, no discounts — a code in a cold email reads like promo spam
+   and anchors the conversation on price before he's seen the value.
+2. **Follow-up** — take-down deadline + the *offer* ("first month's on me"),
+   still without the code. Gives the bump a fresh reason to exist.
+3. **When he replies** — send the actual `STARRFREE` code. As a direct, personal
+   concession it builds reciprocity; in a blast it's just a coupon.
+
 ## Assets to drop in
 - **Live demo (hero link):** `https://quotebuilder-embed-demo.netlify.app/shawn-starr-custom-homes/`
 - **Brochure (attach as PDF):** `design/shawn-starr-one-pager.html` → open → Cmd/Ctrl+P → Save as PDF
-- **Build / sign up:** `https://quote-builder-pro.com`
+- **Build / sign up:** `https://quote-builder-pro.com` (homepage now runs a live
+  editor sandbox — that's what the P.S. points at)
 - **Booking link:** `{your Calendly/Cal.com link}` (or "just reply")
 
 ## Placeholders to fill
@@ -55,6 +66,9 @@ sample, with an honest take-down date that creates gentle urgency.
 > QuoteBuilder Pro
 > [phone] · [City, ST]
 >
+> P.S. Wondering how hard it is to run? The editor is live on our homepage —
+> change a price and watch the estimate move. No signup: https://quote-builder-pro.com
+>
 > Not interested? Reply "stop" and you won't hear from me again.
 
 ### Alternate subject lines (A/B test)
@@ -67,10 +81,13 @@ sample, with an honest take-down date that creates gentle urgency.
 ## Follow-up (same thread, ~3–4 days before the take-down date)
 
 > Hi Shawn — quick nudge: the Starr-branded demo I built comes down on [date], so
-> I didn't want it to slip by. Even two or three extra quoted kitchen leads a month
-> usually pays for itself several times over. Still here if handy: [link]. Worth 15
-> minutes? If now's not the time, just say "not now" and I'll take it down — no
-> hard feelings.
+> I didn't want it to slip by. Still here if handy: [link]. If you decide to run
+> with it, your first month is on me — and even two or three extra quoted kitchen
+> leads a month usually pays for itself several times over. Worth 15 minutes? If
+> now's not the time, just say "not now" and I'll take it down — no hard feelings.
+
+*(Note: "first month is on me" — the offer, not the code. Send `STARRFREE` only
+in a direct reply, after the Live-mode coupon exists.)*
 
 ---
 
@@ -79,8 +96,12 @@ sample, with an honest take-down date that creates gentle urgency.
 2. **Send to Shawn directly** if you can find his address; `info@starrcustom.com` works, but the owner inbox lands better.
 3. **PDF: attach small (<1 MB), or host + link it** — a PDF on a first cold email can trip spam filters and often goes unopened. Linking deliverers better and shows clicks.
 4. **Keep the CAN-SPAM footer** (real name/business + city + opt-out) and use a real reply-to address.
-5. **One CTA only** — the look/booking. Don't bolt on "and sign up."
+5. **One CTA only** — the look/booking. Don't bolt on "and sign up." (The
+   homepage P.S. is curiosity, not a CTA — keep the *ask* singular.)
 6. **Pick the take-down date (~14 days) and honor it.** The promise only builds trust if you keep it — set a calendar reminder; if no reply by then, pull the demo down (or unpublish the calculator).
+7. **Create the `STARRFREE` coupon in Stripe Live mode *before* sending the
+   follow-up** — it promises the free month, so the code must exist (and work)
+   the moment he replies.
 
 ## Notes
 - "Unlisted and not searchable" is accurate (the demo page is `noindex, nofollow`), but anyone with the link can still open it — honest without overpromising privacy.
@@ -89,6 +110,10 @@ sample, with an honest take-down date that creates gentle urgency.
 ---
 
 ## If Shawn's interested: first-month-free promo code
+
+**Staging:** the code never appears in outbound email. Email 1 doesn't mention
+price at all; the follow-up offers "first month on me" without the code; the
+code itself goes out only in a direct reply once he engages.
 
 The checkout already supports promo codes (`allow_promotion_codes: true` in
 `lib/billing-actions.ts`), so this is a **Stripe Dashboard task — no code change or deploy.**
