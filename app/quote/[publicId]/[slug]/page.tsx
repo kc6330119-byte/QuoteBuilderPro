@@ -6,6 +6,7 @@ import { PublicQuoteForm } from "@/components/public-quote-form";
 import { QuoteBrandMark } from "@/components/quote-brand-mark";
 import { QuoteUnavailable } from "@/components/quote-unavailable";
 import { getQuoteCalculatorByPublicId, recordCalculatorView } from "@/lib/calculator-data";
+import { SITE_DISABLED } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -25,9 +26,9 @@ export default async function SecureQuotePage({
 }) {
   const { publicId, slug } = await params;
   const { legal, submitted } = await searchParams;
-  const calculator = await getQuoteCalculatorByPublicId(publicId, slug);
+  const calculator = SITE_DISABLED ? null : await getQuoteCalculatorByPublicId(publicId, slug);
 
-  if (!calculator || !calculator.isPublished) {
+  if (SITE_DISABLED || !calculator || !calculator.isPublished) {
     return <QuoteUnavailable />;
   }
 

@@ -19,9 +19,11 @@ import {
   Workflow
 } from "lucide-react";
 import { ButtonLink } from "@/components/button";
+import { ComingSoon } from "@/components/coming-soon";
 import { HomeNavAuth } from "@/components/home-nav-auth";
 import { HomePlayground } from "@/components/home-playground";
 import { howToUseSteps, howToUseTips } from "@/lib/how-to-use";
+import { SITE_DISABLED } from "@/lib/site-config";
 
 const softwareJsonLd = {
   "@context": "https://schema.org",
@@ -41,6 +43,10 @@ const softwareJsonLd = {
 };
 
 export default function LandingPage() {
+  if (SITE_DISABLED) {
+    return <ComingSoon />;
+  }
+
   const guideIcons = [BookOpenCheck, Route, CircleDollarSign, CheckCircle2, Workflow, Users];
 
   return (

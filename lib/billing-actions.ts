@@ -5,8 +5,14 @@ import { getCurrentWorkspace } from "@/lib/auth";
 import { getAppUrl, getStripe } from "@/lib/stripe";
 import { getBillingPlanByTier } from "@/lib/plans";
 import { prisma } from "@/lib/prisma";
+import { SITE_DISABLED } from "@/lib/site-config";
 
 export async function createCheckoutSessionAction(formData: FormData) {
+  // Parked-site mode: never let a new subscription start.
+  if (SITE_DISABLED) {
+    redirect("/dashboard/billing?checkout=unavailable");
+  }
+
   const workspace = await getCurrentWorkspace();
   const tier = String(formData.get("tier") ?? "");
   const plan = getBillingPlanByTier(tier);

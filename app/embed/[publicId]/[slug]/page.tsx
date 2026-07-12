@@ -5,6 +5,7 @@ import { PublicQuoteForm } from "@/components/public-quote-form";
 import { QuoteBrandMark } from "@/components/quote-brand-mark";
 import { getQuoteCalculatorByPublicId, recordCalculatorView } from "@/lib/calculator-data";
 import { buildPublicCalculatorFrameKey, buildPublicEmbedPath } from "@/lib/public-calculator-paths";
+import { SITE_DISABLED } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -25,12 +26,12 @@ export default async function SecureEmbedQuotePage({
   const { publicId, slug } = await params;
   const { embedded, legal, returnUrl, submitted } = await searchParams;
   const frameKey = buildPublicCalculatorFrameKey({ publicId, slug });
-  const calculator = await getQuoteCalculatorByPublicId(publicId, slug);
+  const calculator = SITE_DISABLED ? null : await getQuoteCalculatorByPublicId(publicId, slug);
   const isEmbeddedInHostPage = embedded === "1";
   const safeReturnUrl = getSafeReturnUrl(returnUrl);
   const safeReturnLabel = getSafeReturnLabel(safeReturnUrl);
 
-  if (!calculator || !calculator.isPublished) {
+  if (SITE_DISABLED || !calculator || !calculator.isPublished) {
     return (
       <main className="min-h-[420px] bg-white px-4 py-6 text-ink">
         <EmbedResizeReporter frameKey={frameKey} />
